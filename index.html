@@ -1,0 +1,2570 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>PegaFrete | Logística Inteligente</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Firebase SDK Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --primary: #0f172a;
+            --primary-hover: #1e293b;
+            --orange: #f97316;
+            --orange-hover: #ea580c;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text-main);
+            overscroll-behavior-y: none;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+
+        h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 12px;
+            letter-spacing: -0.3px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .screen {
+            display: none;
+            min-height: 100vh;
+            padding: 24px;
+            padding-bottom: 100px;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        #splash.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .ph-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .back-btn {
+            background: #f1f5f9;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            transition: 0.2s;
+        }
+
+        .back-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .topbar h1 {
+            font-size: 22px;
+        }
+
+        .profile-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: var(--orange);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+            cursor: pointer;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            margin-bottom: 24px;
+            border: 1px solid rgba(226, 232, 240, 0.6);
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 16px;
+            top: 16px;
+            font-size: 20px;
+            color: #94a3b8;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 16px;
+            padding-left: 48px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            font-size: 15px;
+            color: var(--text-main);
+            transition: 0.3s;
+            outline: none;
+        }
+
+        textarea {
+            padding-left: 16px;
+            min-height: 120px;
+            resize: none;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--orange);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
+        }
+
+        select {
+            appearance: none;
+            padding-left: 48px;
+        }
+
+        .input-group.no-icon input,
+        .input-group.no-icon select {
+            padding-left: 16px;
+        }
+
+        .btn {
+            width: 100%;
+            border: none;
+            padding: 16px;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn i {
+            font-size: 20px;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-orange {
+            background: var(--orange);
+            color: white;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+        }
+
+        .btn-orange:hover {
+            background: var(--orange-hover);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            background: #f8fafc;
+        }
+
+        .badge-container {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            background: #f1f5f9;
+            color: #475569;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .tag.orange {
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        .tag.blue {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .status-pendente {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .status-transito {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .status-entregue {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .freight-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border);
+            transition: 0.3s;
+        }
+
+        .freight-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+            border-color: #cbd5e1;
+        }
+
+        .route {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .route-arrow {
+            color: #cbd5e1;
+            font-size: 20px;
+        }
+
+        .value {
+            color: #16a34a;
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .list-item:hover {
+            transform: translateX(4px);
+        }
+
+        .list-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        .list-text {
+            flex: 1;
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--text-main);
+        }
+
+        .upload-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .upload-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .upload-item:hover {
+            border-color: var(--orange);
+            background: #fff7ed;
+        }
+
+        .upload-item i.ph-upload-simple {
+            color: var(--text-muted);
+            font-size: 20px;
+        }
+
+        .upload-item.uploaded {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        .upload-item.uploaded p:last-child {
+            color: #b45309;
+        }
+
+        .upload-item.uploaded i.ph-upload-simple {
+            display: none;
+        }
+
+        .online-status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            font-weight: 600;
+            border: 1px solid;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .online-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .role-card {
+            display: flex;
+            align-items: center;
+            padding: 24px;
+            background: white;
+            border-radius: 24px;
+            border: 2px solid var(--border);
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+        }
+
+        .role-card:hover {
+            border-color: var(--orange);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(249, 115, 22, 0.1);
+        }
+
+        .role-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        .role-info h3 {
+            font-size: 18px;
+            color: var(--primary);
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .role-info p {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .role-arrow {
+            margin-left: auto;
+            font-size: 20px;
+            color: var(--text-muted);
+            transition: 0.2s;
+        }
+
+        .role-card:hover .role-arrow {
+            color: var(--orange);
+            transform: translateX(4px);
+        }
+
+        .map-box {
+            width: 100%;
+            height: 200px;
+            border-radius: 20px;
+            background: url('https://images.unsplash.com/photo-1524661135-423995f22d0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .map-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .map-overlay i {
+            font-size: 32px;
+            color: var(--orange);
+            margin-bottom: 8px;
+        }
+
+        .navbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #ffffff;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0 calc(12px + env(safe-area-inset-bottom));
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+            border-top: 1px solid var(--border);
+            z-index: 1000;
+            transition: opacity 0.3s;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #94a3b8;
+            font-size: 11px;
+            font-weight: 600;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-item i {
+            font-size: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-item.active i {
+            color: var(--orange);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: calc(50% - 12px);
+            background: #ef4444;
+            color: #fff;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            border: 2px solid white;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-150px);
+            background: var(--primary);
+            color: white;
+            padding: 14px 24px;
+            border-radius: 16px;
+            font-weight: 500;
+            font-size: 14px;
+            z-index: 9999;
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: max-content;
+            max-width: 90%;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .chat-bubble {
+            background: #f1f5f9;
+            padding: 16px;
+            border-radius: 20px 20px 20px 4px;
+            margin-bottom: 16px;
+            max-width: 85%;
+        }
+
+        .chat-bubble.me {
+            background: var(--orange);
+            color: white;
+            border-radius: 20px 20px 4px 20px;
+            margin-left: auto;
+        }
+
+        .chat-bubble.me .chat-time {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .chat-sender {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .chat-text {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .chat-time {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-align: right;
+            margin-top: 4px;
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .chat-input-area input {
+            margin-bottom: 0;
+            border-radius: 999px;
+        }
+
+        .btn-send {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            z-index: 2000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .modal-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 85vh;
+            background: #f8fafc;
+            border-radius: 24px 24px 0 0;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            background: white;
+            border-radius: 24px 24px 0 0;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            background: white;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            background: white;
+            border-top: 1px solid var(--border);
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.03);
+        }
+
+        .filter-section {
+            margin-bottom: 32px;
+        }
+
+        .filter-section h3 {
+            font-size: 14px;
+            margin-bottom: 12px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .pill-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .pill {
+            padding: 10px 16px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+
+        .pill:hover {
+            border-color: var(--text-muted);
+        }
+
+        .pill.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .pill.active i {
+            color: #f59e0b;
+        }
+
+        .icon-btn {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-main);
+        }
+
+        .text-btn {
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--primary);
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+            padding: 0;
+            border: none;
+            box-shadow: none;
+            margin-top: 12px;
+        }
+
+        input[type=range]:focus {
+            outline: none;
+            box-shadow: none;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: var(--border);
+            border-radius: 999px;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: var(--orange);
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -9px;
+            box-shadow: 0 2px 6px rgba(249, 115, 22, 0.4);
+            border: 2px solid white;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-4 {
+            margin-top: 16px;
+        }
+
+        .mb-4 {
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Toast (Notificações) -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Barra de Navegação Inferior (Global e Fixa) -->
+    <nav id="bottomNav" class="navbar" style="display: none;">
+        <div class="nav-item" data-target="home" onclick="goHome()">
+            <i class="ph ph-house"></i>
+            <span>Início</span>
+        </div>
+
+        <!-- Apenas Motorista -->
+        <div class="nav-item driver-only" data-target="freights" onclick="navTo('freights_search')">
+            <i class="ph ph-magnifying-glass"></i>
+            <span>Busca</span>
+        </div>
+
+        <!-- Apenas Embarcador -->
+        <div class="nav-item shipper-only" data-target="shipper_publish" onclick="navTo('shipper_publish')"
+            style="display:none;">
+            <i class="ph ph-plus-circle"></i>
+            <span>Anunciar</span>
+        </div>
+
+        <!-- Apenas Embarcador -->
+        <div class="nav-item shipper-only" data-target="my_freights" onclick="navTo('shipper_history')"
+            style="display:none;">
+            <i class="ph ph-list-checks"></i>
+            <span>Envios</span>
+        </div>
+
+        <div class="nav-item" data-target="chat" onclick="navTo('chat')">
+            <i class="ph ph-chat-circle-dots"></i>
+            <span>Mensagens</span>
+            <div class="notification-badge">2</div>
+        </div>
+        <div class="nav-item" data-target="profile" onclick="navTo('profile')">
+            <i class="ph ph-user"></i>
+            <span>Perfil</span>
+        </div>
+    </nav>
+
+    <!-- MODAL DE FILTROS (Busca Motorista) -->
+    <div id="filterModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Filtros e ordenação</h2>
+                <button class="text-btn" onclick="limparFiltros()">Limpar filtros</button>
+                <button class="icon-btn" onclick="closeFilters()"><i class="ph ph-x"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="filter-section">
+                    <h3>Destino da carga (opcional)</h3>
+                    <select
+                        style="width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); background: transparent;">
+                        <option>Estado, Região ou País</option>
+                    </select>
+                </div>
+                <div class="filter-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3>Veículos e carrocerias</h3>
+                        <span id="distValue" style="color: var(--orange); font-weight: 700;">250 km</span>
+                    </div>
+                    <p style="font-size: 13px; color: var(--text-muted);">De Aracaju, SE</p>
+                    <input type="range" id="distSlider" min="0" max="500" value="250"
+                        oninput="document.getElementById('distValue').innerText = this.value + ' km'">
+                    <div
+                        style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+                        <span>0 km</span>
+                        <span>500 km</span>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <p class="subtitle" style="font-size: 12px; margin-bottom: 12px;">Selecione quantas opções desejar
+                    </p>
+                    <h4
+                        style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">
+                        Leves</h4>
+                    <div class="pill-group">
+                        <div class="pill" onclick="togglePill(this)">3/4</div>
+                        <div class="pill" onclick="togglePill(this)">Toco</div>
+                        <div class="pill active" onclick="togglePill(this)"><i class="ph-fill ph-star"></i> VLC</div>
+                        <div class="pill" onclick="togglePill(this)">Fiorino</div>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h4
+                        style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">
+                        Médios</h4>
+                    <div class="pill-group">
+                        <div class="pill" onclick="togglePill(this)">Truck</div>
+                        <div class="pill" onclick="togglePill(this)">Bitruck</div>
+                        <div class="pill" onclick="togglePill(this)">Todos</div>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h4
+                        style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">
+                        Pesados</h4>
+                    <div class="pill-group">
+                        <div class="pill" onclick="togglePill(this)">Carreta</div>
+                        <div class="pill" onclick="togglePill(this)">Carreta LS</div>
+                        <div class="pill" onclick="togglePill(this)">Bitrem</div>
+                        <div class="pill" onclick="togglePill(this)">Rodotrem</div>
+                        <div class="pill" onclick="togglePill(this)">Vanderléia</div>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h4
+                        style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">
+                        Especiais</h4>
+                    <div class="pill-group">
+                        <div class="pill" onclick="togglePill(this)">Caçamba</div>
+                        <div class="pill" onclick="togglePill(this)">Silo</div>
+                        <div class="pill" onclick="togglePill(this)">Graneleiro</div>
+                        <div class="pill" onclick="togglePill(this)">Plataforma</div>
+                        <div class="pill" onclick="togglePill(this)">Prancha</div>
+                        <div class="pill" onclick="togglePill(this)">Tanque</div>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h4
+                        style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">
+                        Fechadas</h4>
+                    <div class="pill-group">
+                        <div class="pill" onclick="togglePill(this)">Sider</div>
+                        <div class="pill active" onclick="togglePill(this)"><i class="ph-fill ph-star"></i> Baú</div>
+                        <div class="pill" onclick="togglePill(this)">Baú Refrigerado</div>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h3>Detalhes do Frete</h3>
+                    <div class="pill-group" style="margin-bottom: 16px;">
+                        <div class="pill" onclick="togglePill(this)">Fretes com preço</div>
+                    </div>
+
+                    <h4
+                        style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">
+                        Tipo de Carga</h4>
+                    <div class="pill-group" style="margin-bottom: 16px;">
+                        <div class="pill" onclick="togglePill(this)">Carga completa</div>
+                        <div class="pill" onclick="togglePill(this)">Complemento</div>
+                    </div>
+
+                    <h4
+                        style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">
+                        Rastreamento</h4>
+                    <div class="pill-group">
+                        <div class="pill" onclick="togglePill(this)">Com rastreamento</div>
+                        <div class="pill" onclick="togglePill(this)">Sem rastreamento</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" style="margin: 0; padding: 18px;" onclick="aplicarFiltros()">Aplicar
+                    Filtros e Ver Cargas</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE EDIÇÃO DE CARGAS (Embarcador) -->
+    <div id="editFreightModal" class="modal-overlay">
+        <div class="modal-content" style="height: 85vh;">
+            <div class="modal-header">
+                <h2>Editar Carga</h2>
+                <button class="icon-btn" onclick="fecharEdicaoFrete()"><i class="ph ph-x"></i></button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">Atualize as informações
+                    completas da carga.</p>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                    <div class="input-group no-icon" style="margin: 0;">
+                        <span
+                            style="font-size: 10px; font-weight: 700; color: var(--orange); display: block; margin-bottom: 4px;">CIDADE
+                            ORIGEM</span>
+                        <input id="editOrigem" type="text" placeholder="Origem" />
+                    </div>
+                    <div class="input-group no-icon" style="margin: 0;">
+                        <span
+                            style="font-size: 10px; font-weight: 700; color: #10b981; display: block; margin-bottom: 4px;">CIDADE
+                            DESTINO</span>
+                        <input id="editDestino" type="text" placeholder="Destino" />
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                    <div class="input-group no-icon" style="margin: 0;">
+                        <span
+                            style="font-size: 10px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">TIPO
+                            DE CARGA</span>
+                        <select id="editTipo">
+                            <option>Carga Leve</option>
+                            <option>Fracionada</option>
+                            <option>Carga Fechada</option>
+                        </select>
+                    </div>
+                    <div class="input-group no-icon" style="margin: 0;">
+                        <span
+                            style="font-size: 10px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">VEÍCULO</span>
+                        <select id="editVeiculo">
+                            <option>VLC</option>
+                            <option>VUC</option>
+                            <option>Toco</option>
+                            <option>Truck</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-group no-icon">
+                    <span
+                        style="font-size: 10px; font-weight: 700; color: #10b981; display: block; margin-bottom: 4px;">VALOR
+                        DA OFERTA (PIX)</span>
+                    <input id="editValor" type="text" placeholder="R$ 0,00" oninput="maskMoney(this)"
+                        style="font-weight: 700; color: #10b981; font-size: 18px;" />
+                </div>
+
+                <div class="input-group no-icon">
+                    <span
+                        style="font-size: 10px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">OBSERVAÇÕES
+                        DO EMBARCADOR</span>
+                    <textarea id="editObs" placeholder="Ex: Mercadoria alocada em paletes..."
+                        style="min-height: 80px;"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" style="margin: 0;" onclick="salvarEdicaoFrete(this)">Salvar
+                    Alterações</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TELA: SPLASH -->
+    <section id="splash" class="screen active"
+        style="flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: var(--bg);">
+        <i class="ph-fill ph-truck"
+            style="font-size: 80px; color: var(--orange); margin-bottom: 24px; animation: bounce 2s infinite;"></i>
+        <h1 style="font-size: 36px;">Pega<span style="color: var(--orange);">Frete</span></h1>
+        <p class="subtitle" style="margin-top: 12px; font-weight: 500;">Carregando...</p>
+        <style>
+            @keyframes bounce {
+
+                0%,
+                100% {
+                    transform: translateY(0);
+                }
+
+                50% {
+                    transform: translateY(-15px);
+                }
+            }
+        </style>
+    </section>
+
+    <!-- TELA: VERIFICAÇÃO DE TELEFONE -->
+    <section id="phone_check" class="screen">
+        <div class="text-center" style="margin-top: 40px; margin-bottom: 32px;">
+            <!-- <i class="ph-fill ph-truck" style="font-size: 48px; color: var(--orange); margin-bottom: 12px;"></i> -->
+            <h1 style="font-size: 28px;">Pega<span style="color: var(--orange);">Frete</span></h1>
+        </div>
+
+        <div class="text-center" style="margin-bottom: 32px;">
+
+            <h2>Bem-vindo!</h2>
+            <p class="subtitle" style="margin-top: 8px;">Para começar, insira seu número de telefone.</p>
+        </div>
+
+        <div class="card">
+            <div class="input-group">
+                <i class="ph ph-phone"></i>
+                <input type="tel" id="checkPhone" placeholder="(00) 00000-0000" oninput="maskPhone(this)" />
+            </div>
+            <div id="recaptcha-container"></div> <!-- Necessário para o Firebase Phone Auth -->
+            <button class="btn btn-primary mt-4" id="btnSendSms" onclick="verificarTelefone(this)">
+                Enviar Código via SMS <i class="ph ph-paper-plane-tilt"></i>
+            </button>
+        </div>
+    </section>
+
+    <!-- TELA: VERIFICAÇÃO DE CÓDIGO (OTP) -->
+    <section id="otp_verify" class="screen">
+        <div class="topbar">
+            <button class="back-btn" onclick="navTo('phone_check')"><i class="ph ph-arrow-left"></i></button>
+            <h1>Validar Telefone</h1>
+            <div style="width: 44px;"></div>
+        </div>
+
+        <div class="text-center" style="margin-top: 40px; margin-bottom: 32px;">
+            <i class="ph-fill ph-shield-check" style="font-size: 64px; color: var(--orange); margin-bottom: 16px;"></i>
+            <h2>Confirmar Código</h2>
+            <p class="subtitle" style="margin-top: 8px;">Insira o código de 6 dígitos enviado para seu aparelho.</p>
+        </div>
+
+        <div class="card">
+            <div class="input-group no-icon">
+                <input type="tel" id="otpCode" placeholder="000000"
+                    style="text-align: center; font-size: 24px; letter-spacing: 12px; font-weight: 800;"
+                    oninput="if(this.value.length > 6) this.value = this.value.slice(0,6)" />
+            </div>
+            <button class="btn btn-primary mt-4" onclick="confirmarCodigo(this)">
+                Confirmar e Prosseguir <i class="ph ph-check-circle"></i>
+            </button>
+            <button class="text-btn mt-4" style="color: var(--text-muted);" onclick="goBack()">Não recebi o
+                código</button>
+        </div>
+    </section>
+
+    <!-- TELA: LOGIN -->
+    <section id="login" class="screen">
+        <div class="topbar">
+            <button class="back-btn" onclick="navTo('phone_check')"><i class="ph ph-arrow-left"></i></button>
+            <h1>Fazer Login</h1>
+            <div style="width: 44px;"></div>
+        </div>
+
+        <div class="text-center" style="margin-top: 24px; margin-bottom: 32px;">
+            <p class="subtitle">Insira sua senha para acessar a plataforma.</p>
+        </div>
+
+        <div class="card">
+            <div class="input-group">
+                <i class="ph ph-envelope-simple"></i>
+                <input type="email" id="loginEmail" placeholder="Seu e-mail" />
+            </div>
+            <div class="input-group">
+                <i class="ph ph-lock-key"></i>
+                <input type="password" id="loginPassword" placeholder="Sua senha" />
+            </div>
+            <button class="btn btn-primary mt-4" onclick="fazerLogin(this)">
+                Acessar Plataforma <i class="ph ph-sign-in"></i>
+            </button>
+            <div class="text-center mt-4">
+                <button class="text-btn" style="color: var(--text-muted);">Esqueci minha senha</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- TELA: ESCOLHA DE PERFIL -->
+    <section id="choice" class="screen">
+        <div class="topbar">
+            <button class="back-btn" onclick="navTo('phone_check')"><i class="ph ph-arrow-left"></i></button>
+            <h1>Criar Conta</h1>
+            <div style="width: 44px;"></div>
+        </div>
+
+        <div class="text-center" style="margin-top: 24px; margin-bottom: 32px;">
+            <h2 style="font-size: 28px; margin-bottom: 8px;">Como deseja atuar?</h2>
+            <p class="subtitle">Selecione o seu perfil para realizar o cadastro.</p>
+        </div>
+
+        <div class="role-card" onclick="iniciarCadastro('shipper')">
+            <div class="role-icon" style="background: #eff6ff; color: #3b82f6;"><i class="ph-fill ph-buildings"></i>
+            </div>
+            <div class="role-info">
+                <h3>Embarcador</h3>
+                <p>Tenho cargas e preciso de transportadores qualificados.</p>
+            </div>
+            <i class="ph ph-caret-right role-arrow"></i>
+        </div>
+
+        <div class="role-card" onclick="iniciarCadastro('driver')">
+            <div class="role-icon" style="background: #fff7ed; color: #ea580c;"><i
+                    class="ph-fill ph-steering-wheel"></i></div>
+            <div class="role-info">
+                <h3>Transportador</h3>
+                <p>Tenho veículo e quero encontrar cargas na minha região.</p>
+            </div>
+            <i class="ph ph-caret-right role-arrow"></i>
+        </div>
+    </section>
+
+    <!-- TELA: CADASTRO EMBARCADOR -->
+    <section id="register_shipper" class="screen">
+        <div class="topbar">
+            <button class="back-btn" onclick="navTo('choice')"><i class="ph ph-arrow-left"></i></button>
+            <h1>Cadastro Embarcador</h1>
+            <div style="width: 44px;"></div>
+        </div>
+
+        <div class="card">
+            <p class="subtitle" style="margin-bottom: 16px;">Preencha os dados da sua empresa.</p>
+
+            <div class="input-group no-icon"><input type="text" id="regShipperName" placeholder="Nome do Responsável" />
+            </div>
+            <div class="input-group no-icon"><input type="text" id="regShipperRazao"
+                    placeholder="Razão Social (Sem abreviações)" /></div>
+            <div class="input-group no-icon"><input type="text" id="regShipperCnpj" placeholder="CNPJ"
+                    oninput="maskCNPJ(this)" /></div>
+            <div class="input-group no-icon"><input type="email" id="regShipperEmail" placeholder="E-mail" /></div>
+            <div class="input-group no-icon"><input type="tel" id="regShipperPhone"
+                    placeholder="Telefone do aparelho atual" oninput="maskPhone(this)" /></div>
+            <div class="input-group no-icon"><input type="text" id="regShipperAddress"
+                    placeholder="Endereço Completo" /></div>
+
+            <button class="btn btn-primary mt-4" onclick="irParaSenha()">
+                Próxima Etapa <i class="ph ph-arrow-right"></i>
+            </button>
+        </div>
+    </section>
+
+    <!-- TELA: CADASTRO TRANSPORTADOR -->
+    <section id="register_driver" class="screen">
+        <div class="topbar">
+            <button class="back-btn" onclick="navTo('choice')"><i class="ph ph-arrow-left"></i></button>
+            <h1>Cadastro Transportador</h1>
+            <div style="width: 44px;"></div>
+        </div>
+
+        <div class="card">
+            <p class="subtitle" style="margin-bottom: 16px;">Preencha seus dados pessoais.</p>
+
+            <div class="input-group no-icon"><input type="text" id="regDriverName" placeholder="Nome Completo" /></div>
+            <div class="input-group no-icon"><input type="text" id="regDriverCpf" placeholder="CPF"
+                    oninput="maskCPF(this)" /></div>
+            <div class="input-group no-icon"><input type="email" id="regDriverEmail" placeholder="E-mail" /></div>
+            <div class="input-group no-icon"><input type="tel" id="regDriverPhone"
+                    placeholder="Telefone do aparelho atual" oninput="maskPhone(this)" /></div>
+            <div class="input-group no-icon"><input type="text" id="regDriverAddress" placeholder="Endereço Completo" />
+            </div>
+
+            <button class="btn btn-primary mt-4" onclick="irParaSenha()">
+                Próxima Etapa <i class="ph ph-arrow-right"></i>
+            </button>
+        </div>
+    </section>
+
+    <!-- TELA: CRIAÇÃO DE SENHA -->
+    <section id="register_password" class="screen">
+        <div class="topbar">
+            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
+            <h1>Criar Senha</h1>
+            <div style="width: 44px;"></div>
+        </div>
+
+        <div class="card">
+            <p class="subtitle" style="margin-bottom: 16px;">Para sua segurança, a senha deve conter pelo menos 8
+                dígitos, uma letra maiúscula e um caractere especial (!@#$).</p>
+
+            <div class="input-group">
+                <i class="ph ph-lock-key"></i>
+                <input type="password" id="regPassword" placeholder="Crie uma senha forte"
+                    oninput="checkPasswordRequirements(this.value)" />
+            </div>
+
+            <!-- Checklist de requisitos da senha -->
+            <div class="password-checklist"
+                style="margin-top: -8px; margin-bottom: 16px; padding: 12px; background: #f1f5f9; border-radius: 12px;">
+                <p style="font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px;">REQUISITOS
+                    DA SENHA:</p>
+                <div class="req-item" id="req-len"
+                    style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                    <i class="ph ph-circle"></i> Mínimo de 8 caracteres
+                </div>
+                <div class="req-item" id="req-upper"
+                    style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                    <i class="ph ph-circle"></i> Pelo menos uma letra maiúscula
+                </div>
+                <div class="req-item" id="req-number"
+                    style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                    <i class="ph ph-circle"></i> Pelo menos um número
+                </div>
+                <div class="req-item" id="req-special"
+                    style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted);">
+                    <i class="ph ph-circle"></i> Um caractere especial (@, #, $, etc)
+                </div>
+            </div>
+
+            <div class="input-group">
+                <i class="ph ph-lock-key"></i>
+                <input type="password" id="regPasswordConfirm" placeholder="Confirme sua senha" />
+            </div>
+
+            <button class="btn btn-orange mt-4" onclick="finalizarCadastro(this)">
+                Finalizar Cadastro <i class="ph ph-check-circle"></i>
+            </button>
+        </div>
+    </section>
+
+    <!-- TELA: DASHBOARD MOTORISTA (HOME) -->
+    <section id="driver" class="screen">
+        <div class="topbar">
+            <div>
+                <h1 style="font-size: 24px; color: var(--primary);">Olá, Emerson</h1>
+                <p style="color: var(--text-muted); font-size: 14px;">Pronto para pegar a estrada?</p>
+            </div>
+            <div class="profile-avatar" onclick="navTo('profile')"
+                style="background: url('https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80') center/cover;">
+            </div>
+        </div>
+
+        <!-- Modificado para iniciar como oculto por padrão -->
+        <div class="online-status" id="driverStatusBox"
+            style="background:#fef2f2; border-color:#fecaca; color:#991b1b;">
+            <div class="online-indicator" id="driverStatusIndicator">
+                <div class="dot" style="background:#ef4444; box-shadow:none; animation:none;"></div>
+                Oculto no Radar
+            </div>
+            <button class="btn btn-outline" id="driverStatusBtn"
+                style="width: auto; padding: 8px 16px; margin: 0; border-radius: 999px; font-size: 13px; border-color:#22c55e; color:#22c55e;"
+                onclick="toggleStatus(this)">Ficar Online</button>
+        </div>
+
+        <h2 class="mb-4" style="margin-top: 16px;">Destaques do Radar</h2>
+        <div id="dynamicFreights"></div>
+        <button class="btn btn-outline mt-4" onclick="navTo('freights_search')">
+            Ver Todas as Cargas <i class="ph ph-arrow-right"></i>
+        </button>
+    </section>
+
+    <!-- TELA: BUSCA DE CARGAS (SEARCH LIST) -->
+    <section id="freights_search" class="screen">
+        <div class="topbar">
+            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
+            <h1>Buscar Cargas</h1>
+            <div style="width: 44px;"></div>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-bottom: 24px;">
+            <div class="input-group" style="flex: 1; margin-bottom: 0;">
+                <i class="ph ph-magnifying-glass"></i>
+                <input type="text" id="searchFrete" placeholder="Buscar por cidade..." onkeyup="buscarFretes()">
+            </div>
+            <button class="btn btn-primary" style="width: 56px; margin: 0; padding: 0; border-radius: 16px;"
+                onclick="openFilters()">
+                <i class="ph ph-sliders-horizontal"></i>
+            </button>
+        </div>
+
+        <div id="dynamicFreightsSearch"></div>
+    </section>
+
+    <!-- TELA: DASHBOARD EMBARCADOR -->
+    <section id="shipper" class="screen">
+        <div class="topbar">
+            <div>
+                <h1 style="font-size: 24px; color: var(--primary);">Distribuidora XPTO</h1>
+                <p style="color: var(--text-muted); font-size: 14px;">Gerencie seus envios de forma inteligente.</p>
+            </div>
+            <div class="profile-avatar" onclick="navTo('profile')">XP</div>
+        </div>
+
+        <div class="card"
+            style="background: linear-gradient(135deg, var(--primary), #1e293b); color: white; padding: 24px; border: none; margin-bottom: 32px; position: relative; overflow: hidden;">
+            <div style="position: relative; z-index: 2;">
+                <h2 style="color: white; margin-bottom: 8px;">Precisa de transporte?</h2>
+                <p style="color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 20px; max-width: 80%;">Publique
+                    sua carga agora e receba propostas de motoristas verificados em minutos.</p>
+                <button class="btn btn-orange" style="width: auto; padding: 12px 24px; margin: 0;"
+                    onclick="navTo('shipper_publish')">
+                    Publicar Nova Carga <i class="ph ph-plus-circle"></i>
+                </button>
+            </div>
+            <i class="ph-fill ph-truck"
+                style="position: absolute; right: -20px; bottom: -20px; font-size: 120px; color: rgba(255,255,255,0.05); transform: rotate(-15deg);"></i>
+        </div>
+
+        <h2 class="mb-4">Seus Envios Ativos</h2>
+        <div id="shipperActiveFreights">
+            <!-- Cargas dinâmicas aparecem aqui -->
+        </div>
+    </section>
+
+    <!-- TELA: PUBLICAR CARGA (NOVA ABA) -->
+    <section id="shipper_publish" class="screen">
+        <div class="topbar">
+            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
+            <h1>Anunciar Carga</h1>
+            <div style="width: 44px;"></div>
+        </div>
+
+        <div class="card"
+            style="padding: 0; overflow: hidden; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.06); margin-bottom: 32px;">
+            <div style="background: var(--primary); padding: 24px; color: white;">
+                <h2 style="color: white; margin-bottom: 4px; font-size: 18px;">Detalhes do Anúncio</h2>
+                <p style="color: rgba(255,255,255,0.7); font-size: 13px; margin: 0;">Preencha todos os campos para
+                    atrair os melhores motoristas.</p>
+            </div>
+            <div style="padding: 24px; background: white;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                    <div class="input-group no-icon" style="margin: 0;">
+                        <span
+                            style="font-size: 10px; font-weight: 700; color: var(--orange); display: block; margin-bottom: 4px; text-transform: uppercase;">Cidade
+                            Origem</span>
+                        <input id="origem" type="text" placeholder="Ex: Salvador, BA" style="font-weight: 600;" />
+                    </div>
+                    <div class="input-group no-icon" style="margin: 0;">
+                        <span
+                            style="font-size: 10px; font-weight: 700; color: #10b981; display: block; margin-bottom: 4px; text-transform: uppercase;">Cidade
+                            Destino</span>
+                        <input id="destino" type="text" placeholder="Ex: Alagoinhas, BA" style="font-weight: 600;" />
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                    <div class="input-group no-icon" style="margin: 0;">
+                        <span
+                            style="font-size: 10px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px; text-transform: uppercase;">Tipo
+                            de Carga</span>
+                        <select id="tipoCarga" style="font-weight: 600;">
+                            <option value="" disabled selected>Selecione...</option>
+                            <option value="Carga Leve">Carga Leve</option>
+                            <option value="Fracionada">Fracionada</option>
+                            <option value="Carga Fechada">Carga Fechada</option>
+                            <option value="Complemento">Complemento</option>
+                        </select>
+                    </div>
+                    <div class="input-group no-icon" style="margin: 0;">
+                        <span
+                            style="font-size: 10px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px; text-transform: uppercase;">Veículo</span>
+                        <select id="veiculo" style="font-weight: 600;">
+                            <option value="" disabled selected>Selecione...</option>
+                            <option value="VLC">VLC</option>
+                            <option value="VUC">VUC</option>
+                            <option value="Toco">Toco</option>
+                            <option value="Truck">Truck</option>
+                            <option value="Carreta">Carreta</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-group no-icon" style="margin-bottom: 16px;">
+                    <span
+                        style="font-size: 10px; font-weight: 700; color: #10b981; display: block; margin-bottom: 4px; text-transform: uppercase;">Valor
+                        da Oferta (PIX)</span>
+                    <input id="valorFrete" type="text" placeholder="R$ 0,00" oninput="maskMoney(this)"
+                        style="font-size: 18px; font-weight: 800; color: #10b981;" />
+                </div>
+
+                <div class="input-group no-icon" style="margin-bottom: 24px;">
+                    <span
+                        style="font-size: 10px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px; text-transform: uppercase;">Observações
+                        do Embarcador</span>
+                    <textarea id="obsCarga" placeholder="Ex: Mercadoria em paletes, carga seca, exige ajudante..."
+                        style="min-height: 100px; padding: 12px;"></textarea>
+                </div>
+
+                <button class="btn btn-primary" style="margin: 0; font-size: 16px; padding: 18px;" id="btnPublicar"
+                    onclick="publicarFrete(this)">
+                    Lançar Frete no Radar <i class="ph ph-broadcast"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <h2 class="mb-4">Seus Envios Ativos</h2>
+    <div id="shipperActiveFreights">
+        <!-- Cargas dinâmicas aparecem aqui -->
+    </div>
+    </section>
+
+    <!-- TELA: HISTÓRICO DE ENVIOS (Menu Inferior Embarcador) -->
+    <section id="shipper_history" class="screen">
+        <div class="topbar">
+            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
+            <h1>Histórico de Cargas</h1>
+            <div style="width: 44px;"></div>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-bottom: 24px; overflow-x: auto; padding-bottom: 8px;">
+            <div class="tag active" style="background:var(--primary); color:white; white-space:nowrap; cursor:pointer;">
+                Concluídas</div>
+            <div class="tag" style="white-space:nowrap; cursor:pointer;">Canceladas</div>
+        </div>
+
+        <div class="freight-card">
+            <div class="status-badge status-entregue">
+                <i class="ph-fill ph-check-circle"></i> Entregue com Sucesso
+            </div>
+            <div class="route">
+                <span>Aracaju</span>
+                <i class="ph ph-arrow-right route-arrow"></i>
+                <span>Maceió</span>
+            </div>
+            <div class="value">R$ 1.100,00</div>
+            <p style="font-size: 13px; color: var(--text-muted);">Finalizado em 02/05/2026</p>
+        </div>
+    </section>
+
+    <!-- TELA: DETALHES DA CARGA -->
+    <section id="freightDetails" class="screen">
+        <div class="topbar">
+            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
+            <h1>Detalhes da Carga</h1>
+            <div style="width: 44px;"></div>
+        </div>
+
+        <div class="map-box">
+            <div class="map-overlay">
+                <i class="ph-fill ph-map-pin"></i>
+                <span style="font-weight: 600; font-size: 14px;">Rota e Rastreador Inteligente</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="route" style="font-size: 18px; margin-bottom: 16px;" id="detailRoute">
+                Origem <i class="ph ph-arrow-right route-arrow"></i> Destino
+            </div>
+
+            <div class="badge-container" id="detailBadges"></div>
+
+            <div style="margin: 24px 0; border-top: 1px solid var(--border); padding-top: 24px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px;">
+                    <span style="color: var(--text-muted);">Coleta</span>
+                    <strong id="detailOriginText">--</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px;">
+                    <span style="color: var(--text-muted);">Entrega</span>
+                    <strong id="detailDestinationText">--</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px;">
+                    <span style="color: var(--text-muted);">Pagamento (PIX)</span>
+                    <strong id="detailPaymentText" style="color: #16a34a; font-size: 18px;">R$ 0,00</strong>
+                </div>
+            </div>
+
+            <div
+                style="background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 24px;">
+                <p style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 8px;">OBSERVAÇÕES
+                    DO EMBARCADOR</p>
+                <p id="detailObsText" style="font-size: 14px; line-height: 1.5;">Mercadoria alocada em paletes.
+                    Pagamento garantido e
+                    liberado automaticamente na plataforma após a confirmação da entrega (Baixa de Canhoto Digital).</p>
+            </div>
+
+            <button class="btn btn-orange" onclick="aceitarFrete(this)">
+                Aceitar e Iniciar Viagem <i class="ph ph-steering-wheel"></i>
+            </button>
+            <button class="btn btn-outline" onclick="navTo('chat')">
+                Falar com Embarcador <i class="ph ph-chat-circle-dots"></i>
+            </button>
+        </div>
+    </section>
+
+    <!-- TELA: PERFIL / CONFIGURAÇÕES -->
+    <section id="profile" class="screen">
+        <div class="topbar">
+            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
+            <h1>Configurações e Perfil</h1>
+            <div style="width: 44px;"></div>
+        </div>
+
+        <div class="card text-center" style="padding-top: 32px;">
+            <div style="position: relative; display: inline-block; margin-bottom: 16px;">
+                <div class="profile-avatar"
+                    style="width: 96px; height: 96px; font-size: 36px; border-radius: 50%; margin: 0; background: url('https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80') center/cover;">
+                </div>
+                <button class="btn btn-primary" id="btnPhoto"
+                    style="position: absolute; bottom: 0; right: 0; width: 36px; height: 36px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);"
+                    onclick="handleUpload('btnPhoto', 'Foto de Perfil', true)">
+                    <i class="ph-fill ph-camera" style="font-size: 16px; margin: 0;"></i>
+                </button>
+            </div>
+            <h2 style="margin-bottom: 4px;">Emerson Martins</h2>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">Conta Verificada <i
+                    class="ph-fill ph-seal-check" style="color: #0ea5e9;"></i></p>
+
+            <!-- Avaliação Média adaptada para o perfil -->
+            <div class="profile-stats" style="display: flex; justify-content: center; gap: 32px; margin: 24px 0;">
+                <div>
+                    <p style="font-size: 24px; font-weight: 800; color: var(--primary);">4.9</p>
+                    <p style="font-size: 12px; color: var(--text-muted);">Avaliação <i class="ph-fill ph-star"
+                            style="color: #f59e0b;"></i></p>
+                </div>
+                <div style="width: 1px; background: var(--border);"></div>
+                <div>
+                    <p style="font-size: 24px; font-weight: 800; color: var(--primary);">124</p>
+                    <p style="font-size: 12px; color: var(--text-muted);">Concluídas</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="padding: 12px 16px;">
+            <div class="list-item" onclick="navTo('financial')">
+                <div class="list-icon" style="background: #ecfdf5; color: #10b981;"><i class="ph-fill ph-wallet"></i>
+                </div>
+                <div class="list-text">Carteira Digital (Financeiro)</div>
+                <i class="ph ph-caret-right" style="color: var(--text-muted);"></i>
+            </div>
+            <div class="list-item" onclick="navTo('choice')">
+                <div class="list-icon" style="background: #fef2f2; color: #ef4444;"><i
+                        class="ph-fill ph-arrows-left-right"></i></div>
+                <div class="list-text" id="changeRoleText">Mudar para Embarcador</div>
+                <i class="ph ph-caret-right" style="color: var(--text-muted);"></i>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size: 16px; margin-bottom: 16px; color: var(--primary);">Dados Pessoais</h3>
+            <div class="input-group no-icon"><input type="text" id="profName" placeholder="Nome Completo" />
+            </div>
+            <div class="input-group no-icon"><input type="email" id="profEmail" readonly
+                    style="background: #e2e8f0; color: #64748b;" /></div>
+            <div class="input-group no-icon"><input type="text" id="profPhone" placeholder="Celular / WhatsApp" /></div>
+            <div class="input-group no-icon"><input type="text" id="profAddress"
+                    placeholder="Endereço (Cidade - Estado)" /></div>
+            <button class="btn btn-outline" style="margin-bottom: 0;" onclick="salvarPerfil(this)">Salvar Dados</button>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size: 16px; margin-bottom: 8px; color: var(--primary);">Documentação (Segurança)</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.4;">Estes
+                documentos serão validados internamente pela equipe administrativa.</p>
+
+            <div class="upload-list">
+                <div class="upload-item" id="upCNH" onclick="handleUpload('upCNH', 'CNH')">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <i class="ph-fill ph-identification-card" style="font-size: 28px; color: var(--orange);"></i>
+                        <div style="text-align: left;">
+                            <p style="font-weight: 700; font-size: 14px; color: var(--primary);">CNH</p>
+                            <p style="font-size: 12px; color: var(--text-muted); font-weight: 500;">Pendente envio</p>
+                        </div>
+                    </div>
+                    <i class="ph ph-upload-simple"></i>
+                </div>
+
+                <div class="upload-item" id="upCPF" onclick="handleUpload('upCPF', 'Documento CPF')">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <i class="ph-fill ph-cardholder" style="font-size: 28px; color: var(--orange);"></i>
+                        <div style="text-align: left;">
+                            <p style="font-weight: 700; font-size: 14px; color: var(--primary);">CPF</p>
+                            <p style="font-size: 12px; color: var(--text-muted); font-weight: 500;">Pendente envio</p>
+                        </div>
+                    </div>
+                    <i class="ph ph-upload-simple"></i>
+                </div>
+
+                <div class="upload-item" id="upResidencia"
+                    onclick="handleUpload('upResidencia', 'Comprovante de Residência')">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <i class="ph-fill ph-house-line" style="font-size: 28px; color: var(--orange);"></i>
+                        <div style="text-align: left;">
+                            <p style="font-weight: 700; font-size: 14px; color: var(--primary);">Residência</p>
+                            <p style="font-size: 12px; color: var(--text-muted); font-weight: 500;">Pendente envio</p>
+                        </div>
+                    </div>
+                    <i class="ph ph-upload-simple"></i>
+                </div>
+
+                <div class="upload-item" id="upVeiculo" onclick="handleUpload('upVeiculo', 'CRLV do Veículo')">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <i class="ph-fill ph-truck" style="font-size: 28px; color: var(--orange);"></i>
+                        <div style="text-align: left;">
+                            <p style="font-weight: 700; font-size: 14px; color: var(--primary);">CRLV (Veículo)</p>
+                            <p style="font-size: 12px; color: var(--text-muted); font-weight: 500;">Pendente envio</p>
+                        </div>
+                    </div>
+                    <i class="ph ph-upload-simple"></i>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn btn-outline"
+            style="color: #ef4444; border-color: #fca5a5; margin-top: 12px; width: 100%; background: #fef2f2;"
+            onclick="logout(this)">
+            Sair da Conta <i class="ph ph-sign-out"></i>
+        </button>
+    </section>
+
+    <!-- TELA: FINANCEIRO -->
+    <section id="financial" class="screen">
+        <div class="topbar">
+            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
+            <h1>Carteira Digital</h1>
+            <div style="width: 44px;"></div>
+        </div>
+
+        <div class="card"
+            style="background: var(--primary); color: white; border: none; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.3);">
+            <p style="font-size: 14px; color: rgba(255,255,255,0.7); font-weight: 500;">Saldo Disponível (PIX
+                Automático)</p>
+            <h2 style="color: white; font-size: 36px; margin: 12px 0;">R$ 4.850,00</h2>
+
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <button class="btn btn-orange" style="margin: 0;" onclick="solicitarSaque(this)">
+                    Transferir PIX <i class="ph ph-arrows-left-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <h2 class="mb-4">Histórico de Ganhos</h2>
+
+        <div class="freight-card"
+            style="display: flex; justify-content: space-between; align-items: center; padding: 16px;">
+            <div>
+                <p style="font-weight: 700; font-size: 15px; margin-bottom: 4px;">Salvador <i class="ph ph-arrow-right"
+                        style="color: #cbd5e1;"></i> Aracaju</p>
+                <p style="font-size: 12px; color: var(--text-muted);">Ontem, 16:45</p>
+            </div>
+            <div style="color: #16a34a; font-weight: 800; font-size: 16px;">+ R$ 1.350,00</div>
+        </div>
+    </section>
+
+    <!-- TELA: CHAT -->
+    <section id="chat" class="screen">
+        <div class="topbar">
+            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
+            <h1>Mensagens</h1>
+            <div style="width: 44px;"></div>
+        </div>
+
+        <div class="card" style="min-height: 60vh; display: flex; flex-direction: column; padding: 16px;">
+            <div id="chatMessages" style="flex: 1; overflow-y: auto; padding-bottom: 20px;">
+                <!-- Mensagens renderizadas aqui -->
+            </div>
+
+            <div class="chat-input-area">
+                <input type="text" id="newMessage" placeholder="Escreva sua mensagem..."
+                    style="flex: 1; margin-bottom: 0; border-radius: 999px;"
+                    onkeypress="if(event.key === 'Enter') enviarMensagem()" />
+                <button class="btn btn-primary btn-send" onclick="enviarMensagem()">
+                    <i class="ph-fill ph-paper-plane-right" style="margin:0;"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- LÓGICA JAVASCRIPT -->
+    <script>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyD7lL5jSj57oLL_wWJWbImUD2Y7TKk3gRI",
+            authDomain: "pegafrete-logistica.firebaseapp.com",
+            projectId: "pegafrete-logistica",
+            storageBucket: "pegafrete-logistica.firebasestorage.app",
+            messagingSenderId: "783503103566",
+            appId: "1:783503103566:web:840c03b02cda1ba82c151f",
+            measurementId: "G-1HL73CW82D"
+        };
+
+        // Inicializa o Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let navHistory = ['splash'];
+        let currentUserRole = null;
+        let userData = {};
+        let tempPhone = '';
+        let tempRole = '';
+
+        let fretes = [
+            { id: 1, origem: 'Salvador', destino: 'Alagoinhas', valor: '620,00', tipo: 'Carga Leve', veiculo: 'VUC', status: 'transito', obs: 'Mercadoria alocada em paletes.' },
+            { id: 2, origem: 'Salvador', destino: 'Ilhéus', valor: '980,00', tipo: 'Fracionada', veiculo: 'Toco', status: 'pendente', obs: 'Carga urgente para hoje.' }
+        ];
+
+        let mensagens = [
+            { isMe: false, sender: 'Embarcador XPTO', text: 'Boa tarde! Qual a previsão de chegada para a coleta?', time: '14:30' },
+            { isMe: true, sender: 'Você', text: 'Estou a cerca de 15 minutos do local, o trânsito ajudou. Já estou próximo da entrada principal.', time: '14:35' }
+        ];
+
+        window.onload = () => {
+            renderChats();
+            navTo('splash');
+
+            // Monitora o estado de autenticação via Firebase
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    try {
+                        const docRef = await db.collection("users").doc(user.uid).get();
+                        if (docRef.exists) {
+                            userData = docRef.data();
+                            preencherPerfil();
+                            setRole(userData.role || 'driver');
+                            startFreightListener(); // Inicia o radar em tempo real
+                        } else {
+                            navTo('phone_check');
+                        }
+                    } catch (error) {
+                        navTo('phone_check');
+                    }
+                } else {
+                    navTo('phone_check');
+                }
+            });
+        };
+
+        // Escuta novas cargas em tempo real
+        function startFreightListener() {
+            db.collection("freights").orderBy("createdAt", "desc").limit(20).onSnapshot((snapshot) => {
+                const novosDados = [];
+                snapshot.forEach(doc => novosDados.push({ id: doc.id, ...doc.data() }));
+
+                // Verifica se há novas cargas para notificar (se não for a carga que eu acabei de postar)
+                if (fretes.length > 0 && novosDados.length > fretes.length) {
+                    const ultimaCarga = novosDados[0];
+                    if (ultimaCarga.shipperUid !== auth.currentUser.uid) {
+                        showToast(`Nova carga disponível: ${ultimaCarga.origem} para ${ultimaCarga.destino}`, 'info');
+                    }
+                }
+
+                fretes = novosDados;
+                renderFretes();
+            });
+        }
+
+        function maskMoney(i) {
+            let v = i.value.replace(/\D/g, "");
+            v = (v / 100).toFixed(2) + "";
+            v = v.replace(".", ",");
+            v = v.replace(/(\d)(\d{3})(\d{3}),/g, "$1.$2.$3,");
+            v = v.replace(/(\d)(\d{3}),/g, "$1.$2,");
+            i.value = "R$ " + v;
+        }
+
+        function maskPhone(i) {
+            let v = i.value.replace(/\D/g, "");
+            if (v.length > 11) v = v.slice(0, 11);
+
+            if (v.length === 0) {
+                i.value = "";
+                return;
+            }
+
+            if (v.length <= 2) {
+                i.value = `(${v}`;
+            } else if (v.length <= 6) {
+                i.value = `(${v.slice(0, 2)}) ${v.slice(2)}`;
+            } else if (v.length <= 10) {
+                i.value = `(${v.slice(0, 2)}) ${v.slice(2, 6)}-${v.slice(6)}`;
+            } else {
+                i.value = `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`;
+            }
+        }
+
+        function maskCPF(i) {
+            let v = i.value.replace(/\D/g, "");
+            if (v.length > 11) v = v.slice(0, 11);
+            if (v.length === 11) {
+                i.value = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+            } else {
+                i.value = v;
+            }
+        }
+
+        function maskCNPJ(i) {
+            let v = i.value.replace(/\D/g, "");
+            if (v.length > 14) v = v.slice(0, 14);
+            if (v.length === 14) {
+                i.value = v.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
+            } else {
+                i.value = v;
+            }
+        }
+
+        function checkPasswordRequirements(val) {
+            const len = val.length >= 8;
+            const upper = /[A-Z]/.test(val);
+            const num = /[0-9]/.test(val);
+            const special = /[!@#$%^&*(),.?":{}|<>]/.test(val);
+
+            const updateReq = (id, met) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (met) {
+                    el.style.color = '#10b981';
+                    el.querySelector('i').className = 'ph-fill ph-check-circle';
+                } else {
+                    el.style.color = 'var(--text-muted)';
+                    el.querySelector('i').className = 'ph ph-circle';
+                }
+            };
+
+            updateReq('req-len', len);
+            updateReq('req-upper', upper);
+            updateReq('req-number', num);
+            updateReq('req-special', special);
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            let icon = type === 'success'
+                ? '<i class="ph-fill ph-check-circle" style="color: #22c55e; font-size: 20px;"></i>'
+                : type === 'error'
+                    ? '<i class="ph-fill ph-warning-circle" style="color: #ef4444; font-size: 20px;"></i>'
+                    : '<i class="ph-fill ph-info" style="color: #3b82f6; font-size: 20px;"></i>';
+
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            toast.classList.add('show');
+
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
+        function navTo(id) {
+            if (navHistory[navHistory.length - 1] !== id) navHistory.push(id);
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            window.scrollTo(0, 0);
+            updateNavbar(id);
+        }
+
+        function goBack() {
+            if (navHistory.length > 1) {
+                navHistory.pop();
+                const previous = navHistory[navHistory.length - 1];
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById(previous).classList.add('active');
+                window.scrollTo(0, 0);
+                updateNavbar(previous);
+            }
+        }
+
+        function goHome() {
+            if (currentUserRole) navTo(currentUserRole);
+            else navTo('choice');
+        }
+
+        function setRole(role) {
+            currentUserRole = role;
+
+            // Altera Navbar com base na Role
+            document.querySelectorAll('.driver-only').forEach(el => el.style.display = role === 'driver' ? 'flex' : 'none');
+            document.querySelectorAll('.shipper-only').forEach(el => el.style.display = role === 'shipper' ? 'flex' : 'none');
+
+            // Altera texto do botão de perfil
+            const changeRoleText = document.getElementById('changeRoleText');
+            if (changeRoleText) {
+                changeRoleText.innerText = role === 'driver' ? 'Mudar para Embarcador' : 'Mudar para Transportador';
+            }
+
+            navHistory = ['login', 'choice', role];
+            navTo(role);
+        }
+
+        function updateNavbar(id) {
+            const nav = document.getElementById('bottomNav');
+            const screensWithNav = ['driver', 'shipper', 'profile', 'financial', 'chat', 'freights_search', 'shipper_history', 'shipper_publish'];
+
+            if (screensWithNav.includes(id)) {
+                nav.style.display = 'flex';
+                document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+
+                let navId = id;
+                if (id === 'driver' || id === 'shipper') navId = 'home';
+                if (id === 'freights_search') navId = 'freights';
+                if (id === 'shipper_history') navId = 'my_freights';
+                if (id === 'shipper_publish') navId = 'shipper_publish';
+
+                const activeItem = document.querySelector(`.nav-item[data-target="${navId}"]`);
+                if (activeItem) {
+                    activeItem.classList.add('active');
+                }
+            } else {
+                nav.style.display = 'none';
+            }
+        }
+
+        // Modal de Filtros (Cargas)
+        function openFilters() { document.getElementById('filterModal').classList.add('active'); }
+        function closeFilters() { document.getElementById('filterModal').classList.remove('active'); }
+        function aplicarFiltros() {
+            closeFilters();
+            showToast('Filtros aplicados com sucesso!', 'success');
+        }
+        function limparFiltros() {
+            document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+            document.getElementById('distSlider').value = 250;
+            document.getElementById('distValue').innerText = '250 km';
+        }
+        function togglePill(pill) { pill.classList.toggle('active'); }
+
+        // Modal de Edição (Embarcador)
+        let currentEditId = null;
+        function abrirEdicaoFrete(id) {
+            const f = fretes.find(x => x.id === id);
+            if (!f) return;
+            currentEditId = id;
+            document.getElementById('editOrigem').value = f.origem;
+            document.getElementById('editDestino').value = f.destino;
+            document.getElementById('editValor').value = "R$ " + f.valor;
+            document.getElementById('editTipo').value = f.tipo;
+            document.getElementById('editVeiculo').value = f.veiculo;
+            document.getElementById('editObs').value = f.obs || '';
+            document.getElementById('editFreightModal').classList.add('active');
+        }
+        function fecharEdicaoFrete() {
+            document.getElementById('editFreightModal').classList.remove('active');
+        }
+        function salvarEdicaoFrete(btn) {
+            const original = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Salvando...`;
+
+            const f = fretes.find(x => x.id === currentEditId);
+            if (f) {
+                f.origem = document.getElementById('editOrigem').value;
+                f.destino = document.getElementById('editDestino').value;
+                f.valor = document.getElementById('editValor').value.replace("R$ ", "");
+                f.tipo = document.getElementById('editTipo').value;
+                f.veiculo = document.getElementById('editVeiculo').value;
+                f.obs = document.getElementById('editObs').value;
+            }
+
+            setTimeout(() => {
+                btn.innerHTML = original;
+                fecharEdicaoFrete();
+                renderFretes();
+                showToast('As informações da carga foram atualizadas.');
+            }, 1200);
+        }
+
+
+        let confirmationResult = null; // Armazena o resultado do envio de SMS do Firebase
+
+        async function verificarTelefone(btn) {
+            const rawPhone = document.getElementById('checkPhone').value;
+            // Limpa o telefone para o formato internacional (+55...)
+            const phoneInput = "+55" + rawPhone.replace(/\D/g, "");
+
+            if (phoneInput.length < 13) {
+                showToast('Insira um número válido.', 'error');
+                return;
+            }
+
+            tempPhone = rawPhone;
+            const original = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Enviando SMS...`;
+
+            try {
+                // Configura o ReCAPTCHA invisível (exigência do Firebase)
+                if (!window.recaptchaVerifier) {
+                    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+                        'size': 'invisible'
+                    });
+                }
+
+                // Envia o SMS de verdade através do Firebase
+                confirmationResult = await auth.signInWithPhoneNumber(phoneInput, window.recaptchaVerifier);
+
+                btn.innerHTML = original;
+                showToast('Código enviado com sucesso!', 'success');
+                navTo('otp_verify');
+            } catch (error) {
+                btn.innerHTML = original;
+                showToast('Erro ao enviar SMS. Tente novamente.', 'error');
+                console.error(error);
+            }
+        }
+
+        async function confirmarCodigo(btn) {
+            const code = document.getElementById('otpCode').value;
+            if (code.length !== 6) {
+                showToast('O código deve ter 6 dígitos.', 'error');
+                return;
+            }
+
+            const original = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Validando...`;
+
+            try {
+                // Confirma o código no Firebase
+                const userCredential = await confirmationResult.confirm(code);
+                const user = userCredential.user;
+
+                btn.innerHTML = original;
+
+                // Agora que o telefone está validado, verificamos se ele já tem um perfil no banco
+                const querySnapshot = await db.collection("users").where("telefone", "==", tempPhone).get();
+
+                if (!querySnapshot.empty) {
+                    // Já tem cadastro, vai pro Login (onde ele põe o email e a senha que ele criou antes)
+                    // Ou podemos fazer o login direto se ele já tiver email salvo, mas o usuário pediu senha.
+                    navTo('login');
+                } else {
+                    // Não tem cadastro, vai escolher o perfil
+                    navTo('choice');
+                }
+            } catch (error) {
+                btn.innerHTML = original;
+                showToast('Código inválido ou expirado.', 'error');
+                console.error(error);
+            }
+        }
+
+        async function fazerLogin(btn) {
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPassword').value;
+
+            if (!email || !pass) {
+                showToast('Preencha os campos corretamente.', 'error');
+                return;
+            }
+
+            const original = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Autenticando...`;
+
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, pass);
+                const docRef = await db.collection("users").doc(userCredential.user.uid).get();
+                btn.innerHTML = original;
+
+                if (docRef.exists) {
+                    userData = docRef.data();
+                    preencherPerfil();
+                    setRole(userData.role || 'driver');
+                    showToast('Bem-vindo de volta!');
+                } else {
+                    showToast('Perfil de usuário não encontrado.', 'error');
+                }
+            } catch (error) {
+                btn.innerHTML = original;
+                showToast('Email ou senha incorretos.', 'error');
+                console.error(error);
+            }
+        }
+
+        function iniciarCadastro(role) {
+            tempRole = role;
+            if (role === 'shipper') navTo('register_shipper');
+            else navTo('register_driver');
+        }
+
+        function irParaSenha() {
+            // Guarda dados temporários baseados na role
+            if (tempRole === 'shipper') {
+                userData.nome = document.getElementById('regShipperName').value;
+                userData.email = document.getElementById('regShipperEmail').value;
+                userData.telefone = document.getElementById('regShipperPhone').value;
+                userData.endereco = document.getElementById('regShipperAddress').value;
+                userData.cnpj = document.getElementById('regShipperCnpj').value;
+                userData.razao = document.getElementById('regShipperRazao').value;
+            } else {
+                userData.nome = document.getElementById('regDriverName').value;
+                userData.email = document.getElementById('regDriverEmail').value;
+                userData.telefone = document.getElementById('regDriverPhone').value;
+                userData.endereco = document.getElementById('regDriverAddress').value;
+                userData.cpf = document.getElementById('regDriverCpf').value;
+            }
+
+            if (!userData.nome || !userData.email || !userData.telefone) {
+                showToast('Preencha pelo menos os campos obrigatórios.', 'error');
+                return;
+            }
+
+            navTo('register_password');
+        }
+
+        async function finalizarCadastro(btn) {
+            const pass1 = document.getElementById('regPassword').value;
+            const pass2 = document.getElementById('regPasswordConfirm').value;
+
+            // Validação de senha: 8 dígitos, letra maiúscula, caractere especial
+            const passRegex = /^(?=.*[A-Z])(?=.*[!@#$&*]).{8,}$/;
+            if (!passRegex.test(pass1)) {
+                showToast('A senha não cumpre os requisitos.', 'error');
+                return;
+            }
+
+            if (pass1 !== pass2) {
+                showToast('As senhas não coincidem.', 'error');
+                return;
+            }
+
+            const original = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Criando conta...`;
+
+            try {
+                // Cria o usuário na Auth do Firebase
+                const userCredential = await auth.createUserWithEmailAndPassword(userData.email, pass1);
+                const uid = userCredential.user.uid;
+
+                // Adiciona o role e salva no Firestore
+                userData.role = tempRole;
+                await db.collection("users").doc(uid).set(userData);
+
+                btn.innerHTML = original;
+                preencherPerfil();
+                setRole(tempRole);
+                showToast('Cadastro realizado com sucesso! Bem-vindo ao PegaFrete.');
+            } catch (error) {
+                btn.innerHTML = original;
+                showToast('Erro ao criar conta: ' + (error.message || 'Verifique seus dados.'), 'error');
+                console.error(error);
+            }
+        }
+
+        function preencherPerfil() {
+            if (document.getElementById('profName')) document.getElementById('profName').value = userData.nome || '';
+            if (document.getElementById('profEmail')) document.getElementById('profEmail').value = userData.email || '';
+            if (document.getElementById('profPhone')) document.getElementById('profPhone').value = userData.telefone || '';
+            if (document.getElementById('profAddress')) document.getElementById('profAddress').value = userData.endereco || '';
+        }
+
+        async function logout(btn) {
+            if (btn) {
+                const original = btn.innerHTML;
+                btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Saindo...`;
+            }
+            try {
+                await auth.signOut();
+                navHistory = [];
+                currentUserRole = null;
+                userData = {};
+                showToast('Você saiu da conta com segurança.', 'info');
+                navTo('phone_check');
+                if (btn) btn.innerHTML = `Sair da Conta <i class="ph ph-sign-out"></i>`;
+            } catch (error) {
+                showToast('Erro ao sair.', 'error');
+            }
+        }
+
+        function salvarPerfil(btn) {
+            const original = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Salvando...`;
+            setTimeout(() => {
+                btn.innerHTML = original;
+                showToast('Dados do perfil atualizados com sucesso!');
+            }, 1200);
+        }
+
+        function handleUpload(elementId, type, isButton = false) {
+            showToast(`Iniciando upload: ${type}...`, 'info');
+
+            const el = document.getElementById(elementId);
+            if (isButton && el) {
+                el.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Aguarde...`;
+            }
+
+            setTimeout(() => {
+                if (el && !isButton) {
+                    if (el.classList.contains('upload-item')) {
+                        el.classList.add('uploaded');
+                        const subtitle = el.querySelector('div > div > p:last-child');
+                        if (subtitle) subtitle.innerText = "Enviado e aguardando validação";
+                        const iconRight = el.querySelector('i.ph-upload-simple');
+                        if (iconRight) {
+                            iconRight.className = 'ph-fill ph-clock';
+                            iconRight.style.color = '#f59e0b';
+                            iconRight.style.fontSize = '24px';
+                        }
+                    } else {
+                        el.classList.add('uploaded');
+                        el.innerHTML = `<i class="ph-fill ph-check-circle"></i><p style="font-size: 13px; font-weight: 600;">Enviado</p>`;
+                    }
+                } else if (el && isButton) {
+                    if (elementId === 'btnPhoto') {
+                        el.innerHTML = `<i class="ph-fill ph-check" style="font-size: 18px;"></i>`;
+                        el.style.background = '#22c55e';
+                        el.style.borderColor = '#22c55e';
+                        el.style.color = '#fff';
+                    } else {
+                        el.innerHTML = `<i class="ph-fill ph-check-circle"></i> Capturada`;
+                        el.style.background = '#f0fdf4';
+                        el.style.borderColor = '#22c55e';
+                        el.style.color = '#15803d';
+                    }
+                }
+                showToast(`${type} enviado com sucesso!`);
+            }, 1500);
+        }
+
+        function salvarCadastroMotorista(btn) {
+            const original = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Criando conta...`;
+            setTimeout(() => {
+                btn.innerHTML = original;
+                showToast('Cadastro realizado com sucesso! Bem-vindo ao PegaFrete.');
+                setRole('driver');
+            }, 1500);
+        }
+
+        function solicitarSaque(btn) {
+            const original = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Processando PIX...`;
+            setTimeout(() => {
+                btn.innerHTML = original;
+                showToast('Transferência enviada. O valor cairá na sua conta em instantes.');
+            }, 2000);
+        }
+
+        function toggleStatus(btn) {
+            const box = document.getElementById('driverStatusBox');
+            const indicator = document.getElementById('driverStatusIndicator');
+
+            if (btn.innerText === 'Ficar Online') {
+                btn.innerText = 'Pausar';
+                btn.style.borderColor = 'var(--border)';
+                btn.style.color = 'var(--primary)';
+
+                box.style.background = '#ecfccb';
+                box.style.borderColor = '#d9f99d';
+                box.style.color = '#3f6212';
+
+                indicator.innerHTML = '<div class="dot"></div> Disponível para cargas';
+                showToast('Você está online e visível para novas cargas!');
+            } else {
+                btn.innerText = 'Ficar Online';
+                btn.style.borderColor = '#22c55e';
+                btn.style.color = '#22c55e';
+
+                box.style.background = '#fef2f2';
+                box.style.borderColor = '#fecaca';
+                box.style.color = '#991b1b';
+
+                indicator.innerHTML = '<div class="dot" style="background:#ef4444; box-shadow:none; animation:none;"></div> Oculto no Radar';
+                showToast('Você agora está invisível no radar.', 'info');
+            }
+        }
+
+        function aceitarFrete(btn) {
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Reservando carga...`;
+
+            setTimeout(() => {
+                btn.innerHTML = `<i class="ph-fill ph-check-circle"></i> Viagem Iniciada!`;
+                btn.style.background = '#22c55e';
+                showToast('Carga confirmada! Acompanhe os detalhes na área de Chat.');
+            }, 1500);
+        }
+
+        function renderFretes() {
+            const areaHome = document.getElementById('dynamicFreights');
+            const areaSearch = document.getElementById('dynamicFreightsSearch');
+            const areaShipper = document.getElementById('shipperActiveFreights');
+
+            let html = '';
+            if (fretes.length === 0) {
+                html = `<div class="text-center" style="padding: 40px 0; color: var(--text-muted);"><i class="ph ph-package" style="font-size: 48px; margin-bottom: 16px;"></i><p>Nenhuma carga encontrada no momento.</p></div>`;
+            } else {
+                fretes.forEach((frete, index) => {
+                    html += `
+                  <div class="freight-card" onclick="openFreight(${index})" style="cursor: pointer;">
+                    <div class="route">
+                      <span>${frete.origem}</span>
+                      <i class="ph ph-arrow-right route-arrow"></i>
+                      <span>${frete.destino}</span>
+                    </div>
+                    
+                    <div class="value">R$ ${frete.valor}</div>
+                    
+                    <div class="badge-container" style="margin-bottom: 0;">
+                        <div class="tag blue"><i class="ph ph-package"></i> ${frete.tipo}</div>
+                        <div class="tag orange"><i class="ph ph-truck"></i> ${frete.veiculo}</div>
+                    </div>
+                  </div>
+                `;
+                });
+            }
+
+            if (areaHome) areaHome.innerHTML = html;
+            if (areaSearch) areaSearch.innerHTML = html;
+
+            // Render para o painel do Embarcador (com botão editar)
+            if (areaShipper) {
+                let shipperHtml = '';
+                fretes.forEach(f => {
+                    const statusLabel = f.status === 'transito' ? '<i class="ph ph-navigation-arrow"></i> Em trânsito' : '<i class="ph ph-hourglass"></i> Aguardando motorista';
+                    const statusClass = f.status === 'transito' ? 'status-transito' : 'status-pendente';
+
+                    shipperHtml += `
+                    <div class="freight-card">
+                      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                          <div class="status-badge ${statusClass}" style="margin:0;">${statusLabel}</div>
+                          <button class="icon-btn" style="color:var(--text-muted); background:#f1f5f9; padding:8px; border-radius:8px; display:flex; align-items:center;" onclick="abrirEdicaoFrete(${f.id})"><i class="ph ph-pencil-simple"></i></button>
+                      </div>
+                      <div class="route">
+                        <span>${f.origem}</span>
+                        <i class="ph ph-arrow-right route-arrow"></i>
+                        <span>${f.destino}</span>
+                      </div>
+                      <div class="value">R$ ${f.valor}</div>
+                    </div>
+                `;
+                });
+                areaShipper.innerHTML = shipperHtml || html;
+            }
+        }
+
+        function openFreight(index) {
+            const frete = fretes[index];
+            document.getElementById('detailRoute').innerHTML = `${frete.origem} <i class="ph ph-arrow-right route-arrow"></i> ${frete.destino}`;
+            document.getElementById('detailOriginText').innerText = frete.origem;
+            document.getElementById('detailDestinationText').innerText = frete.destino;
+            document.getElementById('detailPaymentText').innerText = `R$ ${frete.valor}`;
+            document.getElementById('detailObsText').innerText = frete.obs || 'Nenhuma observação informada.';
+
+            const badges = document.getElementById('detailBadges');
+            badges.innerHTML = `
+            <div class="tag blue"><i class="ph ph-package"></i> ${frete.tipo}</div>
+            <div class="tag orange"><i class="ph ph-truck"></i> ${frete.veiculo}</div>
+            <div class="tag" style="background: #fef2f2; color: #ef4444;"><i class="ph ph-clock"></i> Carga Imediata</div>
+        `;
+
+            navTo('freightDetails');
+        }
+
+        function buscarFretes() {
+            const termo = document.getElementById('searchFrete').value.toLowerCase();
+            const cards = document.querySelectorAll('#dynamicFreightsSearch .freight-card');
+
+            cards.forEach(card => {
+                const texto = card.innerText.toLowerCase();
+                if (texto.includes(termo)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        async function publicarFrete(btn) {
+            const originalContent = btn.innerHTML;
+
+            const origem = document.getElementById('origem').value;
+            const destino = document.getElementById('destino').value;
+            const tipo = document.getElementById('tipoCarga').value;
+            const veiculo = document.getElementById('veiculo').value;
+            const valor = document.getElementById('valorFrete').value;
+            const obs = document.getElementById('obsCarga').value;
+
+            if (!origem || !destino || !valor || !tipo || !veiculo) {
+                showToast('Preencha todas as informações da rota para publicar.', 'error');
+                return;
+            }
+
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Divulgando no Radar...`;
+
+            try {
+                const novoFrete = {
+                    origem,
+                    destino,
+                    valor: valor.replace("R$ ", ""),
+                    tipo,
+                    veiculo,
+                    status: 'pendente',
+                    obs: obs || 'Carga publicada via radar.',
+                    shipperUid: auth.currentUser.uid,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                await db.collection("freights").add(novoFrete);
+
+                showToast('Carga publicada com sucesso! Divulgada em tempo real para os motoristas.');
+
+                // Limpa campos
+                document.getElementById('origem').value = '';
+                document.getElementById('destino').value = '';
+                document.getElementById('tipoCarga').value = '';
+                document.getElementById('veiculo').value = '';
+                document.getElementById('valorFrete').value = '';
+                document.getElementById('obsCarga').value = '';
+
+                btn.innerHTML = originalContent;
+                navTo('shipper');
+            } catch (error) {
+                btn.innerHTML = originalContent;
+                showToast('Erro ao publicar carga.', 'error');
+                console.error(error);
+            }
+        }
+
+        function renderChats() {
+            const area = document.getElementById('chatMessages');
+            if (!area) return;
+            area.innerHTML = '';
+
+            mensagens.forEach(msg => {
+                area.innerHTML += `
+                <div class="chat-bubble ${msg.isMe ? 'me' : ''}">
+                    <div class="chat-sender">${msg.sender}</div>
+                    <div class="chat-text">${msg.text}</div>
+                    <div class="chat-time">${msg.time}</div>
+                </div>
+            `;
+            });
+            area.scrollTop = area.scrollHeight;
+        }
+
+        function enviarMensagem() {
+            const input = document.getElementById('newMessage');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const now = new Date();
+            const time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+            mensagens.push({ isMe: true, sender: 'Você', text: text, time: time });
+            input.value = '';
+            renderChats();
+        }
+
+    </script>
+</body>
+
+</html>
