@@ -5,6 +5,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>PegaFrete | Logística Inteligente</title>
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://www.gstatic.com https://www.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://images.unsplash.com data:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.firebaseapp.com https://*.cloudfunctions.net; frame-src https://www.google.com https://*.firebaseapp.com;" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1269,7 +1272,7 @@
             <div class="input-group no-icon"><input type="text" id="regShipperRazao"
                     placeholder="Razão Social (Sem abreviações)" /></div>
             <div class="input-group no-icon"><input type="text" id="regShipperCnpj" placeholder="CNPJ"
-                    oninput="maskCNPJ(this)" /></div>
+                    oninput="maskCNPJ(this)" autocomplete="off" /></div>
             <div class="input-group no-icon"><input type="email" id="regShipperEmail" placeholder="E-mail" /></div>
             <div class="input-group no-icon"><input type="tel" id="regShipperPhone"
                     placeholder="Telefone do aparelho atual" oninput="maskPhone(this)" /></div>
@@ -1295,7 +1298,7 @@
 
             <div class="input-group no-icon"><input type="text" id="regDriverName" placeholder="Nome Completo" /></div>
             <div class="input-group no-icon"><input type="text" id="regDriverCpf" placeholder="CPF"
-                    oninput="maskCPF(this)" /></div>
+                    oninput="maskCPF(this)" autocomplete="off" /></div>
             <div class="input-group no-icon"><input type="email" id="regDriverEmail" placeholder="E-mail" /></div>
             <div class="input-group no-icon"><input type="tel" id="regDriverPhone"
                     placeholder="Telefone do aparelho atual" oninput="maskPhone(this)" /></div>
@@ -1524,12 +1527,6 @@
                 </button>
             </div>
         </div>
-    </section>
-
-    <h2 class="mb-4">Seus Envios Ativos</h2>
-    <div id="shipperActiveFreights">
-        <!-- Cargas dinâmicas aparecem aqui -->
-    </div>
     </section>
 
     <!-- TELA: HISTÓRICO DE ENVIOS (Menu Inferior Embarcador) -->
@@ -1824,6 +1821,58 @@
         let userData = {};
         let tempPhone = '';
         let tempRole = '';
+        let smsSendCooldown = false; // Rate limit para envio de SMS
+
+        // ====== FUNÇÕES DE SEGURANÇA ======
+
+        // Previne XSS: escapa caracteres HTML perigosos
+        function sanitizeHTML(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // Validação de e-mail
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(String(email).toLowerCase());
+        }
+
+        // Validação algorítmica de CPF
+        function validateCPF(cpf) {
+            cpf = cpf.replace(/\D/g, '');
+            if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+            let soma = 0, resto;
+            for (let i = 1; i <= 9; i++) soma += parseInt(cpf[i - 1]) * (11 - i);
+            resto = (soma * 10) % 11;
+            if (resto === 10 || resto === 11) resto = 0;
+            if (resto !== parseInt(cpf[9])) return false;
+            soma = 0;
+            for (let i = 1; i <= 10; i++) soma += parseInt(cpf[i - 1]) * (12 - i);
+            resto = (soma * 10) % 11;
+            if (resto === 10 || resto === 11) resto = 0;
+            return resto === parseInt(cpf[10]);
+        }
+
+        // Validação algorítmica de CNPJ
+        function validateCNPJ(cnpj) {
+            cnpj = cnpj.replace(/\D/g, '');
+            if (cnpj.length !== 14 || /^(\d)\1{13}$/.test(cnpj)) return false;
+            const pesos1 = [5,4,3,2,9,8,7,6,5,4,3,2];
+            const pesos2 = [6,5,4,3,2,9,8,7,6,5,4,3,2];
+            let soma = 0;
+            for (let i = 0; i < 12; i++) soma += parseInt(cnpj[i]) * pesos1[i];
+            let resto = soma % 11;
+            if (parseInt(cnpj[12]) !== (resto < 2 ? 0 : 11 - resto)) return false;
+            soma = 0;
+            for (let i = 0; i < 13; i++) soma += parseInt(cnpj[i]) * pesos2[i];
+            resto = soma % 11;
+            return parseInt(cnpj[13]) === (resto < 2 ? 0 : 11 - resto);
+        }
 
         let fretes = [
             { id: 1, origem: 'Salvador', destino: 'Alagoinhas', valor: '620,00', tipo: 'Carga Leve', veiculo: 'VUC', status: 'transito', obs: 'Mercadoria alocada em paletes.' },
@@ -1955,13 +2004,14 @@
 
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
+            const safeMessage = sanitizeHTML(message);
             let icon = type === 'success'
                 ? '<i class="ph-fill ph-check-circle" style="color: #22c55e; font-size: 20px;"></i>'
                 : type === 'error'
                     ? '<i class="ph-fill ph-warning-circle" style="color: #ef4444; font-size: 20px;"></i>'
                     : '<i class="ph-fill ph-info" style="color: #3b82f6; font-size: 20px;"></i>';
 
-            toast.innerHTML = `${icon} <span>${message}</span>`;
+            toast.innerHTML = `${icon} <span>${safeMessage}</span>`;
             toast.classList.add('show');
 
             setTimeout(() => { toast.classList.remove('show'); }, 3000);
@@ -2062,34 +2112,52 @@
         function fecharEdicaoFrete() {
             document.getElementById('editFreightModal').classList.remove('active');
         }
-        function salvarEdicaoFrete(btn) {
+        async function salvarEdicaoFrete(btn) {
             const original = btn.innerHTML;
             btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Salvando...`;
+            btn.disabled = true;
 
-            const f = fretes.find(x => x.id === currentEditId);
-            if (f) {
-                f.origem = document.getElementById('editOrigem').value;
-                f.destino = document.getElementById('editDestino').value;
-                f.valor = document.getElementById('editValor').value.replace("R$ ", "");
-                f.tipo = document.getElementById('editTipo').value;
-                f.veiculo = document.getElementById('editVeiculo').value;
-                f.obs = document.getElementById('editObs').value;
-            }
+            try {
+                const updatedData = {
+                    origem: document.getElementById('editOrigem').value.trim(),
+                    destino: document.getElementById('editDestino').value.trim(),
+                    valor: document.getElementById('editValor').value.replace("R$ ", "").trim(),
+                    tipo: document.getElementById('editTipo').value,
+                    veiculo: document.getElementById('editVeiculo').value,
+                    obs: document.getElementById('editObs').value.trim()
+                };
 
-            setTimeout(() => {
+                // Persiste no Firestore se o ID for string (doc ID do Firestore)
+                if (typeof currentEditId === 'string') {
+                    await db.collection("freights").doc(currentEditId).update(updatedData);
+                }
+
+                // Atualiza local
+                const f = fretes.find(x => x.id === currentEditId);
+                if (f) Object.assign(f, updatedData);
+
                 btn.innerHTML = original;
+                btn.disabled = false;
                 fecharEdicaoFrete();
                 renderFretes();
                 showToast('As informações da carga foram atualizadas.');
-            }, 1200);
+            } catch (error) {
+                btn.innerHTML = original;
+                btn.disabled = false;
+                showToast('Erro ao salvar alterações.', 'error');
+            }
         }
 
 
         let confirmationResult = null; // Armazena o resultado do envio de SMS do Firebase
 
         async function verificarTelefone(btn) {
+            if (smsSendCooldown) {
+                showToast('Aguarde 60 segundos antes de reenviar o SMS.', 'error');
+                return;
+            }
+
             const rawPhone = document.getElementById('checkPhone').value;
-            // Limpa o telefone para o formato internacional (+55...)
             const phoneInput = "+55" + rawPhone.replace(/\D/g, "");
 
             if (phoneInput.length < 13) {
@@ -2100,25 +2168,29 @@
             tempPhone = rawPhone;
             const original = btn.innerHTML;
             btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Enviando SMS...`;
+            btn.disabled = true;
 
             try {
-                // Configura o ReCAPTCHA invisível (exigência do Firebase)
                 if (!window.recaptchaVerifier) {
                     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
                         'size': 'invisible'
                     });
                 }
 
-                // Envia o SMS de verdade através do Firebase
                 confirmationResult = await auth.signInWithPhoneNumber(phoneInput, window.recaptchaVerifier);
 
+                // Ativa cooldown de 60 segundos
+                smsSendCooldown = true;
+                setTimeout(() => { smsSendCooldown = false; }, 60000);
+
                 btn.innerHTML = original;
+                btn.disabled = false;
                 showToast('Código enviado com sucesso!', 'success');
                 navTo('otp_verify');
             } catch (error) {
                 btn.innerHTML = original;
+                btn.disabled = false;
                 showToast('Erro ao enviar SMS. Tente novamente.', 'error');
-                console.error(error);
             }
         }
 
@@ -2153,7 +2225,6 @@
             } catch (error) {
                 btn.innerHTML = original;
                 showToast('Código inválido ou expirado.', 'error');
-                console.error(error);
             }
         }
 
@@ -2185,7 +2256,6 @@
             } catch (error) {
                 btn.innerHTML = original;
                 showToast('Email ou senha incorretos.', 'error');
-                console.error(error);
             }
         }
 
@@ -2196,24 +2266,38 @@
         }
 
         function irParaSenha() {
-            // Guarda dados temporários baseados na role
             if (tempRole === 'shipper') {
-                userData.nome = document.getElementById('regShipperName').value;
-                userData.email = document.getElementById('regShipperEmail').value;
-                userData.telefone = document.getElementById('regShipperPhone').value;
-                userData.endereco = document.getElementById('regShipperAddress').value;
-                userData.cnpj = document.getElementById('regShipperCnpj').value;
-                userData.razao = document.getElementById('regShipperRazao').value;
+                userData.nome = document.getElementById('regShipperName').value.trim();
+                userData.email = document.getElementById('regShipperEmail').value.trim();
+                userData.telefone = document.getElementById('regShipperPhone').value.trim();
+                userData.endereco = document.getElementById('regShipperAddress').value.trim();
+                userData.cnpj = document.getElementById('regShipperCnpj').value.trim();
+                userData.razao = document.getElementById('regShipperRazao').value.trim();
             } else {
-                userData.nome = document.getElementById('regDriverName').value;
-                userData.email = document.getElementById('regDriverEmail').value;
-                userData.telefone = document.getElementById('regDriverPhone').value;
-                userData.endereco = document.getElementById('regDriverAddress').value;
-                userData.cpf = document.getElementById('regDriverCpf').value;
+                userData.nome = document.getElementById('regDriverName').value.trim();
+                userData.email = document.getElementById('regDriverEmail').value.trim();
+                userData.telefone = document.getElementById('regDriverPhone').value.trim();
+                userData.endereco = document.getElementById('regDriverAddress').value.trim();
+                userData.cpf = document.getElementById('regDriverCpf').value.trim();
             }
 
             if (!userData.nome || !userData.email || !userData.telefone) {
                 showToast('Preencha pelo menos os campos obrigatórios.', 'error');
+                return;
+            }
+
+            if (!validateEmail(userData.email)) {
+                showToast('Insira um e-mail válido.', 'error');
+                return;
+            }
+
+            if (tempRole === 'driver' && userData.cpf && !validateCPF(userData.cpf)) {
+                showToast('CPF inválido. Verifique os dígitos.', 'error');
+                return;
+            }
+
+            if (tempRole === 'shipper' && userData.cnpj && !validateCNPJ(userData.cnpj)) {
+                showToast('CNPJ inválido. Verifique os dígitos.', 'error');
                 return;
             }
 
@@ -2254,8 +2338,12 @@
                 showToast('Cadastro realizado com sucesso! Bem-vindo ao PegaFrete.');
             } catch (error) {
                 btn.innerHTML = original;
-                showToast('Erro ao criar conta: ' + (error.message || 'Verifique seus dados.'), 'error');
-                console.error(error);
+                const errMsg = error.code === 'auth/email-already-in-use'
+                    ? 'Este e-mail já está em uso.'
+                    : error.code === 'auth/weak-password'
+                        ? 'A senha é muito fraca.'
+                        : 'Erro ao criar conta. Verifique seus dados.';
+                showToast(errMsg, 'error');
             }
         }
 
@@ -2284,13 +2372,37 @@
             }
         }
 
-        function salvarPerfil(btn) {
+        async function salvarPerfil(btn) {
             const original = btn.innerHTML;
             btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Salvando...`;
-            setTimeout(() => {
+            btn.disabled = true;
+
+            try {
+                const user = auth.currentUser;
+                if (!user) {
+                    showToast('Usuário não autenticado.', 'error');
+                    btn.innerHTML = original;
+                    btn.disabled = false;
+                    return;
+                }
+
+                const updatedData = {
+                    nome: document.getElementById('profName').value.trim(),
+                    telefone: document.getElementById('profPhone').value.trim(),
+                    endereco: document.getElementById('profAddress').value.trim()
+                };
+
+                await db.collection("users").doc(user.uid).update(updatedData);
+                Object.assign(userData, updatedData);
+
                 btn.innerHTML = original;
+                btn.disabled = false;
                 showToast('Dados do perfil atualizados com sucesso!');
-            }, 1200);
+            } catch (error) {
+                btn.innerHTML = original;
+                btn.disabled = false;
+                showToast('Erro ao salvar perfil.', 'error');
+            }
         }
 
         function handleUpload(elementId, type, isButton = false) {
@@ -2406,16 +2518,16 @@
                     html += `
                   <div class="freight-card" onclick="openFreight(${index})" style="cursor: pointer;">
                     <div class="route">
-                      <span>${frete.origem}</span>
+                      <span>${sanitizeHTML(frete.origem)}</span>
                       <i class="ph ph-arrow-right route-arrow"></i>
-                      <span>${frete.destino}</span>
+                      <span>${sanitizeHTML(frete.destino)}</span>
                     </div>
                     
-                    <div class="value">R$ ${frete.valor}</div>
+                    <div class="value">R$ ${sanitizeHTML(frete.valor)}</div>
                     
                     <div class="badge-container" style="margin-bottom: 0;">
-                        <div class="tag blue"><i class="ph ph-package"></i> ${frete.tipo}</div>
-                        <div class="tag orange"><i class="ph ph-truck"></i> ${frete.veiculo}</div>
+                        <div class="tag blue"><i class="ph ph-package"></i> ${sanitizeHTML(frete.tipo)}</div>
+                        <div class="tag orange"><i class="ph ph-truck"></i> ${sanitizeHTML(frete.veiculo)}</div>
                     </div>
                   </div>
                 `;
@@ -2431,19 +2543,20 @@
                 fretes.forEach(f => {
                     const statusLabel = f.status === 'transito' ? '<i class="ph ph-navigation-arrow"></i> Em trânsito' : '<i class="ph ph-hourglass"></i> Aguardando motorista';
                     const statusClass = f.status === 'transito' ? 'status-transito' : 'status-pendente';
+                    const safeId = typeof f.id === 'string' ? `'${sanitizeHTML(f.id)}'` : f.id;
 
                     shipperHtml += `
                     <div class="freight-card">
                       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
                           <div class="status-badge ${statusClass}" style="margin:0;">${statusLabel}</div>
-                          <button class="icon-btn" style="color:var(--text-muted); background:#f1f5f9; padding:8px; border-radius:8px; display:flex; align-items:center;" onclick="abrirEdicaoFrete(${f.id})"><i class="ph ph-pencil-simple"></i></button>
+                          <button class="icon-btn" style="color:var(--text-muted); background:#f1f5f9; padding:8px; border-radius:8px; display:flex; align-items:center;" onclick="abrirEdicaoFrete(${safeId})"><i class="ph ph-pencil-simple"></i></button>
                       </div>
                       <div class="route">
-                        <span>${f.origem}</span>
+                        <span>${sanitizeHTML(f.origem)}</span>
                         <i class="ph ph-arrow-right route-arrow"></i>
-                        <span>${f.destino}</span>
+                        <span>${sanitizeHTML(f.destino)}</span>
                       </div>
-                      <div class="value">R$ ${f.valor}</div>
+                      <div class="value">R$ ${sanitizeHTML(f.valor)}</div>
                     </div>
                 `;
                 });
@@ -2453,7 +2566,7 @@
 
         function openFreight(index) {
             const frete = fretes[index];
-            document.getElementById('detailRoute').innerHTML = `${frete.origem} <i class="ph ph-arrow-right route-arrow"></i> ${frete.destino}`;
+            document.getElementById('detailRoute').innerHTML = `${sanitizeHTML(frete.origem)} <i class="ph ph-arrow-right route-arrow"></i> ${sanitizeHTML(frete.destino)}`;
             document.getElementById('detailOriginText').innerText = frete.origem;
             document.getElementById('detailDestinationText').innerText = frete.destino;
             document.getElementById('detailPaymentText').innerText = `R$ ${frete.valor}`;
@@ -2461,8 +2574,8 @@
 
             const badges = document.getElementById('detailBadges');
             badges.innerHTML = `
-            <div class="tag blue"><i class="ph ph-package"></i> ${frete.tipo}</div>
-            <div class="tag orange"><i class="ph ph-truck"></i> ${frete.veiculo}</div>
+            <div class="tag blue"><i class="ph ph-package"></i> ${sanitizeHTML(frete.tipo)}</div>
+            <div class="tag orange"><i class="ph ph-truck"></i> ${sanitizeHTML(frete.veiculo)}</div>
             <div class="tag" style="background: #fef2f2; color: #ef4444;"><i class="ph ph-clock"></i> Carga Imediata</div>
         `;
 
@@ -2486,12 +2599,12 @@
         async function publicarFrete(btn) {
             const originalContent = btn.innerHTML;
 
-            const origem = document.getElementById('origem').value;
-            const destino = document.getElementById('destino').value;
+            const origem = document.getElementById('origem').value.trim();
+            const destino = document.getElementById('destino').value.trim();
             const tipo = document.getElementById('tipoCarga').value;
             const veiculo = document.getElementById('veiculo').value;
-            const valor = document.getElementById('valorFrete').value;
-            const obs = document.getElementById('obsCarga').value;
+            const valor = document.getElementById('valorFrete').value.trim();
+            const obs = document.getElementById('obsCarga').value.trim();
 
             if (!origem || !destino || !valor || !tipo || !veiculo) {
                 showToast('Preencha todas as informações da rota para publicar.', 'error');
@@ -2530,7 +2643,6 @@
             } catch (error) {
                 btn.innerHTML = originalContent;
                 showToast('Erro ao publicar carga.', 'error');
-                console.error(error);
             }
         }
 
@@ -2542,9 +2654,9 @@
             mensagens.forEach(msg => {
                 area.innerHTML += `
                 <div class="chat-bubble ${msg.isMe ? 'me' : ''}">
-                    <div class="chat-sender">${msg.sender}</div>
-                    <div class="chat-text">${msg.text}</div>
-                    <div class="chat-time">${msg.time}</div>
+                    <div class="chat-sender">${sanitizeHTML(msg.sender)}</div>
+                    <div class="chat-text">${sanitizeHTML(msg.text)}</div>
+                    <div class="chat-time">${sanitizeHTML(msg.time)}</div>
                 </div>
             `;
             });
