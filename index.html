@@ -1792,15 +1792,39 @@
         </div>
 
         <div class="card">
-            <h3 style="font-size: 16px; margin-bottom: 16px; color: var(--primary);">Dados Pessoais</h3>
-            <div class="input-group no-icon"><input type="text" id="profName" placeholder="Nome Completo" />
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="font-size: 16px; color: var(--primary); margin: 0;">Dados Pessoais</h3>
+                <button class="btn btn-outline" id="btnEditProfile" 
+                    style="margin: 0; padding: 8px 20px; font-size: 13px; border-radius: 12px; width: auto;"
+                    onclick="toggleEditProfile()">
+                    <i class="ph ph-pencil-simple" style="margin-right: 6px;"></i> Editar
+                </button>
             </div>
-            <div class="input-group no-icon"><input type="email" id="profEmail" readonly
-                    style="background: #e2e8f0; color: #64748b;" /></div>
-            <div class="input-group no-icon"><input type="text" id="profPhone" placeholder="Celular / WhatsApp" /></div>
-            <div class="input-group no-icon"><input type="text" id="profAddress"
-                    placeholder="Endereço (Cidade - Estado)" /></div>
-            <button class="btn btn-outline" style="margin-bottom: 0;" onclick="salvarPerfil(this)">Salvar Dados</button>
+            <div class="input-group no-icon">
+                <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;">Nome Completo</label>
+                <input type="text" id="profName" placeholder="Nome Completo" disabled 
+                    style="background: #f1f5f9; color: #64748b; cursor: not-allowed;" />
+            </div>
+            <div class="input-group no-icon">
+                <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;">E-mail <span style="font-size: 10px; color: #94a3b8;">(não editável)</span></label>
+                <input type="email" id="profEmail" readonly 
+                    style="background: #e2e8f0; color: #94a3b8; cursor: not-allowed;" />
+            </div>
+            <div class="input-group no-icon">
+                <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;">Celular / WhatsApp</label>
+                <input type="text" id="profPhone" placeholder="Celular / WhatsApp" disabled 
+                    style="background: #f1f5f9; color: #64748b; cursor: not-allowed;" />
+            </div>
+            <div class="input-group no-icon">
+                <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;">Endereço</label>
+                <input type="text" id="profAddress" placeholder="Endereço (Cidade - Estado)" disabled 
+                    style="background: #f1f5f9; color: #64748b; cursor: not-allowed;" />
+            </div>
+            <button class="btn btn-orange" id="btnSaveProfile" 
+                style="margin-bottom: 0; display: none; border-radius: 18px; padding: 16px;"
+                onclick="salvarPerfil(this)">
+                <i class="ph ph-floppy-disk" style="margin-right: 6px;"></i> Salvar Alterações
+            </button>
         </div>
 
         <div class="card">
@@ -2587,6 +2611,54 @@
             }
         }
 
+        // Controla o modo de edição do perfil
+        let profileEditMode = false;
+
+        function toggleEditProfile() {
+            profileEditMode = !profileEditMode;
+            const fields = ['profName', 'profPhone', 'profAddress'];
+            const btnEdit = document.getElementById('btnEditProfile');
+            const btnSave = document.getElementById('btnSaveProfile');
+
+            if (profileEditMode) {
+                // Ativar edição
+                fields.forEach(id => {
+                    const el = document.getElementById(id);
+                    el.disabled = false;
+                    el.style.background = '#fff';
+                    el.style.color = 'var(--text-main)';
+                    el.style.cursor = 'text';
+                    el.style.borderColor = 'var(--orange)';
+                });
+                btnEdit.innerHTML = '<i class="ph ph-x" style="margin-right: 6px;"></i> Cancelar';
+                btnEdit.style.borderColor = '#ef4444';
+                btnEdit.style.color = '#ef4444';
+                btnSave.style.display = 'block';
+                // Foca no primeiro campo
+                document.getElementById('profName').focus();
+            } else {
+                // Desativar edição (cancelar)
+                fields.forEach(id => {
+                    const el = document.getElementById(id);
+                    el.disabled = true;
+                    el.style.background = '#f1f5f9';
+                    el.style.color = '#64748b';
+                    el.style.cursor = 'not-allowed';
+                    el.style.borderColor = 'var(--border)';
+                });
+                btnEdit.innerHTML = '<i class="ph ph-pencil-simple" style="margin-right: 6px;"></i> Editar';
+                btnEdit.style.borderColor = '';
+                btnEdit.style.color = '';
+                btnSave.style.display = 'none';
+                // Restaurar dados originais
+                if (userData) {
+                    document.getElementById('profName').value = userData.nome || '';
+                    document.getElementById('profPhone').value = userData.telefone || '';
+                    document.getElementById('profAddress').value = userData.endereco || '';
+                }
+            }
+        }
+
         async function salvarPerfil(btn) {
             const original = btn.innerHTML;
             btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Salvando...`;
@@ -2612,6 +2684,11 @@
 
                 btn.innerHTML = original;
                 btn.disabled = false;
+
+                // Volta ao modo bloqueado
+                profileEditMode = true; // Forçar toggle para desligar
+                toggleEditProfile();
+
                 showToast('Dados do perfil atualizados com sucesso!');
             } catch (error) {
                 btn.innerHTML = original;
