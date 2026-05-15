@@ -7,7 +7,7 @@
     <title>PegaFrete | Logística Inteligente</title>
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://www.gstatic.com https://www.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://images.unsplash.com data:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.firebaseapp.com https://*.cloudfunctions.net; frame-src https://www.google.com https://*.firebaseapp.com;" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://unpkg.com https://fonts.googleapis.com https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://www.gstatic.com https://www.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com https://unpkg.com; img-src 'self' https://images.unsplash.com https://www.gstatic.com data:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.firebaseapp.com https://*.cloudfunctions.net; frame-src https://www.google.com https://*.firebaseapp.com;" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -109,6 +109,93 @@
 
         .ph-spin {
             animation: spin 1s linear infinite;
+        }
+
+        /* Novas Estilizações de Autenticação */
+        .btn-google {
+            background: white;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .btn-google:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 24px 0;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .divider:not(:empty)::before {
+            margin-right: 12px;
+        }
+
+        .divider:not(:empty)::after {
+            margin-left: 12px;
+        }
+
+        .brand-orange {
+            color: var(--orange);
+        }
+
+        .auth-footer {
+            margin-top: 32px;
+            font-size: 12px;
+            color: var(--text-muted);
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .auth-footer a {
+            color: var(--orange);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Melhoria nos Cards de Input */
+        .auth-card-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .auth-card-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            text-align: center;
+            max-width: 280px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .label-text {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 6px;
+            margin-left: 4px;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
         }
 
         .topbar {
@@ -1139,85 +1226,73 @@
         </style>
     </section>
 
-    <!-- TELA: VERIFICAÇÃO DE TELEFONE -->
-    <section id="phone_check" class="screen">
-        <div class="text-center" style="margin-top: 40px; margin-bottom: 32px;">
-            <!-- <i class="ph-fill ph-truck" style="font-size: 48px; color: var(--orange); margin-bottom: 12px;"></i> -->
-            <h1 style="font-size: 28px;">Pega<span style="color: var(--orange);">Frete</span></h1>
+    <!-- TELA: ENTRADA DE AUTENTICAÇÃO (NOVA) -->
+    <section id="auth_entry" class="screen">
+        <div class="text-center" style="margin-top: 60px; margin-bottom: 40px;">
+            <h1 style="font-size: 32px; margin-bottom: 12px;">Boas-vindas ao <span class="brand-orange">Pega Frete</span></h1>
+            <p class="subtitle" style="font-size: 16px; max-width: 300px; margin: 0 auto;">
+                Encontre cargas e motoristas em poucos segundos. Simples, rápido e sem burocracia.
+            </p>
         </div>
 
-        <div class="text-center" style="margin-bottom: 32px;">
-
-            <h2>Bem-vindo!</h2>
-            <p class="subtitle" style="margin-top: 8px;">Para começar, insira seu número de telefone.</p>
-        </div>
-
-        <div class="card">
-            <div class="input-group">
-                <i class="ph ph-phone"></i>
-                <input type="tel" id="checkPhone" placeholder="(00) 00000-0000" oninput="maskPhone(this)" />
-            </div>
-            <div id="recaptcha-container"></div> <!-- Necessário para o Firebase Phone Auth -->
-            <button class="btn btn-primary mt-4" id="btnSendSms" onclick="verificarTelefone(this)">
-                Enviar Código via SMS <i class="ph ph-paper-plane-tilt"></i>
+        <div class="card" style="max-width: 400px; margin: 0 auto;">
+            <button class="btn btn-google" onclick="loginComGoogle(this)">
+                <img src="./google_icon.png" width="20" height="20" style="margin-right: 8px;">
+                Entrar com Google
             </button>
-        </div>
-    </section>
 
-    <!-- TELA: VERIFICAÇÃO DE CÓDIGO (OTP) -->
-    <section id="otp_verify" class="screen">
-        <div class="topbar">
-            <button class="back-btn" onclick="navTo('phone_check')"><i class="ph ph-arrow-left"></i></button>
-            <h1>Validar Telefone</h1>
-            <div style="width: 44px;"></div>
-        </div>
+            <div class="divider">ou entre com e-mail</div>
 
-        <div class="text-center" style="margin-top: 40px; margin-bottom: 32px;">
-            <i class="ph-fill ph-shield-check" style="font-size: 64px; color: var(--orange); margin-bottom: 16px;"></i>
-            <h2>Confirmar Código</h2>
-            <p class="subtitle" style="margin-top: 8px;">Insira o código de 6 dígitos enviado para seu aparelho.</p>
-        </div>
-
-        <div class="card">
             <div class="input-group no-icon">
-                <input type="tel" id="otpCode" placeholder="000000"
-                    style="text-align: center; font-size: 24px; letter-spacing: 12px; font-weight: 800;"
-                    oninput="if(this.value.length > 6) this.value = this.value.slice(0,6)" />
+                <input type="email" id="authEmail" placeholder="Seu e-mail" style="padding-left: 16px;" />
             </div>
-            <button class="btn btn-primary mt-4" onclick="confirmarCodigo(this)">
-                Confirmar e Prosseguir <i class="ph ph-check-circle"></i>
+
+            <button class="btn btn-orange mt-4" id="btnContinuar" onclick="handleContinuar(this)">
+                Continuar <i class="ph ph-arrow-right"></i>
             </button>
-            <button class="text-btn mt-4" style="color: var(--text-muted);" onclick="goBack()">Não recebi o
-                código</button>
+
+            <div class="auth-footer">
+                Criando uma conta, você concorda com nossos <a href="#" onclick="showToast('Página de termos em desenvolvimento')">Termos e Condições</a>.
+            </div>
         </div>
     </section>
+
+    <!-- TELA: VERIFICAÇÃO DE TELEFONE (REMOVIDA) -->
+    <section id="phone_check" class="screen" style="display:none !important;"></section>
+
+    <!-- TELA: VERIFICAÇÃO DE CÓDIGO (REMOVIDA) -->
+    <section id="otp_verify" class="screen" style="display:none !important;"></section>
 
     <!-- TELA: LOGIN -->
     <section id="login" class="screen">
         <div class="topbar">
-            <button class="back-btn" onclick="navTo('phone_check')"><i class="ph ph-arrow-left"></i></button>
+            <button class="back-btn" onclick="navTo('auth_entry')"><i class="ph ph-arrow-left"></i></button>
             <h1>Fazer Login</h1>
             <div style="width: 44px;"></div>
         </div>
 
-        <div class="text-center" style="margin-top: 24px; margin-bottom: 32px;">
-            <p class="subtitle">Insira sua senha para acessar a plataforma.</p>
-        </div>
+        <div style="max-width: 400px; margin: 0 auto; margin-top: 20px;">
+            <div class="auth-card-title">Que bom ver você!</div>
+            <div class="auth-card-subtitle">Insira sua senha para acessar sua conta no Pega Frete.</div>
 
-        <div class="card">
-            <div class="input-group">
-                <i class="ph ph-envelope-simple"></i>
-                <input type="email" id="loginEmail" placeholder="Seu e-mail" />
-            </div>
-            <div class="input-group">
-                <i class="ph ph-lock-key"></i>
-                <input type="password" id="loginPassword" placeholder="Sua senha" />
-            </div>
-            <button class="btn btn-primary mt-4" onclick="fazerLogin(this)">
-                Acessar Plataforma <i class="ph ph-sign-in"></i>
-            </button>
-            <div class="text-center mt-4">
-                <button class="text-btn" style="color: var(--text-muted);">Esqueci minha senha</button>
+            <div class="card">
+                <div class="input-group">
+                    <label class="label-text">E-mail</label>
+                    <i class="ph ph-envelope-simple" style="top: 38px;"></i>
+                    <input type="email" id="loginEmail" placeholder="exemplo@email.com" style="padding-top: 20px; padding-bottom: 12px;" />
+                </div>
+                <div class="input-group">
+                    <label class="label-text">Senha</label>
+                    <i class="ph ph-lock-key" style="top: 38px;"></i>
+                    <input type="password" id="loginPassword" placeholder="••••••••" style="padding-top: 20px; padding-bottom: 12px; padding-right: 48px;" />
+                    <i class="ph ph-eye" id="togglePassword" onclick="togglePassVisibility()" style="left: auto; right: 16px; top: 38px; cursor: pointer; color: var(--orange);"></i>
+                </div>
+                <button class="btn btn-orange mt-4" onclick="fazerLogin(this)">
+                    Acessar Plataforma <i class="ph ph-sign-in"></i>
+                </button>
+                <div class="text-center mt-4">
+                    <button class="text-btn" style="color: var(--orange); font-weight: 600;" onclick="showToast('Recuperação de senha em manutenção')">Esqueci minha senha</button>
+                </div>
             </div>
         </div>
     </section>
@@ -1225,7 +1300,7 @@
     <!-- TELA: ESCOLHA DE PERFIL -->
     <section id="choice" class="screen">
         <div class="topbar">
-            <button class="back-btn" onclick="navTo('phone_check')"><i class="ph ph-arrow-left"></i></button>
+            <button class="back-btn" onclick="navTo('auth_entry')"><i class="ph ph-arrow-left"></i></button>
             <h1>Criar Conta</h1>
             <div style="width: 44px;"></div>
         </div>
@@ -1264,24 +1339,40 @@
             <div style="width: 44px;"></div>
         </div>
 
-        <div class="card">
-            <p class="subtitle" style="margin-bottom: 16px;">Preencha os dados da sua empresa.</p>
+        <div style="max-width: 450px; margin: 0 auto; margin-top: 20px;">
+            <div class="auth-card-title">Dados da Empresa</div>
+            <div class="auth-card-subtitle">Complete as informações para começar a publicar cargas.</div>
 
-            <div class="input-group no-icon"><input type="text" id="regShipperName" placeholder="Nome do Responsável" />
+            <div class="card">
+                <div class="input-group no-icon">
+                    <label class="label-text">Nome do Responsável</label>
+                    <input type="text" id="regShipperName" placeholder="Nome completo" />
+                </div>
+                <div class="input-group no-icon">
+                    <label class="label-text">Razão Social</label>
+                    <input type="text" id="regShipperRazao" placeholder="Nome da empresa" />
+                </div>
+                <div class="input-group no-icon">
+                    <label class="label-text">CNPJ</label>
+                    <input type="text" id="regShipperCnpj" placeholder="00.000.000/0000-00" oninput="maskCNPJ(this)" autocomplete="off" />
+                </div>
+                <div class="input-group no-icon">
+                    <label class="label-text">E-mail Corporativo</label>
+                    <input type="email" id="regShipperEmail" placeholder="empresa@email.com" />
+                </div>
+                <div class="input-group no-icon">
+                    <label class="label-text">Telefone</label>
+                    <input type="tel" id="regShipperPhone" placeholder="(00) 00000-0000" oninput="maskPhone(this)" />
+                </div>
+                <div class="input-group no-icon">
+                    <label class="label-text">Endereço</label>
+                    <input type="text" id="regShipperAddress" placeholder="Rua, número, cidade..." />
+                </div>
+
+                <button class="btn btn-orange mt-4" onclick="irParaSenha()">
+                    Próxima Etapa <i class="ph ph-arrow-right"></i>
+                </button>
             </div>
-            <div class="input-group no-icon"><input type="text" id="regShipperRazao"
-                    placeholder="Razão Social (Sem abreviações)" /></div>
-            <div class="input-group no-icon"><input type="text" id="regShipperCnpj" placeholder="CNPJ"
-                    oninput="maskCNPJ(this)" autocomplete="off" /></div>
-            <div class="input-group no-icon"><input type="email" id="regShipperEmail" placeholder="E-mail" /></div>
-            <div class="input-group no-icon"><input type="tel" id="regShipperPhone"
-                    placeholder="Telefone do aparelho atual" oninput="maskPhone(this)" /></div>
-            <div class="input-group no-icon"><input type="text" id="regShipperAddress"
-                    placeholder="Endereço Completo" /></div>
-
-            <button class="btn btn-primary mt-4" onclick="irParaSenha()">
-                Próxima Etapa <i class="ph ph-arrow-right"></i>
-            </button>
         </div>
     </section>
 
@@ -1293,21 +1384,36 @@
             <div style="width: 44px;"></div>
         </div>
 
-        <div class="card">
-            <p class="subtitle" style="margin-bottom: 16px;">Preencha seus dados pessoais.</p>
+        <div style="max-width: 450px; margin: 0 auto; margin-top: 20px;">
+            <div class="auth-card-title">Seus Dados</div>
+            <div class="auth-card-subtitle">Cadastre-se para ter acesso às melhores cargas da região.</div>
 
-            <div class="input-group no-icon"><input type="text" id="regDriverName" placeholder="Nome Completo" /></div>
-            <div class="input-group no-icon"><input type="text" id="regDriverCpf" placeholder="CPF"
-                    oninput="maskCPF(this)" autocomplete="off" /></div>
-            <div class="input-group no-icon"><input type="email" id="regDriverEmail" placeholder="E-mail" /></div>
-            <div class="input-group no-icon"><input type="tel" id="regDriverPhone"
-                    placeholder="Telefone do aparelho atual" oninput="maskPhone(this)" /></div>
-            <div class="input-group no-icon"><input type="text" id="regDriverAddress" placeholder="Endereço Completo" />
+            <div class="card">
+                <div class="input-group no-icon">
+                    <label class="label-text">Nome Completo</label>
+                    <input type="text" id="regDriverName" placeholder="Como quer ser chamado" />
+                </div>
+                <div class="input-group no-icon">
+                    <label class="label-text">CPF</label>
+                    <input type="text" id="regDriverCpf" placeholder="000.000.000-00" oninput="maskCPF(this)" autocomplete="off" />
+                </div>
+                <div class="input-group no-icon">
+                    <label class="label-text">E-mail</label>
+                    <input type="email" id="regDriverEmail" placeholder="seu@email.com" />
+                </div>
+                <div class="input-group no-icon">
+                    <label class="label-text">Telefone</label>
+                    <input type="tel" id="regDriverPhone" placeholder="(00) 00000-0000" oninput="maskPhone(this)" />
+                </div>
+                <div class="input-group no-icon">
+                    <label class="label-text">Cidade/Base</label>
+                    <input type="text" id="regDriverAddress" placeholder="Sua localização principal" />
+                </div>
+
+                <button class="btn btn-orange mt-4" onclick="irParaSenha()">
+                    Próxima Etapa <i class="ph ph-arrow-right"></i>
+                </button>
             </div>
-
-            <button class="btn btn-primary mt-4" onclick="irParaSenha()">
-                Próxima Etapa <i class="ph ph-arrow-right"></i>
-            </button>
         </div>
     </section>
 
@@ -1825,6 +1931,19 @@
 
         // ====== FUNÇÕES DE SEGURANÇA ======
 
+        // Toggle visibilidade da senha
+        function togglePassVisibility() {
+            const input = document.getElementById('loginPassword');
+            const icon = document.getElementById('togglePassword');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'ph ph-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'ph ph-eye';
+            }
+        }
+
         // Previne XSS: escapa caracteres HTML perigosos
         function sanitizeHTML(str) {
             if (!str) return '';
@@ -1897,18 +2016,78 @@
                             userData = docRef.data();
                             preencherPerfil();
                             setRole(userData.role || 'driver');
-                            startFreightListener(); // Inicia o radar em tempo real
+                            startFreightListener();
                         } else {
-                            navTo('phone_check');
+                            // Se logou com Google mas não tem perfil, vai escolher o papel
+                            navTo('choice');
                         }
                     } catch (error) {
-                        navTo('phone_check');
+                        navTo('auth_entry');
                     }
                 } else {
-                    navTo('phone_check');
+                    navTo('auth_entry');
                 }
             });
         };
+
+        // ====== LÓGICA DE AUTENTICAÇÃO (NOVA) ======
+
+        async function handleContinuar(btn) {
+            const email = document.getElementById('authEmail').value.trim();
+            if (!email || !validateEmail(email)) {
+                showToast('Por favor, insira um e-mail válido.', 'error');
+                return;
+            }
+
+            const original = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Verificando...`;
+            btn.disabled = true;
+
+            try {
+                // Verifica no Firestore se o e-mail já existe
+                const querySnapshot = await db.collection("users").where("email", "==", email).get();
+                
+                btn.innerHTML = original;
+                btn.disabled = false;
+
+                if (!querySnapshot.empty) {
+                    // E-mail existe -> Ir para tela de LOGIN
+                    document.getElementById('loginEmail').value = email;
+                    navTo('login');
+                } else {
+                    // E-mail não existe -> Ir para tela de ESCOLHA DE PERFIL
+                    // Preenchemos os campos de e-mail nos cadastros para facilitar
+                    document.getElementById('regShipperEmail').value = email;
+                    document.getElementById('regDriverEmail').value = email;
+                    navTo('choice');
+                }
+            } catch (error) {
+                btn.innerHTML = original;
+                btn.disabled = false;
+                showToast('Erro ao verificar e-mail. Tente novamente.', 'error');
+            }
+        }
+
+        async function loginComGoogle(btn) {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            const original = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Conectando...`;
+            btn.disabled = true;
+
+            try {
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+                
+                // O onAuthStateChanged cuidará do redirecionamento
+                showToast('Login com Google realizado!', 'success');
+            } catch (error) {
+                btn.innerHTML = original;
+                btn.disabled = false;
+                if (error.code !== 'auth/popup-closed-by-user') {
+                    showToast('Erro ao entrar com Google.', 'error');
+                }
+            }
+        }
 
         // Escuta novas cargas em tempo real
         function startFreightListener() {
@@ -2365,7 +2544,7 @@
                 currentUserRole = null;
                 userData = {};
                 showToast('Você saiu da conta com segurança.', 'info');
-                navTo('phone_check');
+                navTo('auth_entry');
                 if (btn) btn.innerHTML = `Sair da Conta <i class="ph ph-sign-out"></i>`;
             } catch (error) {
                 showToast('Erro ao sair.', 'error');
