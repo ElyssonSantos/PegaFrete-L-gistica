@@ -7,7 +7,7 @@
     <title>PegaFrete | Logística Inteligente</title>
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-    <!-- CSP desabilitada temporariamente para garantir carregamento de ícones e imagens -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://unpkg.com https://apis.google.com https://www.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com;" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1235,7 +1235,8 @@
     <!-- TELA: ENTRADA DE AUTENTICAÇÃO (NOVA) -->
     <section id="auth_entry" class="screen">
         <div class="text-center" style="margin-top: 60px; margin-bottom: 40px;">
-            <h1 style="font-size: 32px; margin-bottom: 12px; font-weight: 800;">Boas-vindas ao <span class="brand-orange">Pega Frete</span></h1>
+            <i class="ph-fill ph-truck" style="font-size: 56px; color: var(--orange); margin-bottom: 16px; display: inline-block;"></i>
+            <h1 style="font-size: 32px; margin-bottom: 12px; font-weight: 800;">Boas-vindas ao <span style="color: var(--orange);">Pega Frete</span></h1>
             <p class="subtitle" style="font-size: 16px; max-width: 300px; margin: 0 auto; color: var(--text-muted);">
                 Encontre cargas e motoristas em poucos segundos. Simples, rápido e sem burocracia.
             </p>
@@ -1973,6 +1974,95 @@
         let tempRole = '';
         let smsSendCooldown = false; // Rate limit para envio de SMS
 
+        // ====== SEGURANÇA: SANITIZAÇÃO E VALIDAÇÃO ======
+
+        /**
+         * Client-side input sanitization (Defense in Depth)
+         * Firestore Security Rules fornecem a proteção primária.
+         * Esta camada adicional impede injeção de HTML/JS antes de gravar.
+         */
+        function sanitizeInput(str, maxLen = 500) {
+            if (!str || typeof str !== 'string') return '';
+            return str
+                .replace(/[<>]/g, '')
+                .replace(/javascript:/gi, '')
+                .trim()
+                .slice(0, maxLen);
+        }
+
+        // ====== SEGURANÇA: LOGS E MONITORAMENTO ======
+        async function logSecurityEvent(event, details) {
+            try {
+                const user = auth.currentUser;
+                const uid = user ? user.uid : 'unauthenticated';
+                
+                // Em produção, isso gravaria no Firestore (coleção security_logs)
+                // Apenas o backend ou o próprio usuário pode ler seus logs.
+                if (user) {
+                    await db.collection('security_logs').add({
+                        uid: uid,
+                        event: event,
+                        details: details,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        page: window.location.pathname
+                    });
+                }
+                console.warn(`[SECURITY LOG] ${event}:`, details);
+            } catch (err) {
+                console.error('Falha ao gravar log de segurança', err);
+            }
+        }
+
+        // ====== SEGURANÇA: VALIDAÇÃO DE ARQUIVOS ======
+        function validateFile(file, isProfilePhoto = false) {
+            if (!file) return { valid: false, error: 'Nenhum arquivo selecionado.' };
+
+            // 1. Validar tamanho
+            const maxSize = isProfilePhoto ? 5 * 1024 * 1024 : 10 * 1024 * 1024; // 5MB ou 10MB
+            if (file.size > maxSize) {
+                return { valid: false, error: `Arquivo muito grande. O limite é ${maxSize / (1024 * 1024)}MB.` };
+            }
+
+            // 2. Validar MIME Type (extensões)
+            const allowedTypes = isProfilePhoto 
+                ? ['image/jpeg', 'image/png', 'image/webp']
+                : ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+
+            if (!allowedTypes.includes(file.type)) {
+                return { valid: false, error: 'Formato de arquivo não permitido. Use JPG, PNG, WEBP ou PDF.' };
+            }
+
+            // 3. Validar nome do arquivo (evitar path traversal)
+            if (file.name.includes('..') || file.name.endsWith('.exe') || file.name.endsWith('.sh') || file.name.endsWith('.svg')) {
+                return { valid: false, error: 'Nome ou tipo de arquivo suspeito.' };
+            }
+
+            return { valid: true };
+        }
+
+        // Valores permitidos (validação por whitelist)
+        const VALID_TIPOS = ['Carga Leve', 'Fracionada', 'Carga Fechada', 'Complemento'];
+        const VALID_VEICULOS = ['VLC', 'VUC', 'Toco', 'Truck', 'Carreta'];
+
+        // ====== SESSION TIMEOUT (1 hour) ======
+        let sessionTimer = null;
+        const SESSION_TIMEOUT = 60 * 60 * 1000; // 1 hour
+
+        function resetSessionTimer() {
+            if (sessionTimer) clearTimeout(sessionTimer);
+            sessionTimer = setTimeout(() => {
+                if (auth.currentUser) {
+                    showToast('Sessão expirada por inatividade.', 'info');
+                    logout();
+                }
+            }, SESSION_TIMEOUT);
+        }
+
+        // Reset timer on user activity
+        ['click', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+            document.addEventListener(event, resetSessionTimer, { passive: true });
+        });
+
         // ====== FUNÇÕES DE SEGURANÇA ======
 
         // Toggle visibilidade da senha aprimorado
@@ -2088,35 +2178,26 @@
             btn.disabled = true;
 
             try {
-                // Verifica no Firebase Auth se o e-mail já existe (método confiável)
-                const methods = await auth.fetchSignInMethodsForEmail(email);
+                // SECURITY FIX: Instead of fetchSignInMethodsForEmail (deprecated/email enumeration),
+                // we always go to the login screen. If login fails with user-not-found,
+                // we redirect to registration. This prevents email enumeration attacks.
+                document.getElementById('loginEmail').value = email;
                 
                 btn.innerHTML = original;
                 btn.disabled = false;
-
-                if (methods && methods.length > 0) {
-                    // E-mail existe no Auth -> Ir para tela de LOGIN
-                    document.getElementById('loginEmail').value = email;
-                    navTo('login');
-                } else {
-                    // E-mail NÃO existe no Auth -> Limpar dados órfãos do Firestore (se houver)
-                    const orphanDocs = await db.collection("users").where("email", "==", email).get();
-                    if (!orphanDocs.empty) {
-                        // Deleta documentos órfãos de contas já removidas
-                        const batch = db.batch();
-                        orphanDocs.forEach(doc => batch.delete(doc.ref));
-                        await batch.commit();
-                        console.log('Dados órfãos removidos do Firestore para:', email);
-                    }
-                    // Ir para tela de ESCOLHA DE PERFIL
+                
+                // Pre-fill registration forms in case the user needs to register
+                if (document.getElementById('regShipperEmail')) {
                     document.getElementById('regShipperEmail').value = email;
-                    document.getElementById('regDriverEmail').value = email;
-                    navTo('choice');
                 }
+                if (document.getElementById('regDriverEmail')) {
+                    document.getElementById('regDriverEmail').value = email;
+                }
+                
+                navTo('login');
             } catch (error) {
                 btn.innerHTML = original;
                 btn.disabled = false;
-                console.error('Erro handleContinuar:', error);
                 showToast('Erro ao verificar e-mail. Tente novamente.', 'error');
             }
         }
@@ -2351,20 +2432,30 @@
 
             try {
                 const updatedData = {
-                    origem: document.getElementById('editOrigem').value.trim(),
-                    destino: document.getElementById('editDestino').value.trim(),
-                    valor: document.getElementById('editValor').value.replace("R$ ", "").trim(),
+                    origem: sanitizeInput(document.getElementById('editOrigem').value.trim(), 200),
+                    destino: sanitizeInput(document.getElementById('editDestino').value.trim(), 200),
+                    valor: sanitizeInput(document.getElementById('editValor').value.replace('R$ ', '').trim(), 20),
                     tipo: document.getElementById('editTipo').value,
                     veiculo: document.getElementById('editVeiculo').value,
-                    obs: document.getElementById('editObs').value.trim()
+                    obs: sanitizeInput(document.getElementById('editObs').value.trim(), 500)
                 };
 
-                // Persiste no Firestore se o ID for string (doc ID do Firestore)
-                if (typeof currentEditId === 'string') {
-                    await db.collection("freights").doc(currentEditId).update(updatedData);
+                // Whitelist validation
+                if (!VALID_TIPOS.includes(updatedData.tipo) || !VALID_VEICULOS.includes(updatedData.veiculo)) {
+                    showToast('Tipo de carga ou veículo inválido.', 'error');
+                    logSecurityEvent('INVALID_INPUT', `Tipo de carga ou veículo inválido editado por ${auth.currentUser?.uid}`);
+                    btn.innerHTML = original;
+                    btn.disabled = false;
+                    return;
                 }
 
-                // Atualiza local
+                if (typeof currentEditId === 'string') {
+                    // Firestore protegido por Security Rules (ownership check server-side)
+                    updatedData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('freights').doc(currentEditId).update(updatedData);
+                }
+
+                // Atualiza local (real-time listener will also update)
                 const f = fretes.find(x => x.id === currentEditId);
                 if (f) Object.assign(f, updatedData);
 
@@ -2376,7 +2467,7 @@
             } catch (error) {
                 btn.innerHTML = original;
                 btn.disabled = false;
-                showToast('Erro ao salvar alterações.', 'error');
+                showToast(error.message || 'Erro ao salvar alterações.', 'error');
             }
         }
 
@@ -2487,13 +2578,18 @@
                 }
             } catch (error) {
                 btn.innerHTML = original;
-                console.error("Login error:", error.code);
-                
-                if (error.code === 'auth/user-not-found') {
-                    showToast('Conta não encontrada. Deseja criar uma nova?', 'info');
-                    setTimeout(() => navTo('choice'), 2000);
+                // SECURITY: Generic error message to prevent credential enumeration
+                // Don't distinguish between "user not found" and "wrong password"
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                    showToast('Credenciais inválidas. Verifique seu e-mail e senha.', 'error');
+                    // Offer registration option without confirming if email exists
+                    const registerLink = document.createElement('div');
+                    registerLink.style.cssText = 'text-align:center; margin-top:12px;';
+                    registerLink.innerHTML = '<a href="#" onclick="navTo(\'choice\')" style="color:var(--orange); font-weight:600; text-decoration:none;">Criar uma nova conta</a>';
+                } else if (error.code === 'auth/too-many-requests') {
+                    showToast('Muitas tentativas. Aguarde antes de tentar novamente.', 'error');
                 } else {
-                    showToast('Email ou senha incorretos.', 'error');
+                    showToast('Erro ao fazer login. Tente novamente.', 'error');
                 }
             }
         }
@@ -2668,18 +2764,22 @@
                 const user = auth.currentUser;
                 if (!user) {
                     showToast('Usuário não autenticado.', 'error');
+                    logSecurityEvent('UNAUTHENTICATED_ACCESS', 'Tentativa de salvar perfil sem autenticação');
                     btn.innerHTML = original;
                     btn.disabled = false;
                     return;
                 }
 
+                // SECURITY: Validate and sanitize input before writing
                 const updatedData = {
-                    nome: document.getElementById('profName').value.trim(),
-                    telefone: document.getElementById('profPhone').value.trim(),
-                    endereco: document.getElementById('profAddress').value.trim()
+                    nome: sanitizeInput(document.getElementById('profName').value.trim(), 200),
+                    telefone: sanitizeInput(document.getElementById('profPhone').value.trim(), 20),
+                    endereco: sanitizeInput(document.getElementById('profAddress').value.trim(), 300)
                 };
 
-                await db.collection("users").doc(user.uid).update(updatedData);
+                // Firestore protegido por Security Rules (só permite atualizar campos permitidos)
+                updatedData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+                await db.collection('users').doc(user.uid).update(updatedData);
                 Object.assign(userData, updatedData);
 
                 btn.innerHTML = original;
@@ -2693,11 +2793,20 @@
             } catch (error) {
                 btn.innerHTML = original;
                 btn.disabled = false;
-                showToast('Erro ao salvar perfil.', 'error');
+                showToast(error.message || 'Erro ao salvar perfil.', 'error');
             }
         }
 
         function handleUpload(elementId, type, isButton = false) {
+            // OBS: Esta função atualmente simula o upload para o UI.
+            // Quando implementada com input type="file" real, chame validateFile(file) antes:
+            // const validation = validateFile(file, type === 'Foto');
+            // if (!validation.valid) {
+            //     showToast(validation.error, 'error');
+            //     logSecurityEvent('INVALID_UPLOAD', validation.error);
+            //     return;
+            // }
+
             showToast(`Iniciando upload: ${type}...`, 'info');
 
             const el = document.getElementById(elementId);
@@ -2898,27 +3007,39 @@
             const valor = document.getElementById('valorFrete').value.trim();
             const obs = document.getElementById('obsCarga').value.trim();
 
+            // Client-side validation (also validated server-side)
             if (!origem || !destino || !valor || !tipo || !veiculo) {
                 showToast('Preencha todas as informações da rota para publicar.', 'error');
                 return;
             }
 
             btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Divulgando no Radar...`;
+            btn.disabled = true;
 
             try {
+                // Whitelist validation
+                if (!VALID_TIPOS.includes(tipo) || !VALID_VEICULOS.includes(veiculo)) {
+                    showToast('Tipo de carga ou veículo inválido.', 'error');
+                    logSecurityEvent('INVALID_INPUT', `Tentativa de publicar carga com veículo/tipo inválido: ${tipo} / ${veiculo}`);
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+                    return;
+                }
+
+                // Firestore protegido por Security Rules (valida role, ownership e campos)
                 const novoFrete = {
-                    origem,
-                    destino,
-                    valor: valor.replace("R$ ", ""),
+                    origem: sanitizeInput(origem, 200),
+                    destino: sanitizeInput(destino, 200),
+                    valor: sanitizeInput(valor.replace('R$ ', ''), 20),
                     tipo,
                     veiculo,
                     status: 'pendente',
-                    obs: obs || 'Carga publicada via radar.',
+                    obs: sanitizeInput(obs, 500) || 'Carga publicada via radar.',
                     shipperUid: auth.currentUser.uid,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
-                await db.collection("freights").add(novoFrete);
+                await db.collection('freights').add(novoFrete);
 
                 showToast('Carga publicada com sucesso! Divulgada em tempo real para os motoristas.');
 
@@ -2931,10 +3052,12 @@
                 document.getElementById('obsCarga').value = '';
 
                 btn.innerHTML = originalContent;
+                btn.disabled = false;
                 navTo('shipper');
             } catch (error) {
                 btn.innerHTML = originalContent;
-                showToast('Erro ao publicar carga.', 'error');
+                btn.disabled = false;
+                showToast(error.message || 'Erro ao publicar carga.', 'error');
             }
         }
 

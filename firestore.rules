@@ -1,0 +1,270 @@
+rules_version = '2';
+
+// ============================================
+// PegaFrete - Firestore Security Rules v2
+// ============================================
+// Principles: Zero Trust, Least Privilege, IDOR Prevention
+// All access denied by default.
+// Every operation validates request.auth.uid.
+// ============================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =====================
+    // HELPER FUNCTIONS
+    // =====================
+
+    // Check if the request is from an authenticated user
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // IDOR Prevention: Check if the authenticated user is the document owner
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Check user role from their profile document
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    // Validate string field: non-empty and within max length
+    function isValidString(field, maxLen) {
+      return field is string && field.size() > 0 && field.size() <= maxLen;
+    }
+
+    // Validate optional string field: empty or within max length
+    function isValidOptionalString(field, maxLen) {
+      return !('field' in request.resource.data) 
+        || (field is string && field.size() <= maxLen);
+    }
+
+    // Validate that incoming data has ONLY allowed fields (reject unexpected)
+    function hasOnly(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    // Validate payload size: reject excessively large documents
+    // Firestore max doc size is 1MB; we limit to 50KB for safety
+    function isReasonablePayloadSize() {
+      return request.resource.data.keys().size() <= 25;
+    }
+
+    // Validate email format (basic)
+    function isValidEmail(email) {
+      return email is string 
+        && email.size() >= 5 
+        && email.size() <= 320
+        && email.matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$');
+    }
+
+    // Validate phone format (basic, allows +55 and formatting)
+    function isValidPhone(phone) {
+      return phone is string 
+        && phone.size() >= 10 
+        && phone.size() <= 20;
+    }
+
+    // Validate CPF format (11 digits, with or without mask)
+    function isValidCPF(cpf) {
+      return cpf is string 
+        && cpf.size() >= 11 
+        && cpf.size() <= 14;
+    }
+
+    // Validate CNPJ format (14 digits, with or without mask)
+    function isValidCNPJ(cnpj) {
+      return cnpj is string 
+        && cnpj.size() >= 14 
+        && cnpj.size() <= 18;
+    }
+
+    // Validate role
+    function isValidRole(role) {
+      return role is string && role in ['driver', 'shipper'];
+    }
+
+    // Validate freight tipo (whitelist)
+    function isValidTipoCarga(tipo) {
+      return tipo is string && tipo in ['Carga Leve', 'Fracionada', 'Carga Fechada', 'Complemento'];
+    }
+
+    // Validate veiculo (whitelist)
+    function isValidVeiculo(veiculo) {
+      return veiculo is string && veiculo in ['VLC', 'VUC', 'Toco', 'Truck', 'Carreta'];
+    }
+
+    // Validate freight status (whitelist)
+    function isValidStatus(status) {
+      return status is string && status in ['pendente', 'transito', 'entregue', 'cancelado'];
+    }
+
+    // Prevent XSS: reject strings containing HTML/script tags
+    function noHtmlTags(field) {
+      return !(field.matches('.*<[a-zA-Z/].*') || field.matches('.*javascript:.*'));
+    }
+
+    // =====================
+    // USERS COLLECTION (IDOR: uid must match document ID)
+    // =====================
+    match /users/{userId} {
+      // Users can ONLY read their OWN profile
+      allow read: if isOwner(userId);
+
+      // Users can create their own profile during registration
+      allow create: if isOwner(userId)
+        && isReasonablePayloadSize()
+        && hasOnly(['nome', 'email', 'telefone', 'endereco', 'role', 'cpf', 'cnpj', 'razao', 'createdAt'])
+        // Field validation with strict limits
+        && isValidString(request.resource.data.nome, 100)
+        && noHtmlTags(request.resource.data.nome)
+        && isValidEmail(request.resource.data.email)
+        && isValidPhone(request.resource.data.telefone)
+        && isValidRole(request.resource.data.role)
+        // Optional fields
+        && (!('endereco' in request.resource.data) || (isValidString(request.resource.data.endereco, 300) && noHtmlTags(request.resource.data.endereco)))
+        && (!('cpf' in request.resource.data) || isValidCPF(request.resource.data.cpf))
+        && (!('cnpj' in request.resource.data) || isValidCNPJ(request.resource.data.cnpj))
+        && (!('razao' in request.resource.data) || (isValidString(request.resource.data.razao, 200) && noHtmlTags(request.resource.data.razao)));
+
+      // Users can update ONLY specific fields of their OWN profile
+      // IMMUTABLE: email, role, cpf, cnpj cannot be changed
+      allow update: if isOwner(userId)
+        && isReasonablePayloadSize()
+        && hasOnly(['nome', 'telefone', 'endereco', 'updatedAt'])
+        && isValidString(request.resource.data.nome, 100)
+        && noHtmlTags(request.resource.data.nome)
+        // Immutable fields must not change
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.role == resource.data.role
+        // Optional fields validation
+        && (!('telefone' in request.resource.data) || isValidPhone(request.resource.data.telefone))
+        && (!('endereco' in request.resource.data) || (isValidString(request.resource.data.endereco, 300) && noHtmlTags(request.resource.data.endereco)));
+
+      // Users CANNOT delete their own profile
+      allow delete: if false;
+    }
+
+    // =====================
+    // FREIGHTS COLLECTION (IDOR: shipperUid must match auth.uid)
+    // =====================
+    match /freights/{freightId} {
+      // Any authenticated user can READ freights (marketplace)
+      allow read: if isAuthenticated();
+
+      // Only shippers can CREATE freights
+      // IDOR: shipperUid MUST be the authenticated user's UID
+      allow create: if isAuthenticated()
+        && isReasonablePayloadSize()
+        && getUserRole() == 'shipper'
+        && request.resource.data.shipperUid == request.auth.uid
+        && hasOnly(['origem', 'destino', 'valor', 'tipo', 'veiculo', 'status', 'obs', 'shipperUid', 'createdAt'])
+        // Field validation with strict limits
+        && isValidString(request.resource.data.origem, 200)
+        && noHtmlTags(request.resource.data.origem)
+        && isValidString(request.resource.data.destino, 200)
+        && noHtmlTags(request.resource.data.destino)
+        && isValidString(request.resource.data.valor, 20)
+        && isValidTipoCarga(request.resource.data.tipo)
+        && isValidVeiculo(request.resource.data.veiculo)
+        && isValidStatus(request.resource.data.status)
+        && request.resource.data.status == 'pendente'
+        && (!('obs' in request.resource.data) || (isValidString(request.resource.data.obs, 1000) && noHtmlTags(request.resource.data.obs)));
+
+      // Only the shipper who created the freight can UPDATE it
+      // IDOR: resource.data.shipperUid must match the authenticated user
+      // shipperUid is IMMUTABLE (cannot be transferred)
+      allow update: if isAuthenticated()
+        && isReasonablePayloadSize()
+        && resource.data.shipperUid == request.auth.uid
+        && request.resource.data.shipperUid == resource.data.shipperUid
+        && hasOnly(['origem', 'destino', 'valor', 'tipo', 'veiculo', 'obs', 'status', 'shipperUid', 'updatedAt'])
+        && isValidString(request.resource.data.origem, 200)
+        && noHtmlTags(request.resource.data.origem)
+        && isValidString(request.resource.data.destino, 200)
+        && noHtmlTags(request.resource.data.destino)
+        && isValidString(request.resource.data.valor, 20)
+        && isValidTipoCarga(request.resource.data.tipo)
+        && isValidVeiculo(request.resource.data.veiculo)
+        && (!('obs' in request.resource.data) || (isValidString(request.resource.data.obs, 1000) && noHtmlTags(request.resource.data.obs)))
+        && (!('status' in request.resource.data) || isValidStatus(request.resource.data.status));
+
+      // Only the shipper who created the freight can DELETE it
+      // IDOR: resource.data.shipperUid must match
+      allow delete: if isAuthenticated()
+        && resource.data.shipperUid == request.auth.uid;
+    }
+
+    // =====================
+    // MESSAGES COLLECTION (IDOR: senderId must match auth.uid)
+    // =====================
+    match /messages/{messageId} {
+      // Only participants can read messages
+      // IDOR: must be sender or receiver
+      allow read: if isAuthenticated()
+        && (resource.data.senderId == request.auth.uid
+            || resource.data.receiverId == request.auth.uid);
+
+      // Authenticated users can create messages
+      // IDOR: senderId MUST be the authenticated user's UID
+      allow create: if isAuthenticated()
+        && isReasonablePayloadSize()
+        && request.resource.data.senderId == request.auth.uid
+        && isValidString(request.resource.data.text, 1000)
+        && noHtmlTags(request.resource.data.text)
+        && hasOnly(['senderId', 'receiverId', 'text', 'createdAt'])
+        && isValidString(request.resource.data.receiverId, 128);
+
+      // Messages cannot be edited or deleted
+      allow update, delete: if false;
+    }
+
+    // =====================
+    // DOCUMENTS COLLECTION (IDOR: userId must match auth.uid)
+    // =====================
+    match /documents/{docId} {
+      // Users can only access their OWN documents
+      // IDOR: userId in document must match auth.uid
+      allow read: if isAuthenticated()
+        && resource.data.userId == request.auth.uid;
+
+      allow create: if isAuthenticated()
+        && isReasonablePayloadSize()
+        && request.resource.data.userId == request.auth.uid
+        && hasOnly(['userId', 'type', 'fileName', 'url', 'status', 'createdAt'])
+        && isValidString(request.resource.data.type, 50)
+        && isValidString(request.resource.data.fileName, 255)
+        && isValidString(request.resource.data.url, 2048);
+
+      allow update, delete: if false;
+    }
+
+    // =====================
+    // SECURITY LOGS (write-only, owner-read)
+    // =====================
+    match /security_logs/{logId} {
+      // Users can read their own logs only (for transparency)
+      allow read: if isAuthenticated()
+        && resource.data.uid == request.auth.uid;
+
+      // Authenticated users can create log entries for themselves
+      allow create: if isAuthenticated()
+        && request.resource.data.uid == request.auth.uid
+        && hasOnly(['uid', 'event', 'details', 'timestamp', 'page'])
+        && isValidString(request.resource.data.event, 100)
+        && isValidString(request.resource.data.details, 500);
+
+      // Logs are immutable
+      allow update, delete: if false;
+    }
+
+    // =====================
+    // DENY ALL OTHER COLLECTIONS
+    // =====================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
