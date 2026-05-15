@@ -7,7 +7,7 @@
     <title>PegaFrete | Logística Inteligente</title>
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://unpkg.com https://apis.google.com https://www.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com;" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://unpkg.com https://apis.google.com https://www.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com https://unpkg.com; img-src 'self' data: https: blob:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com;" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1235,7 +1235,9 @@
     <!-- TELA: ENTRADA DE AUTENTICAÇÃO (NOVA) -->
     <section id="auth_entry" class="screen">
         <div class="text-center" style="margin-top: 60px; margin-bottom: 40px;">
-            <i class="ph-fill ph-truck" style="font-size: 56px; color: var(--orange); margin-bottom: 16px; display: inline-block;"></i>
+            <div style="color: var(--orange) !important; margin-bottom: 20px; display: flex; justify-content: center;">
+                <i class="ph-fill ph-truck" style="font-size: 64px;"></i>
+            </div>
             <h1 style="font-size: 32px; margin-bottom: 12px; font-weight: 800;">Boas-vindas ao <span style="color: var(--orange);">Pega Frete</span></h1>
             <p class="subtitle" style="font-size: 16px; max-width: 300px; margin: 0 auto; color: var(--text-muted);">
                 Encontre cargas e motoristas em poucos segundos. Simples, rápido e sem burocracia.
