@@ -1294,11 +1294,13 @@
                     <label>E-mail</label>
                     <input type="email" id="loginEmail" placeholder="exemplo@email.com" />
                 </div>
-                <div class="input-group">
+                <div class="input-group" style="position: relative;">
                     <label>Senha</label>
-                    <input type="password" id="loginPassword" placeholder="••••••••" style="padding-right: 50px;" />
-                    <i class="ph ph-eye" id="togglePasswordLogin" onclick="togglePassVisibility('loginPassword', 'togglePasswordLogin')" 
-                       style="position: absolute; right: 16px; top: 40px; cursor: pointer; color: var(--orange); font-size: 22px;"></i>
+                    <input type="password" id="loginPassword" placeholder="••••••••" style="padding-right: 52px;" />
+                    <button type="button" onclick="togglePassVisibility('loginPassword', 'togglePasswordLogin')" 
+                       style="position: absolute; right: 4px; bottom: 4px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2;">
+                        <i class="ph ph-eye" id="togglePasswordLogin" style="color: var(--orange); font-size: 20px; pointer-events: none;"></i>
+                    </button>
                 </div>
                 <button class="btn btn-orange mt-4" onclick="fazerLogin(this)">
                     Acessar Plataforma <i class="ph ph-sign-in"></i>
@@ -1443,15 +1445,16 @@
         </div>
 
         <div style="max-width: 480px; margin: 0 auto; margin-top: 20px;">
-            <div class="auth-card-title">Segurança Máxima</div>
             <div class="auth-card-subtitle">Sua senha é a chave para seus ganhos. Escolha uma bem forte.</div>
 
             <div class="glass-card">
-                <div class="input-group">
+                <div class="input-group" style="position: relative;">
                     <label>Sua Senha</label>
-                    <input type="password" id="regPassword" placeholder="Crie uma senha forte" style="padding-right: 50px;" oninput="checkPasswordRequirements(this.value)" />
-                    <i class="ph ph-eye" id="toggleRegPass" onclick="togglePassVisibility('regPassword', 'toggleRegPass')" 
-                       style="position: absolute; right: 16px; top: 40px; cursor: pointer; color: var(--orange); font-size: 22px;"></i>
+                    <input type="password" id="regPassword" placeholder="Crie uma senha forte" style="padding-right: 52px;" oninput="checkPasswordRequirements(this.value)" />
+                    <button type="button" onclick="togglePassVisibility('regPassword', 'toggleRegPass')" 
+                       style="position: absolute; right: 4px; bottom: 4px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2;">
+                        <i class="ph ph-eye" id="toggleRegPass" style="color: var(--orange); font-size: 20px; pointer-events: none;"></i>
+                    </button>
                 </div>
 
                 <div class="password-checklist glass-card" style="padding: 16px; margin: -8px 0 24px 0; border-radius: 18px; background: rgba(15, 23, 42, 0.03); border: none; box-shadow: none; animation: none;">
@@ -1470,11 +1473,13 @@
                     </div>
                 </div>
 
-                <div class="input-group">
+                <div class="input-group" style="position: relative;">
                     <label>Confirme a Senha</label>
-                    <input type="password" id="regPasswordConfirm" placeholder="Repita a senha" style="padding-right: 50px;" />
-                    <i class="ph ph-eye" id="toggleRegPassConfirm" onclick="togglePassVisibility('regPasswordConfirm', 'toggleRegPassConfirm')" 
-                       style="position: absolute; right: 16px; top: 40px; cursor: pointer; color: var(--orange); font-size: 22px;"></i>
+                    <input type="password" id="regPasswordConfirm" placeholder="Repita a senha" style="padding-right: 52px;" />
+                    <button type="button" onclick="togglePassVisibility('regPasswordConfirm', 'toggleRegPassConfirm')" 
+                       style="position: absolute; right: 4px; bottom: 4px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2;">
+                        <i class="ph ph-eye" id="toggleRegPassConfirm" style="color: var(--orange); font-size: 20px; pointer-events: none;"></i>
+                    </button>
                 </div>
 
                 <button class="btn btn-orange mt-4" onclick="finalizarCadastro(this)" style="border-radius: 18px; padding: 18px;">
