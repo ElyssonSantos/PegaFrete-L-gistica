@@ -7,7 +7,7 @@
     <title>PegaFrete | Logística Inteligente</title>
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://unpkg.com https://fonts.googleapis.com https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://www.gstatic.com https://www.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com https://unpkg.com; img-src 'self' https://images.unsplash.com https://www.gstatic.com https://*.googleusercontent.com data:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.firebaseapp.com https://*.cloudfunctions.net; frame-src https://www.google.com https://*.firebaseapp.com;" />
+    <!-- CSP desabilitada temporariamente para garantir carregamento de ícones e imagens -->
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,41 +40,42 @@
             font-family: 'Inter', sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
-
         body {
-            background: var(--bg);
+            background: radial-gradient(circle at top right, #fff7ed 0%, var(--bg) 100%);
             color: var(--text-main);
             overscroll-behavior-y: none;
+            min-height: 100vh;
         }
 
-        h1 {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: -0.5px;
-        }
-
-        h2 {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 12px;
-            letter-spacing: -0.3px;
-        }
-
-        .subtitle {
-            color: var(--text-muted);
-            font-size: 14px;
-            line-height: 1.5;
+        /* Estilos Premium e Futuristas */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 28px;
+            padding: 32px 24px;
+            box-shadow: 0 10px 40px rgba(15, 23, 42, 0.05);
             margin-bottom: 24px;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .screen {
             display: none;
             min-height: 100vh;
             padding: 24px;
-            padding-bottom: 100px;
-            animation: fadeIn 0.4s ease forwards;
+            padding-bottom: 120px;
+            animation: fadeIn 0.5s ease forwards;
         }
 
         .screen.active {
@@ -83,18 +84,6 @@
 
         #splash.active {
             display: flex;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         @keyframes spin {
@@ -253,8 +242,19 @@
         }
 
         .input-group {
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            margin-left: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .input-group i {
@@ -269,15 +269,21 @@
         select,
         textarea {
             width: 100%;
-            padding: 16px;
-            padding-left: 48px;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            background: #f8fafc;
+            padding: 16px 20px;
+            border-radius: 18px;
+            border: 1.5px solid var(--border);
+            background: rgba(255, 255, 255, 0.5);
             font-size: 15px;
             color: var(--text-main);
-            transition: 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             outline: none;
+        }
+
+        input:focus {
+            border-color: var(--orange);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15);
+            transform: translateY(-2px);
         }
 
         textarea {
@@ -1229,30 +1235,38 @@
     <!-- TELA: ENTRADA DE AUTENTICAÇÃO (NOVA) -->
     <section id="auth_entry" class="screen">
         <div class="text-center" style="margin-top: 60px; margin-bottom: 40px;">
-            <h1 style="font-size: 32px; margin-bottom: 12px;">Boas-vindas ao <span class="brand-orange">Pega Frete</span></h1>
-            <p class="subtitle" style="font-size: 16px; max-width: 300px; margin: 0 auto;">
+            <h1 style="font-size: 32px; margin-bottom: 12px; font-weight: 800;">Boas-vindas ao <span class="brand-orange">Pega Frete</span></h1>
+            <p class="subtitle" style="font-size: 16px; max-width: 300px; margin: 0 auto; color: var(--text-muted);">
                 Encontre cargas e motoristas em poucos segundos. Simples, rápido e sem burocracia.
             </p>
         </div>
 
-        <div class="card" style="max-width: 400px; margin: 0 auto;">
-            <button class="btn btn-google" onclick="loginComGoogle(this)">
-                <img src="./google_icon.png" width="20" height="20" style="margin-right: 8px;">
-                Entrar com Google
-            </button>
+        <div style="max-width: 420px; margin: 0 auto;">
+            <div class="glass-card">
+                <button class="btn btn-google" onclick="loginComGoogle(this)" style="background: white; border: 1.5px solid var(--border); border-radius: 18px; font-weight: 600;">
+                    <svg width="22" height="22" viewBox="0 0 48 48" style="margin-right: 12px; flex-shrink: 0;">
+                        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                    </svg>
+                    Entrar com Google
+                </button>
 
-            <div class="divider">ou entre com e-mail</div>
+                <div class="divider" style="margin: 32px 0;">ou entre com e-mail</div>
 
-            <div class="input-group no-icon">
-                <input type="email" id="authEmail" placeholder="Seu e-mail" style="padding-left: 16px;" />
-            </div>
+                <div class="input-group">
+                    <label>Seu E-mail</label>
+                    <input type="email" id="authEmail" placeholder="seu@email.com" />
+                </div>
 
-            <button class="btn btn-orange mt-4" id="btnContinuar" onclick="handleContinuar(this)">
-                Continuar <i class="ph ph-arrow-right"></i>
-            </button>
+                <button class="btn btn-orange mt-4" id="btnContinuar" onclick="handleContinuar(this)" style="border-radius: 18px; padding: 18px;">
+                    Continuar <i class="ph ph-arrow-right"></i>
+                </button>
 
-            <div class="auth-footer">
-                Criando uma conta, você concorda com nossos <a href="#" onclick="showToast('Página de termos em desenvolvimento')">Termos e Condições</a>.
+                <div class="auth-footer" style="margin-top: 40px;">
+                    Criando uma conta, você concorda com nossos <a href="#" onclick="showToast('Página de termos em desenvolvimento')">Termos e Condições</a>.
+                </div>
             </div>
         </div>
     </section>
@@ -1267,31 +1281,30 @@
     <section id="login" class="screen">
         <div class="topbar">
             <button class="back-btn" onclick="navTo('auth_entry')"><i class="ph ph-arrow-left"></i></button>
-            <h1>Fazer Login</h1>
+            <h1 style="font-size: 22px;">Fazer Login</h1>
             <div style="width: 44px;"></div>
         </div>
 
-        <div style="max-width: 400px; margin: 0 auto; margin-top: 20px;">
+        <div style="max-width: 420px; margin: 0 auto; margin-top: 20px;">
             <div class="auth-card-title">Que bom ver você!</div>
             <div class="auth-card-subtitle">Insira sua senha para acessar sua conta no Pega Frete.</div>
 
-            <div class="card">
+            <div class="glass-card">
                 <div class="input-group">
-                    <label class="label-text">E-mail</label>
-                    <i class="ph ph-envelope-simple" style="top: 38px;"></i>
-                    <input type="email" id="loginEmail" placeholder="exemplo@email.com" style="padding-top: 20px; padding-bottom: 12px;" />
+                    <label>E-mail</label>
+                    <input type="email" id="loginEmail" placeholder="exemplo@email.com" />
                 </div>
                 <div class="input-group">
-                    <label class="label-text">Senha</label>
-                    <i class="ph ph-lock-key" style="top: 38px;"></i>
-                    <input type="password" id="loginPassword" placeholder="••••••••" style="padding-top: 20px; padding-bottom: 12px; padding-right: 48px;" />
-                    <i class="ph ph-eye" id="togglePassword" onclick="togglePassVisibility()" style="left: auto; right: 16px; top: 38px; cursor: pointer; color: var(--orange);"></i>
+                    <label>Senha</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" style="padding-right: 50px;" />
+                    <i class="ph ph-eye" id="togglePasswordLogin" onclick="togglePassVisibility('loginPassword', 'togglePasswordLogin')" 
+                       style="position: absolute; right: 16px; top: 40px; cursor: pointer; color: var(--orange); font-size: 22px;"></i>
                 </div>
                 <button class="btn btn-orange mt-4" onclick="fazerLogin(this)">
                     Acessar Plataforma <i class="ph ph-sign-in"></i>
                 </button>
                 <div class="text-center mt-4">
-                    <button class="text-btn" style="color: var(--orange); font-weight: 600;" onclick="showToast('Recuperação de senha em manutenção')">Esqueci minha senha</button>
+                    <button class="text-btn" style="color: var(--orange); font-weight: 700;" onclick="showToast('Recuperação de senha em manutenção')">Esqueci minha senha</button>
                 </div>
             </div>
         </div>
@@ -1301,33 +1314,37 @@
     <section id="choice" class="screen">
         <div class="topbar">
             <button class="back-btn" onclick="navTo('auth_entry')"><i class="ph ph-arrow-left"></i></button>
-            <h1>Criar Conta</h1>
+            <h1 style="font-size: 22px;">Criar Conta</h1>
             <div style="width: 44px;"></div>
         </div>
 
-        <div class="text-center" style="margin-top: 24px; margin-bottom: 32px;">
-            <h2 style="font-size: 28px; margin-bottom: 8px;">Como deseja atuar?</h2>
-            <p class="subtitle">Selecione o seu perfil para realizar o cadastro.</p>
-        </div>
+        <div style="max-width: 480px; margin: 0 auto;">
+            <div class="text-center" style="margin-top: 24px; margin-bottom: 40px;">
+                <h2 style="font-size: 28px; margin-bottom: 8px; font-weight: 800; color: var(--primary);">Como deseja atuar?</h2>
+                <p class="subtitle" style="color: var(--text-muted);">Selecione o seu perfil para realizar o cadastro.</p>
+            </div>
 
-        <div class="role-card" onclick="iniciarCadastro('shipper')">
-            <div class="role-icon" style="background: #eff6ff; color: #3b82f6;"><i class="ph-fill ph-buildings"></i>
+            <div class="role-card glass-card" onclick="iniciarCadastro('shipper')" style="display: flex; align-items: center; cursor: pointer; transition: all 0.3s ease; padding: 20px; border-radius: 24px; margin-bottom: 20px;">
+                <div class="role-icon" style="background: #eff6ff; color: #3b82f6; width: 64px; height: 64px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-right: 20px;">
+                    <i class="ph-fill ph-buildings"></i>
+                </div>
+                <div class="role-info" style="flex: 1;">
+                    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 4px;">Embarcador</h3>
+                    <p style="font-size: 14px; color: var(--text-muted);">Tenho cargas e preciso de transportadores qualificados.</p>
+                </div>
+                <i class="ph ph-caret-right" style="font-size: 20px; color: var(--text-muted);"></i>
             </div>
-            <div class="role-info">
-                <h3>Embarcador</h3>
-                <p>Tenho cargas e preciso de transportadores qualificados.</p>
-            </div>
-            <i class="ph ph-caret-right role-arrow"></i>
-        </div>
 
-        <div class="role-card" onclick="iniciarCadastro('driver')">
-            <div class="role-icon" style="background: #fff7ed; color: #ea580c;"><i
-                    class="ph-fill ph-steering-wheel"></i></div>
-            <div class="role-info">
-                <h3>Transportador</h3>
-                <p>Tenho veículo e quero encontrar cargas na minha região.</p>
+            <div class="role-card glass-card" onclick="iniciarCadastro('driver')" style="display: flex; align-items: center; cursor: pointer; transition: all 0.3s ease; padding: 20px; border-radius: 24px; margin-bottom: 20px; animation-delay: 0.1s;">
+                <div class="role-icon" style="background: #fff7ed; color: #ea580c; width: 64px; height: 64px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-right: 20px;">
+                    <i class="ph-fill ph-steering-wheel"></i>
+                </div>
+                <div class="role-info" style="flex: 1;">
+                    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 4px;">Transportador</h3>
+                    <p style="font-size: 14px; color: var(--text-muted);">Tenho veículo e quero encontrar cargas na minha região.</p>
+                </div>
+                <i class="ph ph-caret-right" style="font-size: 20px; color: var(--text-muted);"></i>
             </div>
-            <i class="ph ph-caret-right role-arrow"></i>
         </div>
     </section>
 
@@ -1335,41 +1352,41 @@
     <section id="register_shipper" class="screen">
         <div class="topbar">
             <button class="back-btn" onclick="navTo('choice')"><i class="ph ph-arrow-left"></i></button>
-            <h1>Cadastro Embarcador</h1>
+            <h1 style="font-size: 22px;">Cadastro Embarcador</h1>
             <div style="width: 44px;"></div>
         </div>
 
-        <div style="max-width: 450px; margin: 0 auto; margin-top: 20px;">
+        <div style="max-width: 480px; margin: 0 auto; margin-top: 20px;">
             <div class="auth-card-title">Dados da Empresa</div>
             <div class="auth-card-subtitle">Complete as informações para começar a publicar cargas.</div>
 
-            <div class="card">
-                <div class="input-group no-icon">
-                    <label class="label-text">Nome do Responsável</label>
+            <div class="glass-card">
+                <div class="input-group">
+                    <label>Nome do Responsável</label>
                     <input type="text" id="regShipperName" placeholder="Nome completo" />
                 </div>
-                <div class="input-group no-icon">
-                    <label class="label-text">Razão Social</label>
+                <div class="input-group">
+                    <label>Razão Social</label>
                     <input type="text" id="regShipperRazao" placeholder="Nome da empresa" />
                 </div>
-                <div class="input-group no-icon">
-                    <label class="label-text">CNPJ</label>
+                <div class="input-group">
+                    <label>CNPJ</label>
                     <input type="text" id="regShipperCnpj" placeholder="00.000.000/0000-00" oninput="maskCNPJ(this)" autocomplete="off" />
                 </div>
-                <div class="input-group no-icon">
-                    <label class="label-text">E-mail Corporativo</label>
+                <div class="input-group">
+                    <label>E-mail Corporativo</label>
                     <input type="email" id="regShipperEmail" placeholder="empresa@email.com" />
                 </div>
-                <div class="input-group no-icon">
-                    <label class="label-text">Telefone</label>
+                <div class="input-group">
+                    <label>Telefone</label>
                     <input type="tel" id="regShipperPhone" placeholder="(00) 00000-0000" oninput="maskPhone(this)" />
                 </div>
-                <div class="input-group no-icon">
-                    <label class="label-text">Endereço</label>
+                <div class="input-group">
+                    <label>Endereço</label>
                     <input type="text" id="regShipperAddress" placeholder="Rua, número, cidade..." />
                 </div>
 
-                <button class="btn btn-orange mt-4" onclick="irParaSenha()">
+                <button class="btn btn-orange mt-4" onclick="irParaSenha()" style="border-radius: 18px; padding: 18px;">
                     Próxima Etapa <i class="ph ph-arrow-right"></i>
                 </button>
             </div>
@@ -1380,37 +1397,37 @@
     <section id="register_driver" class="screen">
         <div class="topbar">
             <button class="back-btn" onclick="navTo('choice')"><i class="ph ph-arrow-left"></i></button>
-            <h1>Cadastro Transportador</h1>
+            <h1 style="font-size: 22px;">Cadastro Transportador</h1>
             <div style="width: 44px;"></div>
         </div>
 
-        <div style="max-width: 450px; margin: 0 auto; margin-top: 20px;">
+        <div style="max-width: 480px; margin: 0 auto; margin-top: 20px;">
             <div class="auth-card-title">Seus Dados</div>
             <div class="auth-card-subtitle">Cadastre-se para ter acesso às melhores cargas da região.</div>
 
-            <div class="card">
-                <div class="input-group no-icon">
-                    <label class="label-text">Nome Completo</label>
+            <div class="glass-card">
+                <div class="input-group">
+                    <label>Nome Completo</label>
                     <input type="text" id="regDriverName" placeholder="Como quer ser chamado" />
                 </div>
-                <div class="input-group no-icon">
-                    <label class="label-text">CPF</label>
+                <div class="input-group">
+                    <label>CPF</label>
                     <input type="text" id="regDriverCpf" placeholder="000.000.000-00" oninput="maskCPF(this)" autocomplete="off" />
                 </div>
-                <div class="input-group no-icon">
-                    <label class="label-text">E-mail</label>
+                <div class="input-group">
+                    <label>E-mail</label>
                     <input type="email" id="regDriverEmail" placeholder="seu@email.com" />
                 </div>
-                <div class="input-group no-icon">
-                    <label class="label-text">Telefone</label>
+                <div class="input-group">
+                    <label>Telefone</label>
                     <input type="tel" id="regDriverPhone" placeholder="(00) 00000-0000" oninput="maskPhone(this)" />
                 </div>
-                <div class="input-group no-icon">
-                    <label class="label-text">Cidade/Base</label>
+                <div class="input-group">
+                    <label>Cidade/Base</label>
                     <input type="text" id="regDriverAddress" placeholder="Sua localização principal" />
                 </div>
 
-                <button class="btn btn-orange mt-4" onclick="irParaSenha()">
+                <button class="btn btn-orange mt-4" onclick="irParaSenha()" style="border-radius: 18px; padding: 18px;">
                     Próxima Etapa <i class="ph ph-arrow-right"></i>
                 </button>
             </div>
@@ -1421,51 +1438,49 @@
     <section id="register_password" class="screen">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
-            <h1>Criar Senha</h1>
+            <h1 style="font-size: 22px;">Criar Senha</h1>
             <div style="width: 44px;"></div>
         </div>
 
-        <div class="card">
-            <p class="subtitle" style="margin-bottom: 16px;">Para sua segurança, a senha deve conter pelo menos 8
-                dígitos, uma letra maiúscula e um caractere especial (!@#$).</p>
+        <div style="max-width: 480px; margin: 0 auto; margin-top: 20px;">
+            <div class="auth-card-title">Segurança Máxima</div>
+            <div class="auth-card-subtitle">Sua senha é a chave para seus ganhos. Escolha uma bem forte.</div>
 
-            <div class="input-group">
-                <i class="ph ph-lock-key"></i>
-                <input type="password" id="regPassword" placeholder="Crie uma senha forte"
-                    oninput="checkPasswordRequirements(this.value)" />
+            <div class="glass-card">
+                <div class="input-group">
+                    <label>Sua Senha</label>
+                    <input type="password" id="regPassword" placeholder="Crie uma senha forte" style="padding-right: 50px;" oninput="checkPasswordRequirements(this.value)" />
+                    <i class="ph ph-eye" id="toggleRegPass" onclick="togglePassVisibility('regPassword', 'toggleRegPass')" 
+                       style="position: absolute; right: 16px; top: 40px; cursor: pointer; color: var(--orange); font-size: 22px;"></i>
+                </div>
+
+                <div class="password-checklist glass-card" style="padding: 16px; margin: -8px 0 24px 0; border-radius: 18px; background: rgba(15, 23, 42, 0.03); border: none; box-shadow: none; animation: none;">
+                    <p style="font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Requisitos de Segurança</p>
+                    <div id="req-len" style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">
+                        <i class="ph ph-circle"></i> 8+ caracteres
+                    </div>
+                    <div id="req-upper" style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">
+                        <i class="ph ph-circle"></i> Letra maiúscula
+                    </div>
+                    <div id="req-number" style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">
+                        <i class="ph ph-circle"></i> Pelo menos um número
+                    </div>
+                    <div id="req-special" style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted);">
+                        <i class="ph ph-circle"></i> Caractere especial (!@#$)
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Confirme a Senha</label>
+                    <input type="password" id="regPasswordConfirm" placeholder="Repita a senha" style="padding-right: 50px;" />
+                    <i class="ph ph-eye" id="toggleRegPassConfirm" onclick="togglePassVisibility('regPasswordConfirm', 'toggleRegPassConfirm')" 
+                       style="position: absolute; right: 16px; top: 40px; cursor: pointer; color: var(--orange); font-size: 22px;"></i>
+                </div>
+
+                <button class="btn btn-orange mt-4" onclick="finalizarCadastro(this)" style="border-radius: 18px; padding: 18px;">
+                    Finalizar Cadastro <i class="ph ph-check-circle"></i>
+                </button>
             </div>
-
-            <!-- Checklist de requisitos da senha -->
-            <div class="password-checklist"
-                style="margin-top: -8px; margin-bottom: 16px; padding: 12px; background: #f1f5f9; border-radius: 12px;">
-                <p style="font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px;">REQUISITOS
-                    DA SENHA:</p>
-                <div class="req-item" id="req-len"
-                    style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
-                    <i class="ph ph-circle"></i> Mínimo de 8 caracteres
-                </div>
-                <div class="req-item" id="req-upper"
-                    style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
-                    <i class="ph ph-circle"></i> Pelo menos uma letra maiúscula
-                </div>
-                <div class="req-item" id="req-number"
-                    style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
-                    <i class="ph ph-circle"></i> Pelo menos um número
-                </div>
-                <div class="req-item" id="req-special"
-                    style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted);">
-                    <i class="ph ph-circle"></i> Um caractere especial (@, #, $, etc)
-                </div>
-            </div>
-
-            <div class="input-group">
-                <i class="ph ph-lock-key"></i>
-                <input type="password" id="regPasswordConfirm" placeholder="Confirme sua senha" />
-            </div>
-
-            <button class="btn btn-orange mt-4" onclick="finalizarCadastro(this)">
-                Finalizar Cadastro <i class="ph ph-check-circle"></i>
-            </button>
         </div>
     </section>
 
@@ -1931,10 +1946,10 @@
 
         // ====== FUNÇÕES DE SEGURANÇA ======
 
-        // Toggle visibilidade da senha
-        function togglePassVisibility() {
-            const input = document.getElementById('loginPassword');
-            const icon = document.getElementById('togglePassword');
+        // Toggle visibilidade da senha aprimorado
+        function togglePassVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
             if (input.type === 'password') {
                 input.type = 'text';
                 icon.className = 'ph ph-eye-slash';
@@ -2044,19 +2059,27 @@
             btn.disabled = true;
 
             try {
-                // Verifica no Firestore se o e-mail já existe
-                const querySnapshot = await db.collection("users").where("email", "==", email).get();
+                // Verifica no Firebase Auth se o e-mail já existe (método confiável)
+                const methods = await auth.fetchSignInMethodsForEmail(email);
                 
                 btn.innerHTML = original;
                 btn.disabled = false;
 
-                if (!querySnapshot.empty) {
-                    // E-mail existe -> Ir para tela de LOGIN
+                if (methods && methods.length > 0) {
+                    // E-mail existe no Auth -> Ir para tela de LOGIN
                     document.getElementById('loginEmail').value = email;
                     navTo('login');
                 } else {
-                    // E-mail não existe -> Ir para tela de ESCOLHA DE PERFIL
-                    // Preenchemos os campos de e-mail nos cadastros para facilitar
+                    // E-mail NÃO existe no Auth -> Limpar dados órfãos do Firestore (se houver)
+                    const orphanDocs = await db.collection("users").where("email", "==", email).get();
+                    if (!orphanDocs.empty) {
+                        // Deleta documentos órfãos de contas já removidas
+                        const batch = db.batch();
+                        orphanDocs.forEach(doc => batch.delete(doc.ref));
+                        await batch.commit();
+                        console.log('Dados órfãos removidos do Firestore para:', email);
+                    }
+                    // Ir para tela de ESCOLHA DE PERFIL
                     document.getElementById('regShipperEmail').value = email;
                     document.getElementById('regDriverEmail').value = email;
                     navTo('choice');
@@ -2064,6 +2087,7 @@
             } catch (error) {
                 btn.innerHTML = original;
                 btn.disabled = false;
+                console.error('Erro handleContinuar:', error);
                 showToast('Erro ao verificar e-mail. Tente novamente.', 'error');
             }
         }
