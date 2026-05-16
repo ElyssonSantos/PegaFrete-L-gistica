@@ -1,0 +1,32 @@
+{
+  "name": "pegafrete-2",
+  "version": "1.0.0",
+  "main": "refactor.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ElyssonSantos/PegaFrete-L-gistica.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ElyssonSantos/PegaFrete-L-gistica/issues"
+  },
+  "homepage": "https://github.com/ElyssonSantos/PegaFrete-L-gistica#readme",
+  "description": "",
+  "devDependencies": {
+    "vite": "^8.0.13"
+  },
+  "dependencies": {
+    "firebase": "^12.13.0"
+  }
+}

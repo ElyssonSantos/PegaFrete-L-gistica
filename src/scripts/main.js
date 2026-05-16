@@ -1,3 +1,7 @@
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
+import 'firebase/compat/firestore';
+
 // Configuração do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyD7lL5jSj57oLL_wWJWbImUD2Y7TKk3gRI",
@@ -1268,3 +1272,55 @@
             input.value = '';
             renderChats();
         }
+// Expondo globalmente para o HTML
+window.sanitizeInput = sanitizeInput;
+window.validateFile = validateFile;
+window.resetSessionTimer = resetSessionTimer;
+window.togglePassVisibility = togglePassVisibility;
+window.sanitizeHTML = sanitizeHTML;
+window.validateEmail = validateEmail;
+window.validateCPF = validateCPF;
+window.validateCNPJ = validateCNPJ;
+window.startFreightListener = startFreightListener;
+window.maskMoney = maskMoney;
+window.maskPhone = maskPhone;
+window.maskCPF = maskCPF;
+window.maskCNPJ = maskCNPJ;
+window.checkPasswordRequirements = checkPasswordRequirements;
+window.showToast = showToast;
+window.navTo = navTo;
+window.goBack = goBack;
+window.goHome = goHome;
+window.setRole = setRole;
+window.updateNavbar = updateNavbar;
+window.openFilters = openFilters;
+window.closeFilters = closeFilters;
+window.aplicarFiltros = aplicarFiltros;
+window.limparFiltros = limparFiltros;
+window.togglePill = togglePill;
+window.abrirEdicaoFrete = abrirEdicaoFrete;
+window.fecharEdicaoFrete = fecharEdicaoFrete;
+window.iniciarCadastro = iniciarCadastro;
+window.irParaVeiculo = irParaVeiculo;
+window.irParaSenha = irParaSenha;
+window.preencherPerfil = preencherPerfil;
+window.openPhotoActionSheet = openPhotoActionSheet;
+window.closePhotoActionSheet = closePhotoActionSheet;
+window.toggleEditProfile = toggleEditProfile;
+window.handleUpload = handleUpload;
+window.salvarCadastroMotorista = salvarCadastroMotorista;
+window.solicitarSaque = solicitarSaque;
+window.toggleStatus = toggleStatus;
+window.aceitarFrete = aceitarFrete;
+window.renderFretes = renderFretes;
+window.openFreight = openFreight;
+window.buscarFretes = buscarFretes;
+window.renderChats = renderChats;
+window.enviarMensagem = enviarMensagem;
+
+window.navHistory = navHistory;
+window.currentUserRole = currentUserRole;
+window.userData = userData;
+window.db = db;
+window.auth = auth;
+window.firebase = firebase;
