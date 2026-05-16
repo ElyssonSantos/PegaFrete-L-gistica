@@ -2,6 +2,28 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 
+console.clear();
+
+const logo = `
+██████╗ ███████╗ ██████╗  █████╗ ███████╗██████╗ ███████╗████████╗███████╗
+██╔══██╗██╔════╝██╔════╝ ██╔══██╗██╔════╝██╔══██╗██╔════╝╚══██╔══╝██╔════╝
+██████╔╝█████╗  ██║  ███╗███████║█████╗  ██████╔╝█████╗     ██║   █████╗
+██╔═══╝ ██╔══╝  ██║   ██║██╔══██║██╔══╝  ██╔══██╗██╔══╝     ██║   ██╔══╝
+██║     ███████╗╚██████╔╝██║  ██║██║     ██║  ██║███████╗   ██║   ███████╗
+╚═╝     ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝  ╚═╝╚══════╝   ╚═╝   ╚══════╝
+`;
+
+console.log(
+  "%c" + logo,
+  "color: #22c55e; font-family: monospace; font-weight: bold;"
+);
+
+console.log(
+  "%cSe você está vendo isso, saiba que todo acesso é monitorado.",
+  "color: #ffffff; background: #111827; padding: 6px 10px; border-radius: 6px;"
+);
+
+
 // Configuração do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyD7lL5jSj57oLL_wWJWbImUD2Y7TKk3gRI",
