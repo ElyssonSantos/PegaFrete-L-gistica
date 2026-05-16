@@ -93,7 +93,7 @@ service cloud.firestore {
 
     // Validate veiculo (whitelist)
     function isValidVeiculo(veiculo) {
-      return veiculo is string && veiculo in ['VLC', 'VUC', 'Toco', 'Truck', 'Carreta'];
+      return veiculo is string && veiculo in ['3/4', 'Toco', 'Fiorino', 'Truck', 'Bitruck', 'Carreta LS', 'Bitrem', 'Rodotrem', 'Vanderléia', 'Caçamba', 'Silo', 'Graneleiro', 'Plataforma', 'Prancha', 'Tanque', 'Sider', 'Baú Refrigerado', 'Baú'];
     }
 
     // Validate freight status (whitelist)
@@ -116,7 +116,7 @@ service cloud.firestore {
       // Users can create their own profile during registration
       allow create: if isOwner(userId)
         && isReasonablePayloadSize()
-        && hasOnly(['nome', 'email', 'telefone', 'endereco', 'role', 'cpf', 'cnpj', 'razao', 'createdAt'])
+        && hasOnly(['nome', 'email', 'telefone', 'endereco', 'role', 'cpf', 'cnpj', 'razao', 'createdAt', 'veiculo', 'foto'])
         // Field validation with strict limits
         && isValidString(request.resource.data.nome, 100)
         && noHtmlTags(request.resource.data.nome)
@@ -133,7 +133,7 @@ service cloud.firestore {
       // IMMUTABLE: email, role, cpf, cnpj cannot be changed
       allow update: if isOwner(userId)
         && isReasonablePayloadSize()
-        && hasOnly(['nome', 'telefone', 'endereco', 'updatedAt'])
+        && hasOnly(['nome', 'telefone', 'endereco', 'updatedAt', 'veiculo', 'foto'])
         && isValidString(request.resource.data.nome, 100)
         && noHtmlTags(request.resource.data.nome)
         // Immutable fields must not change
@@ -160,7 +160,7 @@ service cloud.firestore {
         && isReasonablePayloadSize()
         && getUserRole() == 'shipper'
         && request.resource.data.shipperUid == request.auth.uid
-        && hasOnly(['origem', 'destino', 'valor', 'tipo', 'veiculo', 'status', 'obs', 'shipperUid', 'createdAt'])
+        && hasOnly(['origem', 'destino', 'valor', 'tipo', 'veiculo', 'status', 'obs', 'shipperUid', 'createdAt', 'telefoneContato', 'whatsappContato'])
         // Field validation with strict limits
         && isValidString(request.resource.data.origem, 200)
         && noHtmlTags(request.resource.data.origem)
@@ -180,7 +180,7 @@ service cloud.firestore {
         && isReasonablePayloadSize()
         && resource.data.shipperUid == request.auth.uid
         && request.resource.data.shipperUid == resource.data.shipperUid
-        && hasOnly(['origem', 'destino', 'valor', 'tipo', 'veiculo', 'obs', 'status', 'shipperUid', 'updatedAt'])
+        && hasOnly(['origem', 'destino', 'valor', 'tipo', 'veiculo', 'obs', 'status', 'shipperUid', 'updatedAt', 'telefoneContato', 'whatsappContato'])
         && isValidString(request.resource.data.origem, 200)
         && noHtmlTags(request.resource.data.origem)
         && isValidString(request.resource.data.destino, 200)
