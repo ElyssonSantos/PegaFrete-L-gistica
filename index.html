@@ -7,7 +7,8 @@
     <title>PegaFrete | Logística Inteligente</title>
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://unpkg.com https://apis.google.com https://www.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://unpkg.com https://cdn.jsdelivr.net; img-src 'self' data: https: blob:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com;" />
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://unpkg.com https://apis.google.com https://www.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://unpkg.com https://cdn.jsdelivr.net; img-src 'self' data: https: blob:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com;" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,6 +41,7 @@
             font-family: 'Inter', sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
+
         body {
             background: radial-gradient(circle at top right, #fff7ed 0%, var(--bg) 100%);
             color: var(--text-main);
@@ -61,13 +63,25 @@
         }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
         .screen {
@@ -105,7 +119,7 @@
             background: white;
             color: var(--text-main);
             border: 1px solid var(--border);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
         .btn-google:hover {
@@ -1238,7 +1252,10 @@
             <div style="color: var(--orange) !important; margin-bottom: 20px; display: flex; justify-content: center;">
                 <i class="ph-fill ph-truck" style="font-size: 64px;"></i>
             </div>
-            <h1 style="font-size: 32px; margin-bottom: 12px; font-weight: 800;">Boas-vindas ao <span style="color: var(--orange);">Pega Frete</span></h1>
+            <h1 style="font-size: 28px; margin-bottom: 12px; font-weight: 800; line-height: 1.2;">
+                Boas-vindas ao<br/>
+                <span style="color: var(--orange);">PegaFrete</span>
+            </h1>
             <p class="subtitle" style="font-size: 16px; max-width: 300px; margin: 0 auto; color: var(--text-muted);">
                 Encontre cargas e motoristas em poucos segundos. Simples, rápido e sem burocracia.
             </p>
@@ -1246,12 +1263,17 @@
 
         <div style="max-width: 420px; margin: 0 auto;">
             <div class="glass-card">
-                <button class="btn btn-google" onclick="loginComGoogle(this)" style="background: white; border: 1.5px solid var(--border); border-radius: 18px; font-weight: 600;">
+                <button class="btn btn-google" onclick="loginComGoogle(this)"
+                    style="background: white; border: 1.5px solid var(--border); border-radius: 18px; font-weight: 600;">
                     <svg width="22" height="22" viewBox="0 0 48 48" style="margin-right: 12px; flex-shrink: 0;">
-                        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-                        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-                        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-                        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                        <path fill="#EA4335"
+                            d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                        <path fill="#4285F4"
+                            d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                        <path fill="#FBBC05"
+                            d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                        <path fill="#34A853"
+                            d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
                     </svg>
                     Entrar com Google
                 </button>
@@ -1259,16 +1281,18 @@
                 <div class="divider" style="margin: 32px 0;">ou entre com e-mail</div>
 
                 <div class="input-group">
-                    <label>Seu E-mail</label>
-                    <input type="email" id="authEmail" placeholder="seu@email.com" />
+                    <label>E-mail de acesso</label>
+                    <input type="email" id="authEmail" placeholder="voce@exemplo.com" />
                 </div>
 
-                <button class="btn btn-orange mt-4" id="btnContinuar" onclick="handleContinuar(this)" style="border-radius: 18px; padding: 18px;">
+                <button class="btn btn-orange mt-4" id="btnContinuar" onclick="handleContinuar(this)"
+                    style="border-radius: 18px; padding: 18px;">
                     Continuar <i class="ph ph-arrow-right"></i>
                 </button>
 
                 <div class="auth-footer" style="margin-top: 40px;">
-                    Criando uma conta, você concorda com nossos <a href="#" onclick="showToast('Página de termos em desenvolvimento')">Termos e Condições</a>.
+                    Criando uma conta, você concorda com nossos <a href="#"
+                        onclick="showToast('Página de termos em desenvolvimento')">Termos e Condições</a>.
                 </div>
             </div>
         </div>
@@ -1300,16 +1324,18 @@
                 <div class="input-group" style="position: relative;">
                     <label>Senha</label>
                     <input type="password" id="loginPassword" placeholder="••••••••" style="padding-right: 52px;" />
-                    <button type="button" onclick="togglePassVisibility('loginPassword', 'togglePasswordLogin')" 
-                       style="position: absolute; right: 4px; bottom: 4px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2;">
-                        <i class="ph ph-eye" id="togglePasswordLogin" style="color: var(--orange); font-size: 20px; pointer-events: none;"></i>
+                    <button type="button" onclick="togglePassVisibility('loginPassword', 'togglePasswordLogin')"
+                        style="position: absolute; right: 4px; bottom: 4px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2;">
+                        <i class="ph ph-eye" id="togglePasswordLogin"
+                            style="color: var(--orange); font-size: 20px; pointer-events: none;"></i>
                     </button>
                 </div>
                 <button class="btn btn-orange mt-4" onclick="fazerLogin(this)">
                     Acessar Plataforma <i class="ph ph-sign-in"></i>
                 </button>
                 <div class="text-center mt-4">
-                    <button class="text-btn" style="color: var(--orange); font-weight: 700;" onclick="showToast('Recuperação de senha em manutenção')">Esqueci minha senha</button>
+                    <button class="text-btn" style="color: var(--orange); font-weight: 700;"
+                        onclick="showToast('Recuperação de senha em manutenção')">Esqueci minha senha</button>
                 </div>
             </div>
         </div>
@@ -1318,11 +1344,37 @@
     <!-- TELA: ESCOLHA DE PERFIL -->
     <section id="choice" class="screen">
         <style>
-            .role-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 35px rgba(0,0,0,0.1); border-color: var(--orange); }
-            .role-card .role-icon { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-            .role-card:hover .role-icon { transform: scale(1.15) rotate(-5deg); }
-            .role-badge { font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 8px; text-transform: uppercase; letter-spacing: 1px; position: absolute; top: -10px; right: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-            .role-card { position: relative; border: 2px solid transparent; }
+            .role-card:hover {
+                transform: translateY(-5px) scale(1.02);
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+                border-color: var(--orange);
+            }
+
+            .role-card .role-icon {
+                transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+
+            .role-card:hover .role-icon {
+                transform: scale(1.15) rotate(-5deg);
+            }
+
+            .role-badge {
+                font-size: 10px;
+                font-weight: 800;
+                padding: 4px 10px;
+                border-radius: 8px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                position: absolute;
+                top: -10px;
+                right: 20px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            }
+
+            .role-card {
+                position: relative;
+                border: 2px solid transparent;
+            }
         </style>
         <div class="topbar">
             <button class="back-btn" onclick="navTo('auth_entry')"><i class="ph ph-arrow-left"></i></button>
@@ -1332,33 +1384,44 @@
 
         <div style="max-width: 480px; margin: 0 auto;">
             <div class="text-center" style="margin-top: 24px; margin-bottom: 40px;">
-                <div style="display: inline-flex; align-items: center; justify-content: center; width: 72px; height: 72px; background: #fff7ed; color: var(--orange); border-radius: 24px; font-size: 36px; margin-bottom: 16px; animation: slideUp 0.5s ease; box-shadow: 0 10px 25px rgba(249, 115, 22, 0.2);">
+                <div
+                    style="display: inline-flex; align-items: center; justify-content: center; width: 72px; height: 72px; background: #fff7ed; color: var(--orange); border-radius: 24px; font-size: 36px; margin-bottom: 16px; animation: slideUp 0.5s ease; box-shadow: 0 10px 25px rgba(249, 115, 22, 0.2);">
                     <i class="ph-fill ph-users-three"></i>
                 </div>
-                <h2 style="font-size: 28px; margin-bottom: 8px; font-weight: 800; color: var(--primary);">Como deseja atuar?</h2>
-                <p class="subtitle" style="color: var(--text-muted); line-height: 1.5; padding: 0 16px;">Selecione o seu perfil para personalizar sua experiência e encontrar as melhores oportunidades.</p>
+                <h2 style="font-size: 28px; margin-bottom: 8px; font-weight: 800; color: var(--primary);">Como deseja
+                    atuar?</h2>
+                <p class="subtitle" style="color: var(--text-muted); line-height: 1.5; padding: 0 16px;">Selecione o seu
+                    perfil para personalizar sua experiência e encontrar as melhores oportunidades.</p>
             </div>
 
-            <div class="role-card glass-card" onclick="iniciarCadastro('shipper')" style="display: flex; align-items: center; cursor: pointer; transition: all 0.3s ease; padding: 24px; border-radius: 24px; margin-bottom: 24px;">
+            <div class="role-card glass-card" onclick="iniciarCadastro('shipper')"
+                style="display: flex; align-items: center; cursor: pointer; transition: all 0.3s ease; padding: 24px; border-radius: 24px; margin-bottom: 24px;">
                 <div class="role-badge" style="background: #3b82f6; color: white;">Empresas</div>
-                <div class="role-icon" style="background: #eff6ff; color: #3b82f6; width: 64px; height: 64px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-right: 20px;">
+                <div class="role-icon"
+                    style="background: #eff6ff; color: #3b82f6; width: 64px; height: 64px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-right: 20px;">
                     <i class="ph-fill ph-buildings"></i>
                 </div>
                 <div class="role-info" style="flex: 1;">
-                    <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 4px; color: var(--primary);">Embarcador</h3>
-                    <p style="font-size: 14px; color: var(--text-muted); line-height: 1.4;">Tenho cargas e preciso de transportadores qualificados com segurança.</p>
+                    <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 4px; color: var(--primary);">Embarcador
+                    </h3>
+                    <p style="font-size: 14px; color: var(--text-muted); line-height: 1.4;">Tenho cargas e preciso de
+                        transportadores qualificados com segurança.</p>
                 </div>
                 <i class="ph ph-caret-right" style="font-size: 20px; color: #cbd5e1;"></i>
             </div>
 
-            <div class="role-card glass-card" onclick="iniciarCadastro('driver')" style="display: flex; align-items: center; cursor: pointer; transition: all 0.3s ease; padding: 24px; border-radius: 24px; margin-bottom: 20px; animation-delay: 0.1s;">
+            <div class="role-card glass-card" onclick="iniciarCadastro('driver')"
+                style="display: flex; align-items: center; cursor: pointer; transition: all 0.3s ease; padding: 24px; border-radius: 24px; margin-bottom: 20px; animation-delay: 0.1s;">
                 <div class="role-badge" style="background: var(--orange); color: white;">Motoristas</div>
-                <div class="role-icon" style="background: #fff7ed; color: #ea580c; width: 64px; height: 64px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-right: 20px;">
+                <div class="role-icon"
+                    style="background: #fff7ed; color: #ea580c; width: 64px; height: 64px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-right: 20px;">
                     <i class="ph-fill ph-steering-wheel"></i>
                 </div>
                 <div class="role-info" style="flex: 1;">
-                    <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 4px; color: var(--primary);">Transportador</h3>
-                    <p style="font-size: 14px; color: var(--text-muted); line-height: 1.4;">Tenho veículo e quero encontrar as melhores cargas na minha região.</p>
+                    <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 4px; color: var(--primary);">
+                        Transportador</h3>
+                    <p style="font-size: 14px; color: var(--text-muted); line-height: 1.4;">Tenho veículo e quero
+                        encontrar as melhores cargas na minha região.</p>
                 </div>
                 <i class="ph ph-caret-right" style="font-size: 20px; color: #cbd5e1;"></i>
             </div>
@@ -1388,7 +1451,8 @@
                 </div>
                 <div class="input-group">
                     <label>CNPJ</label>
-                    <input type="text" id="regShipperCnpj" placeholder="00.000.000/0000-00" oninput="maskCNPJ(this)" autocomplete="off" />
+                    <input type="text" id="regShipperCnpj" placeholder="00.000.000/0000-00" oninput="maskCNPJ(this)"
+                        autocomplete="off" />
                 </div>
                 <div class="input-group">
                     <label>E-mail Corporativo</label>
@@ -1429,7 +1493,8 @@
                 </div>
                 <div class="input-group">
                     <label>CPF</label>
-                    <input type="text" id="regDriverCpf" placeholder="000.000.000-00" oninput="maskCPF(this)" autocomplete="off" />
+                    <input type="text" id="regDriverCpf" placeholder="000.000.000-00" oninput="maskCPF(this)"
+                        autocomplete="off" />
                 </div>
                 <div class="input-group">
                     <label>E-mail</label>
@@ -1444,7 +1509,8 @@
                     <input type="text" id="regDriverAddress" placeholder="Sua localização principal" />
                 </div>
 
-                <button class="btn btn-orange mt-4" onclick="irParaVeiculo()" style="border-radius: 18px; padding: 18px;">
+                <button class="btn btn-orange mt-4" onclick="irParaVeiculo()"
+                    style="border-radius: 18px; padding: 18px;">
                     Próxima Etapa <i class="ph ph-arrow-right"></i>
                 </button>
             </div>
@@ -1466,7 +1532,8 @@
             <div class="glass-card">
                 <div class="input-group">
                     <label>Tipo de Veículo (Obrigatório)</label>
-                    <select id="regDriverVehicle" style="width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); font-size: 15px; outline: none;">
+                    <select id="regDriverVehicle"
+                        style="width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); font-size: 15px; outline: none;">
                         <option value="" disabled selected>Selecione um veículo...</option>
                         <optgroup label="Leves">
                             <option value="3/4">3/4</option>
@@ -1520,39 +1587,51 @@
             <div class="glass-card">
                 <div class="input-group" style="position: relative;">
                     <label>Sua Senha</label>
-                    <input type="password" id="regPassword" placeholder="Crie uma senha forte" style="padding-right: 52px;" oninput="checkPasswordRequirements(this.value)" />
-                    <button type="button" onclick="togglePassVisibility('regPassword', 'toggleRegPass')" 
-                       style="position: absolute; right: 4px; bottom: 4px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2;">
-                        <i class="ph ph-eye" id="toggleRegPass" style="color: var(--orange); font-size: 20px; pointer-events: none;"></i>
+                    <input type="password" id="regPassword" placeholder="Crie uma senha forte"
+                        style="padding-right: 52px;" oninput="checkPasswordRequirements(this.value)" />
+                    <button type="button" onclick="togglePassVisibility('regPassword', 'toggleRegPass')"
+                        style="position: absolute; right: 4px; bottom: 4px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2;">
+                        <i class="ph ph-eye" id="toggleRegPass"
+                            style="color: var(--orange); font-size: 20px; pointer-events: none;"></i>
                     </button>
                 </div>
 
-                <div class="password-checklist glass-card" style="padding: 16px; margin: -8px 0 24px 0; border-radius: 18px; background: rgba(15, 23, 42, 0.03); border: none; box-shadow: none; animation: none;">
-                    <p style="font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Requisitos de Segurança</p>
-                    <div id="req-len" style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">
+                <div class="password-checklist glass-card"
+                    style="padding: 16px; margin: -8px 0 24px 0; border-radius: 18px; background: rgba(15, 23, 42, 0.03); border: none; box-shadow: none; animation: none;">
+                    <p
+                        style="font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">
+                        Requisitos de Segurança</p>
+                    <div id="req-len"
+                        style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">
                         <i class="ph ph-circle"></i> 8+ caracteres
                     </div>
-                    <div id="req-upper" style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">
+                    <div id="req-upper"
+                        style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">
                         <i class="ph ph-circle"></i> Letra maiúscula
                     </div>
-                    <div id="req-number" style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">
+                    <div id="req-number"
+                        style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">
                         <i class="ph ph-circle"></i> Pelo menos um número
                     </div>
-                    <div id="req-special" style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted);">
+                    <div id="req-special"
+                        style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted);">
                         <i class="ph ph-circle"></i> Caractere especial (!@#$)
                     </div>
                 </div>
 
                 <div class="input-group" style="position: relative;">
                     <label>Confirme a Senha</label>
-                    <input type="password" id="regPasswordConfirm" placeholder="Repita a senha" style="padding-right: 52px;" />
-                    <button type="button" onclick="togglePassVisibility('regPasswordConfirm', 'toggleRegPassConfirm')" 
-                       style="position: absolute; right: 4px; bottom: 4px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2;">
-                        <i class="ph ph-eye" id="toggleRegPassConfirm" style="color: var(--orange); font-size: 20px; pointer-events: none;"></i>
+                    <input type="password" id="regPasswordConfirm" placeholder="Repita a senha"
+                        style="padding-right: 52px;" />
+                    <button type="button" onclick="togglePassVisibility('regPasswordConfirm', 'toggleRegPassConfirm')"
+                        style="position: absolute; right: 4px; bottom: 4px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2;">
+                        <i class="ph ph-eye" id="toggleRegPassConfirm"
+                            style="color: var(--orange); font-size: 20px; pointer-events: none;"></i>
                     </button>
                 </div>
 
-                <button class="btn btn-orange mt-4" onclick="finalizarCadastro(this)" style="border-radius: 18px; padding: 18px;">
+                <button class="btn btn-orange mt-4" onclick="finalizarCadastro(this)"
+                    style="border-radius: 18px; padding: 18px;">
                     Finalizar Cadastro <i class="ph ph-check-circle"></i>
                 </button>
             </div>
@@ -1676,12 +1755,16 @@
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
                     <div class="input-group no-icon" style="margin: 0;">
-                        <span style="font-size: 10px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px; text-transform: uppercase;">Telefone</span>
-                        <input id="telefoneContato" type="tel" placeholder="(00) 00000-0000" oninput="maskPhone(this)" style="font-weight: 600;" />
+                        <span
+                            style="font-size: 10px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px; text-transform: uppercase;">Telefone</span>
+                        <input id="telefoneContato" type="tel" placeholder="(00) 00000-0000" oninput="maskPhone(this)"
+                            style="font-weight: 600;" />
                     </div>
                     <div class="input-group no-icon" style="margin: 0;">
-                        <span style="font-size: 10px; font-weight: 700; color: #25D366; display: block; margin-bottom: 4px; text-transform: uppercase;">WhatsApp</span>
-                        <input id="whatsappContato" type="tel" placeholder="(00) 00000-0000" oninput="maskPhone(this)" style="font-weight: 600;" />
+                        <span
+                            style="font-size: 10px; font-weight: 700; color: #25D366; display: block; margin-bottom: 4px; text-transform: uppercase;">WhatsApp</span>
+                        <input id="whatsappContato" type="tel" placeholder="(00) 00000-0000" oninput="maskPhone(this)"
+                            style="font-weight: 600;" />
                     </div>
                 </div>
 
@@ -1810,10 +1893,14 @@
                     liberado automaticamente na plataforma após a confirmação da entrega (Baixa de Canhoto Digital).</p>
             </div>
 
-            <button class="btn btn-orange" id="btnCall" onclick="window.open('tel:' + currentFreight.telefoneContato, '_blank')" style="margin-bottom: 12px; border-radius: 18px; padding: 18px;">
+            <button class="btn btn-orange" id="btnCall"
+                onclick="window.open('tel:' + currentFreight.telefoneContato, '_blank')"
+                style="margin-bottom: 12px; border-radius: 18px; padding: 18px;">
                 Realizar Ligação <i class="ph ph-phone"></i>
             </button>
-            <button class="btn btn-outline" id="btnWhatsApp" onclick="window.open('https://wa.me/55' + currentFreight.whatsappContato.replace(/\D/g, '') + '?text=' + encodeURIComponent('Olá, vim pelo PegaFrete. Tenho interesse na carga de ' + currentFreight.origem + ' para ' + currentFreight.destino + '.'), '_blank')" style="border-radius: 18px; padding: 18px;">
+            <button class="btn btn-outline" id="btnWhatsApp"
+                onclick="window.open('https://wa.me/55' + currentFreight.whatsappContato.replace(/\D/g, '') + '?text=' + encodeURIComponent('Olá, vim pelo PegaFrete. Tenho interesse na carga de ' + currentFreight.origem + ' para ' + currentFreight.destino + '.'), '_blank')"
+                style="border-radius: 18px; padding: 18px;">
                 Chamar no WhatsApp <i class="ph ph-whatsapp-logo" style="color: #25D366;"></i>
             </button>
         </div>
@@ -1875,38 +1962,47 @@
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                 <h3 style="font-size: 16px; color: var(--primary); margin: 0;">Dados Pessoais</h3>
-                <button class="btn btn-outline" id="btnEditProfile" 
+                <button class="btn btn-outline" id="btnEditProfile"
                     style="margin: 0; padding: 8px 20px; font-size: 13px; border-radius: 12px; width: auto;"
                     onclick="toggleEditProfile()">
                     <i class="ph ph-pencil-simple" style="margin-right: 6px;"></i> Editar
                 </button>
             </div>
             <div class="input-group no-icon">
-                <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;">Nome Completo</label>
-                <input type="text" id="profName" placeholder="Nome Completo" disabled 
+                <label
+                    style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;">Nome
+                    Completo</label>
+                <input type="text" id="profName" placeholder="Nome Completo" disabled
                     style="background: #f1f5f9; color: #64748b; cursor: not-allowed;" />
             </div>
             <div class="input-group no-icon">
-                <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;">E-mail <span style="font-size: 10px; color: #94a3b8;">(não editável)</span></label>
-                <input type="email" id="profEmail" readonly 
+                <label
+                    style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;">E-mail
+                    <span style="font-size: 10px; color: #94a3b8;">(não editável)</span></label>
+                <input type="email" id="profEmail" readonly
                     style="background: #e2e8f0; color: #94a3b8; cursor: not-allowed;" />
             </div>
             <div class="input-group no-icon">
-                <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;">Celular / WhatsApp</label>
-                <input type="text" id="profPhone" placeholder="Celular / WhatsApp" disabled 
+                <label
+                    style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;">Celular
+                    / WhatsApp</label>
+                <input type="text" id="profPhone" placeholder="Celular / WhatsApp" disabled
                     style="background: #f1f5f9; color: #64748b; cursor: not-allowed;" />
             </div>
             <div class="input-group no-icon">
-                <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;">Endereço</label>
-                <input type="text" id="profAddress" placeholder="Endereço (Cidade - Estado)" disabled 
+                <label
+                    style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;">Endereço</label>
+                <input type="text" id="profAddress" placeholder="Endereço (Cidade - Estado)" disabled
                     style="background: #f1f5f9; color: #64748b; cursor: not-allowed;" />
             </div>
             <div class="input-group no-icon" id="profVehicleGroup" style="display: none;">
-                <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;">Veículo Cadastrado</label>
-                <input type="text" id="profVehicle" disabled 
+                <label
+                    style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;">Veículo
+                    Cadastrado</label>
+                <input type="text" id="profVehicle" disabled
                     style="background: #f1f5f9; color: #64748b; cursor: not-allowed;" />
             </div>
-            <button class="btn btn-orange" id="btnSaveProfile" 
+            <button class="btn btn-orange" id="btnSaveProfile"
                 style="margin-bottom: 0; display: none; border-radius: 18px; padding: 16px;"
                 onclick="salvarPerfil(this)">
                 <i class="ph ph-floppy-disk" style="margin-right: 6px;"></i> Salvar Alterações
@@ -1975,18 +2071,22 @@
             <div class="modal-content" style="padding: 24px; text-align: center; margin: auto; max-width: 320px;">
                 <h3 style="margin-bottom: 24px;">Atualizar Foto de Perfil</h3>
                 <div style="display: flex; flex-direction: column; gap: 16px;">
-                    <button class="btn btn-primary" onclick="document.getElementById('cameraInput').click(); closePhotoActionSheet();">
+                    <button class="btn btn-primary"
+                        onclick="document.getElementById('cameraInput').click(); closePhotoActionSheet();">
                         <i class="ph ph-camera"></i> Tirar Foto (Câmera)
                     </button>
-                    <button class="btn btn-outline" onclick="document.getElementById('galleryInput').click(); closePhotoActionSheet();">
+                    <button class="btn btn-outline"
+                        onclick="document.getElementById('galleryInput').click(); closePhotoActionSheet();">
                         <i class="ph ph-image"></i> Escolher da Galeria
                     </button>
                     <button class="text-btn mt-2" onclick="closePhotoActionSheet()">Cancelar</button>
                 </div>
             </div>
         </div>
-        <input type="file" accept="image/*" capture="user" id="cameraInput" style="display:none;" onchange="handleProfilePhoto(event)">
-        <input type="file" accept="image/*" id="galleryInput" style="display:none;" onchange="handleProfilePhoto(event)">
+        <input type="file" accept="image/*" capture="user" id="cameraInput" style="display:none;"
+            onchange="handleProfilePhoto(event)">
+        <input type="file" accept="image/*" id="galleryInput" style="display:none;"
+            onchange="handleProfilePhoto(event)">
     </section>
 
     <!-- TELA: FINANCEIRO -->
@@ -2096,7 +2196,7 @@
             try {
                 const user = auth.currentUser;
                 const uid = user ? user.uid : 'unauthenticated';
-                
+
                 // Em produção, isso gravaria no Firestore (coleção security_logs)
                 // Apenas o backend ou o próprio usuário pode ler seus logs.
                 if (user) {
@@ -2119,13 +2219,13 @@
             if (!file) return { valid: false, error: 'Nenhum arquivo selecionado.' };
 
             // 1. Validar tamanho
-            const maxSize = isProfilePhoto ? 5 * 1024 * 1024 : 10 * 1024 * 1024; // 5MB ou 10MB
+            const maxSize = isProfilePhoto ? 10 * 1024 * 1024 : 10 * 1024 * 1024; // 10MB
             if (file.size > maxSize) {
                 return { valid: false, error: `Arquivo muito grande. O limite é ${maxSize / (1024 * 1024)}MB.` };
             }
 
             // 2. Validar MIME Type (extensões)
-            const allowedTypes = isProfilePhoto 
+            const allowedTypes = isProfilePhoto
                 ? ['image/jpeg', 'image/png', 'image/webp']
                 : ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
 
@@ -2216,8 +2316,8 @@
         function validateCNPJ(cnpj) {
             cnpj = cnpj.replace(/\D/g, '');
             if (cnpj.length !== 14 || /^(\d)\1{13}$/.test(cnpj)) return false;
-            const pesos1 = [5,4,3,2,9,8,7,6,5,4,3,2];
-            const pesos2 = [6,5,4,3,2,9,8,7,6,5,4,3,2];
+            const pesos1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+            const pesos2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
             let soma = 0;
             for (let i = 0; i < 12; i++) soma += parseInt(cnpj[i]) * pesos1[i];
             let resto = soma % 11;
@@ -2283,10 +2383,10 @@
                 // we always go to the login screen. If login fails with user-not-found,
                 // we redirect to registration. This prevents email enumeration attacks.
                 document.getElementById('loginEmail').value = email;
-                
+
                 btn.innerHTML = original;
                 btn.disabled = false;
-                
+
                 // Pre-fill registration forms in case the user needs to register
                 if (document.getElementById('regShipperEmail')) {
                     document.getElementById('regShipperEmail').value = email;
@@ -2294,7 +2394,7 @@
                 if (document.getElementById('regDriverEmail')) {
                     document.getElementById('regDriverEmail').value = email;
                 }
-                
+
                 navTo('login');
             } catch (error) {
                 btn.innerHTML = original;
@@ -2312,7 +2412,7 @@
             try {
                 const result = await auth.signInWithPopup(provider);
                 const user = result.user;
-                
+
                 // O onAuthStateChanged cuidará do redirecionamento
                 showToast('Login com Google realizado!', 'success');
             } catch (error) {
@@ -2806,7 +2906,7 @@
             if (document.getElementById('profEmail')) document.getElementById('profEmail').value = userData.email || '';
             if (document.getElementById('profPhone')) document.getElementById('profPhone').value = userData.telefone || '';
             if (document.getElementById('profAddress')) document.getElementById('profAddress').value = userData.endereco || '';
-            
+
             if (userData.role === 'driver' && userData.veiculo) {
                 if (document.getElementById('profVehicleGroup')) document.getElementById('profVehicleGroup').style.display = 'block';
                 if (document.getElementById('profVehicle')) document.getElementById('profVehicle').value = userData.veiculo;
@@ -2822,7 +2922,7 @@
         function openPhotoActionSheet() {
             document.getElementById('photoActionSheet').style.display = 'flex';
         }
-        
+
         function closePhotoActionSheet() {
             document.getElementById('photoActionSheet').style.display = 'none';
         }
@@ -2836,8 +2936,8 @@
                 showToast('Tipo de arquivo não permitido.', 'error');
                 return;
             }
-            if (file.size > 5 * 1024 * 1024) {
-                showToast('Imagem muito grande (máx 5MB).', 'error');
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('Imagem muito grande (máx 10MB).', 'error');
                 return;
             }
 
@@ -2846,7 +2946,7 @@
                 const storageRef = storage.ref(`users/${auth.currentUser.uid}/profile/photo_${Date.now()}`);
                 await storageRef.put(file);
                 const url = await storageRef.getDownloadURL();
-                
+
                 await db.collection("users").doc(auth.currentUser.uid).update({ foto: url, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
                 userData.foto = url;
                 preencherPerfil();

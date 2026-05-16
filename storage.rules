@@ -36,9 +36,9 @@ service firebase.storage {
         || request.resource.contentType == 'application/pdf';
     }
 
-    // Helper: Max file size for profile photos (5MB)
+    // Helper: Max file size for profile photos (10MB)
     function isValidProfilePhotoSize() {
-      return request.resource.size < 5 * 1024 * 1024;
+      return request.resource.size < 10 * 1024 * 1024;
     }
 
     // Helper: Max file size for documents (10MB)
