@@ -2202,16 +2202,6 @@
             }
         });
 
-        // Debugger trap (dificulta a depuração manual bloqueando a thread do DevTools)
-        setInterval(function() {
-            const before = new Date().getTime();
-            debugger;
-            const after = new Date().getTime();
-            if (after - before > 100) {
-                // Alerta silencioso para logs caso tenha sido engatilhado
-                console.warn('Atenção: A depuração não é permitida.');
-            }
-        }, 3000);
 
         const auth = firebase.auth();
         const db = firebase.firestore();
