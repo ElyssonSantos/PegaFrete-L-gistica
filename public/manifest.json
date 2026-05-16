@@ -1,0 +1,21 @@
+{
+  "name": "PegaFrete Logística",
+  "short_name": "PegaFrete",
+  "description": "Encontre cargas e motoristas em poucos segundos. Simples, rápido e sem burocracia.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ea580c",
+  "icons": [
+    {
+      "src": "/google_icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/google_icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

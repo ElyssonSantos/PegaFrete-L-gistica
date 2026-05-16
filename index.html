@@ -4,7 +4,10 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#ea580c" />
+    <link rel="manifest" href="/manifest.json" />
     <title>PegaFrete | Logística Inteligente</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="Content-Security-Policy"
@@ -761,54 +764,44 @@
     <section id="shipper_publish" class="screen">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
-            <h1>Anunciar Carga</h1>
+            <h1 style="font-size: 22px;">Anunciar Carga</h1>
             <div style="width: 44px;"></div>
         </div>
 
-        <div class="card"
-            style="padding: 0; overflow: hidden; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.06); margin-bottom: 32px;">
-            <div style="background: var(--primary); padding: 24px; color: white;">
-                <h2 style="color: white; margin-bottom: 4px; font-size: 18px;">Detalhes do Anúncio</h2>
-                <p style="color: rgba(255,255,255,0.7); font-size: 13px; margin: 0;">Preencha todos os campos para
-                    atrair os melhores motoristas.</p>
+        <div class="glass-card"
+            style="padding: 0; overflow: hidden; border: none; box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08); margin-bottom: 32px; border-radius: 24px;">
+            <div style="background: linear-gradient(135deg, var(--primary), #1e293b); padding: 28px 24px; color: white; position: relative;">
+                <i class="ph-fill ph-rocket-launch" style="position: absolute; right: -10px; top: -10px; font-size: 100px; color: rgba(255,255,255,0.05); transform: rotate(15deg);"></i>
+                <h2 style="color: white; margin-bottom: 8px; font-size: 22px; font-weight: 800; position: relative; z-index: 2;">Nova Publicação</h2>
+                <p style="color: rgba(255,255,255,0.8); font-size: 14px; margin: 0; max-width: 90%; position: relative; z-index: 2;">Anuncie rapidamente para nossa rede de motoristas verificados.</p>
             </div>
-            <div style="padding: 24px; background: white;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+            <div style="padding: 24px; background: rgba(255,255,255,0.9);">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
                     <div class="input-group no-icon" style="margin: 0;">
-                        <span
-                            style="font-size: 10px; font-weight: 700; color: var(--orange); display: block; margin-bottom: 4px; text-transform: uppercase;">Cidade
-                            Origem</span>
-                        <input id="origem" type="text" placeholder="Ex: Salvador, BA" style="font-weight: 600;" />
+                        <span style="font-size: 11px; font-weight: 800; color: var(--orange); display: block; margin-bottom: 6px; text-transform: uppercase;">Origem</span>
+                        <input id="origem" type="text" placeholder="Ex: São Paulo, SP" style="font-weight: 700; background: #f8fafc; border-color: rgba(249, 115, 22, 0.2);" />
                     </div>
                     <div class="input-group no-icon" style="margin: 0;">
-                        <span
-                            style="font-size: 10px; font-weight: 700; color: #10b981; display: block; margin-bottom: 4px; text-transform: uppercase;">Cidade
-                            Destino</span>
-                        <input id="destino" type="text" placeholder="Ex: Alagoinhas, BA" style="font-weight: 600;" />
+                        <span style="font-size: 11px; font-weight: 800; color: #10b981; display: block; margin-bottom: 6px; text-transform: uppercase;">Destino</span>
+                        <input id="destino" type="text" placeholder="Ex: Campinas, SP" style="font-weight: 700; background: #f8fafc; border-color: rgba(16, 185, 129, 0.2);" />
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
                     <div class="input-group no-icon" style="margin: 0;">
-                        <span
-                            style="font-size: 10px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px; text-transform: uppercase;">Telefone</span>
-                        <input id="telefoneContato" type="tel" placeholder="(00) 00000-0000" oninput="maskPhone(this)"
-                            style="font-weight: 600;" />
+                        <span style="font-size: 11px; font-weight: 800; color: var(--text-muted); display: block; margin-bottom: 6px; text-transform: uppercase;">Contato</span>
+                        <input id="telefoneContato" type="tel" placeholder="(00) 00000-0000" oninput="maskPhone(this)" style="font-weight: 600; background: #f8fafc;" />
                     </div>
                     <div class="input-group no-icon" style="margin: 0;">
-                        <span
-                            style="font-size: 10px; font-weight: 700; color: #25D366; display: block; margin-bottom: 4px; text-transform: uppercase;">WhatsApp</span>
-                        <input id="whatsappContato" type="tel" placeholder="(00) 00000-0000" oninput="maskPhone(this)"
-                            style="font-weight: 600;" />
+                        <span style="font-size: 11px; font-weight: 800; color: #25D366; display: block; margin-bottom: 6px; text-transform: uppercase;">WhatsApp</span>
+                        <input id="whatsappContato" type="tel" placeholder="(00) 00000-0000" oninput="maskPhone(this)" style="font-weight: 600; background: #f8fafc; border-color: rgba(37, 211, 102, 0.2);" />
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
                     <div class="input-group no-icon" style="margin: 0;">
-                        <span
-                            style="font-size: 10px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px; text-transform: uppercase;">Tipo
-                            de Carga</span>
-                        <select id="tipoCarga" style="font-weight: 600;">
+                        <span style="font-size: 11px; font-weight: 800; color: var(--text-muted); display: block; margin-bottom: 6px; text-transform: uppercase;">Tipo</span>
+                        <select id="tipoCarga" style="font-weight: 600; background: #f8fafc;">
                             <option value="" disabled selected>Selecione...</option>
                             <option value="Carga Leve">Carga Leve</option>
                             <option value="Fracionada">Fracionada</option>
@@ -817,9 +810,8 @@
                         </select>
                     </div>
                     <div class="input-group no-icon" style="margin: 0;">
-                        <span
-                            style="font-size: 10px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px; text-transform: uppercase;">Veículo</span>
-                        <select id="veiculo" style="font-weight: 600;">
+                        <span style="font-size: 11px; font-weight: 800; color: var(--text-muted); display: block; margin-bottom: 6px; text-transform: uppercase;">Veículo</span>
+                        <select id="veiculo" style="font-weight: 600; background: #f8fafc;">
                             <option value="" disabled selected>Selecione...</option>
                             <option value="VLC">VLC</option>
                             <option value="VUC">VUC</option>
@@ -830,25 +822,18 @@
                     </div>
                 </div>
 
-                <div class="input-group no-icon" style="margin-bottom: 16px;">
-                    <span
-                        style="font-size: 10px; font-weight: 700; color: #10b981; display: block; margin-bottom: 4px; text-transform: uppercase;">Valor
-                        da Oferta (PIX)</span>
-                    <input id="valorFrete" type="text" placeholder="R$ 0,00" oninput="maskMoney(this)"
-                        style="font-size: 18px; font-weight: 800; color: #10b981;" />
+                <div class="input-group no-icon" style="margin-bottom: 20px; background: #ecfdf5; padding: 16px; border-radius: 16px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                    <span style="font-size: 12px; font-weight: 800; color: #059669; display: block; margin-bottom: 8px; text-transform: uppercase;"><i class="ph-fill ph-currency-circle-dollar"></i> Valor Ofertado (PIX Seguro)</span>
+                    <input id="valorFrete" type="text" placeholder="R$ 0,00" oninput="maskMoney(this)" style="font-size: 24px; font-weight: 800; color: #059669; background: transparent; border: none; padding: 0; box-shadow: none;" />
                 </div>
 
-                <div class="input-group no-icon" style="margin-bottom: 24px;">
-                    <span
-                        style="font-size: 10px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px; text-transform: uppercase;">Observações
-                        do Embarcador</span>
-                    <textarea id="obsCarga" placeholder="Ex: Mercadoria em paletes, carga seca, exige ajudante..."
-                        style="min-height: 100px; padding: 12px;"></textarea>
+                <div class="input-group no-icon" style="margin-bottom: 28px;">
+                    <span style="font-size: 11px; font-weight: 800; color: var(--text-muted); display: block; margin-bottom: 6px; text-transform: uppercase;">Observações</span>
+                    <textarea id="obsCarga" placeholder="Ex: Carga frágil, exige ajudante para descarregar..." style="min-height: 100px; padding: 16px; background: #f8fafc; border-radius: 16px;"></textarea>
                 </div>
 
-                <button class="btn btn-primary" style="margin: 0; font-size: 16px; padding: 18px;" id="btnPublicar"
-                    onclick="publicarFrete(this)">
-                    Lançar Frete no Radar <i class="ph ph-broadcast"></i>
+                <button class="btn btn-primary" style="margin: 0; font-size: 16px; padding: 18px; font-weight: 800; border-radius: 100px;" id="btnPublicar" onclick="publicarFrete(this)">
+                    Lançar no Radar <i class="ph ph-rocket-launch"></i>
                 </button>
             </div>
         </div>
@@ -945,102 +930,95 @@
     <section id="profile" class="screen">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
-            <h1>Configurações e Perfil</h1>
+            <h1 style="font-size: 22px;">Perfil e Segurança</h1>
             <div style="width: 44px;"></div>
         </div>
 
-        <div class="card text-center" style="padding-top: 32px;">
-            <div style="position: relative; display: inline-block; margin-bottom: 16px;">
+        <div class="glass-card text-center" style="padding-top: 32px; border-top: 4px solid var(--orange); position: relative; overflow: hidden;">
+            <div style="position: absolute; top: -50px; left: -50px; width: 100px; height: 100px; background: rgba(249, 115, 22, 0.1); border-radius: 50%; filter: blur(20px);"></div>
+            <div style="position: absolute; bottom: -50px; right: -50px; width: 150px; height: 150px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; filter: blur(30px);"></div>
+            
+            <div style="position: relative; z-index: 2; display: inline-block; margin-bottom: 16px;">
                 <div class="profile-avatar" id="profileAvatar"
-                    style="width: 96px; height: 96px; font-size: 36px; border-radius: 50%; margin: 0; background: url('https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80') center/cover;">
+                    style="width: 100px; height: 100px; font-size: 36px; border-radius: 50%; margin: 0; background: url('https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80') center/cover; border: 4px solid white; box-shadow: 0 8px 20px rgba(0,0,0,0.08);">
                 </div>
                 <button class="btn btn-primary" id="btnPhoto"
-                    style="position: absolute; bottom: 0; right: 0; width: 36px; height: 36px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);"
-                    onclick="openPhotoActionSheet()">
+                    style="position: absolute; bottom: 0; right: 0; width: 36px; height: 36px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.2s;"
+                    onclick="openPhotoActionSheet()" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
                     <i class="ph-fill ph-camera" style="font-size: 16px; margin: 0;"></i>
                 </button>
             </div>
-            <h2 style="margin-bottom: 4px;" id="profileDisplayName">Carregando...</h2>
-            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">Conta Verificada <i
-                    class="ph-fill ph-seal-check" style="color: #0ea5e9;"></i></p>
+            <h2 style="margin-bottom: 4px; font-weight: 800; color: var(--primary); font-size: 24px;" id="profileDisplayName">Carregando...</h2>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px; display: inline-flex; align-items: center; gap: 6px; background: #f1f5f9; padding: 6px 12px; border-radius: 999px;">
+                Identidade Verificada <i class="ph-fill ph-shield-check" style="color: #10b981; font-size: 18px;"></i>
+            </p>
 
-            <!-- Avaliação Média adaptada para o perfil -->
-            <div class="profile-stats" style="display: flex; justify-content: center; gap: 32px; margin: 24px 0;">
-                <div>
+            <div class="profile-stats" style="display: flex; justify-content: center; gap: 24px; margin-top: 8px;">
+                <div style="background: rgba(255,255,255,0.6); padding: 12px 24px; border-radius: 16px; border: 1px solid var(--border);">
                     <p style="font-size: 24px; font-weight: 800; color: var(--primary);">4.9</p>
-                    <p style="font-size: 12px; color: var(--text-muted);">Avaliação <i class="ph-fill ph-star"
-                            style="color: #f59e0b;"></i></p>
+                    <p style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Avaliação <i class="ph-fill ph-star" style="color: #f59e0b;"></i></p>
                 </div>
-                <div style="width: 1px; background: var(--border);"></div>
-                <div>
+                <div style="background: rgba(255,255,255,0.6); padding: 12px 24px; border-radius: 16px; border: 1px solid var(--border);">
                     <p style="font-size: 24px; font-weight: 800; color: var(--primary);">124</p>
-                    <p style="font-size: 12px; color: var(--text-muted);">Concluídas</p>
+                    <p style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Concluídas</p>
                 </div>
             </div>
         </div>
 
-        <div class="card" style="padding: 12px 16px;">
+        <div class="glass-card" style="padding: 12px 16px;">
             <div class="list-item" onclick="navTo('financial')">
-                <div class="list-icon" style="background: #ecfdf5; color: #10b981;"><i class="ph-fill ph-wallet"></i>
-                </div>
-                <div class="list-text">Carteira Digital (Financeiro)</div>
+                <div class="list-icon" style="background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);"><i class="ph-fill ph-wallet"></i></div>
+                <div class="list-text" style="font-weight: 700;">Carteira Digital (Financeiro)</div>
                 <i class="ph ph-caret-right" style="color: var(--text-muted);"></i>
             </div>
-            <div class="list-item" onclick="navTo('choice')">
-                <div class="list-icon" style="background: #fef2f2; color: #ef4444;"><i
-                        class="ph-fill ph-arrows-left-right"></i></div>
+            <div class="list-item" onclick="navTo('choice')" style="border-bottom: none;">
+                <div class="list-icon" style="background: #fef2f2; color: #ef4444;"><i class="ph-fill ph-arrows-left-right"></i></div>
                 <div class="list-text" id="changeRoleText">Mudar para Embarcador</div>
                 <i class="ph ph-caret-right" style="color: var(--text-muted);"></i>
             </div>
         </div>
 
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <h3 style="font-size: 16px; color: var(--primary); margin: 0;">Dados Pessoais</h3>
+        <div class="glass-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h3 style="font-size: 18px; color: var(--primary); margin: 0; font-weight: 800;"><i class="ph-fill ph-user-list" style="color: var(--orange); margin-right: 6px;"></i> Informações de Cadastro</h3>
                 <button class="btn btn-outline" id="btnEditProfile"
-                    style="margin: 0; padding: 8px 20px; font-size: 13px; border-radius: 12px; width: auto;"
+                    style="margin: 0; padding: 8px 16px; font-size: 13px; border-radius: 12px; width: auto; font-weight: 700;"
                     onclick="toggleEditProfile()">
-                    <i class="ph ph-pencil-simple" style="margin-right: 6px;"></i> Editar
+                    <i class="ph ph-pencil-simple" style="margin-right: 6px;"></i> Atualizar
                 </button>
             </div>
-            <div class="input-group no-icon">
-                <label
-                    style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;">Nome
-                    Completo</label>
-                <input type="text" id="profName" placeholder="Nome Completo" disabled
-                    style="background: #f1f5f9; color: #64748b; cursor: not-allowed;" />
-            </div>
-            <div class="input-group no-icon">
-                <label
-                    style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;">E-mail
-                    <span style="font-size: 10px; color: #94a3b8;">(não editável)</span></label>
-                <input type="email" id="profEmail" readonly
-                    style="background: #e2e8f0; color: #94a3b8; cursor: not-allowed;" />
-            </div>
-            <div class="input-group no-icon">
-                <label
-                    style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;">Celular
-                    / WhatsApp</label>
-                <input type="text" id="profPhone" placeholder="Celular / WhatsApp" disabled
-                    style="background: #f1f5f9; color: #64748b; cursor: not-allowed;" />
-            </div>
-            <div class="input-group no-icon">
-                <label
-                    style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;">Endereço</label>
-                <input type="text" id="profAddress" placeholder="Endereço (Cidade - Estado)" disabled
-                    style="background: #f1f5f9; color: #64748b; cursor: not-allowed;" />
-            </div>
-            <div class="input-group no-icon" id="profVehicleGroup" style="display: none;">
-                <label
-                    style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;">Veículo
-                    Cadastrado</label>
-                <input type="text" id="profVehicle" disabled
-                    style="background: #f1f5f9; color: #64748b; cursor: not-allowed;" />
+            
+            <div style="display: grid; grid-template-columns: 1fr; gap: 16px;">
+                <div class="input-group no-icon" style="margin-bottom: 0;">
+                    <label style="font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 4px; display: block; text-transform: uppercase;">Nome Completo</label>
+                    <input type="text" id="profName" placeholder="Nome Completo" disabled
+                        style="background: rgba(15, 23, 42, 0.03); color: #475569; cursor: not-allowed; border-color: transparent; font-weight: 600;" />
+                </div>
+                <div class="input-group no-icon" style="margin-bottom: 0;">
+                    <label style="font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 4px; display: block; text-transform: uppercase;">E-mail <span style="color: #94a3b8; font-weight: 500;">(Credencial Segura)</span></label>
+                    <input type="email" id="profEmail" readonly
+                        style="background: rgba(15, 23, 42, 0.06); color: #94a3b8; cursor: not-allowed; border-color: transparent; font-weight: 600;" />
+                </div>
+                <div class="input-group no-icon" style="margin-bottom: 0;">
+                    <label style="font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 4px; display: block; text-transform: uppercase;">Celular / WhatsApp</label>
+                    <input type="text" id="profPhone" placeholder="Celular / WhatsApp" disabled
+                        style="background: rgba(15, 23, 42, 0.03); color: #475569; cursor: not-allowed; border-color: transparent; font-weight: 600;" />
+                </div>
+                <div class="input-group no-icon" style="margin-bottom: 0;">
+                    <label style="font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 4px; display: block; text-transform: uppercase;">Endereço Verificado</label>
+                    <input type="text" id="profAddress" placeholder="Endereço (Cidade - Estado)" disabled
+                        style="background: rgba(15, 23, 42, 0.03); color: #475569; cursor: not-allowed; border-color: transparent; font-weight: 600;" />
+                </div>
+                <div class="input-group no-icon" id="profVehicleGroup" style="display: none; margin-bottom: 0;">
+                    <label style="font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 4px; display: block; text-transform: uppercase;">Veículo Cadastrado</label>
+                    <input type="text" id="profVehicle" disabled
+                        style="background: rgba(15, 23, 42, 0.03); color: #475569; cursor: not-allowed; border-color: transparent; font-weight: 600;" />
+                </div>
             </div>
             <button class="btn btn-orange" id="btnSaveProfile"
-                style="margin-bottom: 0; display: none; border-radius: 18px; padding: 16px;"
+                style="margin-top: 24px; margin-bottom: 0; display: none; border-radius: 18px; padding: 18px; font-weight: 700; width: 100%;"
                 onclick="salvarPerfil(this)">
-                <i class="ph ph-floppy-disk" style="margin-right: 6px;"></i> Salvar Alterações
+                Salvar Alterações Seguras <i class="ph ph-check-circle"></i>
             </button>
         </div>
 

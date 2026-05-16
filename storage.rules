@@ -1,111 +1,46 @@
 rules_version = '2';
-
-// ============================================
-// PegaFrete - Storage Security Rules v2
-// ============================================
-// IDOR Prevention: Every operation validates uid path
-// Upload Protection: MIME type whitelist, size limits
-// ============================================
-
 service firebase.storage {
   match /b/{bucket}/o {
-
-    // Helper: Check if user is authenticated
+    
     function isAuthenticated() {
       return request.auth != null;
     }
-
-    // Helper: IDOR prevention - user can only access their own path
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
+    
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
     }
 
-    // Helper: Strict image MIME type whitelist
-    // ONLY allow jpg, jpeg, png, webp (NO svg, gif, bmp, tiff)
-    function isAllowedImageType() {
-      return request.resource.contentType == 'image/jpeg'
-        || request.resource.contentType == 'image/png'
-        || request.resource.contentType == 'image/webp';
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.admin == true;
     }
 
-    // Helper: Strict document MIME type whitelist
-    function isAllowedDocumentType() {
-      return request.resource.contentType == 'image/jpeg'
-        || request.resource.contentType == 'image/png'
-        || request.resource.contentType == 'image/webp'
-        || request.resource.contentType == 'application/pdf';
+    // IDOR Prevention: Documentos sensíveis isolados em /documents/{userId}/...
+    match /documents/{userId}/{fileName} {
+      // Apenas o dono ou admin pode acessar seus documentos
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Validação restrita de tipo de arquivo e limite de tamanho
+      allow write: if isOwner(userId)
+                   && request.resource.size < 10 * 1024 * 1024 // Limite 10MB
+                   && request.resource.contentType.matches('image/.*|application/pdf');
     }
 
-    // Helper: Max file size for profile photos (10MB)
-    function isValidProfilePhotoSize() {
-      return request.resource.size < 10 * 1024 * 1024;
-    }
-
-    // Helper: Max file size for documents (10MB)
-    function isValidDocumentSize() {
-      return request.resource.size < 10 * 1024 * 1024;
-    }
-
-    // Helper: Validate file name (no path traversal, no dangerous extensions)
-    function isValidFileName() {
-      let name = request.resource.name;
-      // Block path traversal and dangerous patterns
-      return name.size() > 0
-        && name.size() <= 255
-        && !name.matches('.*\\.\\./.*')
-        && !name.matches('.*\\.exe$')
-        && !name.matches('.*\\.bat$')
-        && !name.matches('.*\\.cmd$')
-        && !name.matches('.*\\.sh$')
-        && !name.matches('.*\\.svg$')
-        && !name.matches('.*\\.html$')
-        && !name.matches('.*\\.htm$')
-        && !name.matches('.*\\.js$')
-        && !name.matches('.*\\.php$');
-    }
-
-    // =====================
-    // USER PROFILE PHOTOS
-    // IDOR: {userId} in path must match auth.uid
-    // =====================
-    match /users/{userId}/profile/{fileName} {
-      // Any authenticated user can view profile photos
+    // Proteção de Baixa de Canhotos
+    match /canhotos/{freightId}/{fileName} {
+      // Somente admin/cloud functions alteram status, motoristas podem enviar canhoto
+      // Implementar segurança adicional no backend (Function dispara no onFinalize)
       allow read: if isAuthenticated();
-
-      // Users can ONLY upload to their OWN profile path
-      allow write: if isOwner(userId)
-        && isAllowedImageType()
-        && isValidProfilePhotoSize()
-        && isValidFileName();
-
-      // Users can ONLY delete their OWN profile photo
-      allow delete: if isOwner(userId);
+      allow write: if isAuthenticated() 
+                   && request.resource.size < 10 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*|application/pdf');
     }
 
-    // =====================
-    // USER DOCUMENTS (CNH, CPF, CRLV, etc.)
-    // IDOR: {userId} in path must match auth.uid
-    // =====================
-    match /users/{userId}/documents/{fileName} {
-      // Only the owner can read their documents
-      allow read: if isOwner(userId);
-
-      // Only the owner can upload documents to their path
+    // Fotos de perfil
+    match /profiles/{userId}/{fileName} {
+      allow read: if isAuthenticated();
       allow write: if isOwner(userId)
-        && isAllowedDocumentType()
-        && isValidDocumentSize()
-        && isValidFileName();
-
-      // Documents cannot be deleted (admin-only operation)
-      allow delete: if false;
-    }
-
-    // =====================
-    // DENY ALL OTHER PATHS
-    // Blocks any upload outside /users/{uid}/ paths
-    // =====================
-    match /{allPaths=**} {
-      allow read, write: if false;
+                   && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
     }
   }
 }
