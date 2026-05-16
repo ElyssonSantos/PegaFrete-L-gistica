@@ -1,0 +1,1270 @@
+// Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyD7lL5jSj57oLL_wWJWbImUD2Y7TKk3gRI",
+            authDomain: "pegafrete-logistica.firebaseapp.com",
+            projectId: "pegafrete-logistica",
+            storageBucket: "pegafrete-logistica.firebasestorage.app",
+            messagingSenderId: "783503103566",
+            appId: "1:783503103566:web:840c03b02cda1ba82c151f",
+            measurementId: "G-1HL73CW82D"
+        };
+
+        // Inicializa o Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        // ==========================================
+        // PROTEÇÃO DE FRONTEND E ANTI-DEVTOOLS
+        // ==========================================
+        
+        // Bloqueia clique com botão direito
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        
+        // Bloqueia atalhos comuns de inspeção
+        document.addEventListener('keydown', event => {
+            // F12
+            if (event.keyCode === 123) {
+                event.preventDefault();
+                return false;
+            }
+            // Ctrl+Shift+I ou Cmd+Option+I (Inspecionar)
+            if (event.ctrlKey && event.shiftKey && event.keyCode === 73) {
+                event.preventDefault();
+                return false;
+            }
+            // Ctrl+Shift+J ou Cmd+Option+J (Console)
+            if (event.ctrlKey && event.shiftKey && event.keyCode === 74) {
+                event.preventDefault();
+                return false;
+            }
+            // Ctrl+U ou Cmd+U (Ver Código Fonte)
+            if (event.ctrlKey && event.keyCode === 85) {
+                event.preventDefault();
+                return false;
+            }
+            // Ctrl+S ou Cmd+S (Salvar página)
+            if (event.ctrlKey && event.keyCode === 83) {
+                event.preventDefault();
+                return false;
+            }
+        });
+
+
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let navHistory = ['splash'];
+        window.history.replaceState({ screen: 'splash' }, "", "#splash");
+        let currentUserRole = null;
+        let userData = {};
+        let tempPhone = '';
+        let tempRole = '';
+        let smsSendCooldown = false; // Rate limit para envio de SMS
+
+        // ====== SEGURANÇA: SANITIZAÇÃO E VALIDAÇÃO ======
+
+        /**
+         * Client-side input sanitization (Defense in Depth)
+         * Firestore Security Rules fornecem a proteção primária.
+         * Esta camada adicional impede injeção de HTML/JS antes de gravar.
+         */
+        function sanitizeInput(str, maxLen = 500) {
+            if (!str || typeof str !== 'string') return '';
+            return str
+                .replace(/[<>]/g, '')
+                .replace(/javascript:/gi, '')
+                .trim()
+                .slice(0, maxLen);
+        }
+
+        // ====== SEGURANÇA: LOGS E MONITORAMENTO ======
+        async function logSecurityEvent(event, details) {
+            try {
+                const user = auth.currentUser;
+                const uid = user ? user.uid : 'unauthenticated';
+
+                // Em produção, isso gravaria no Firestore (coleção security_logs)
+                // Apenas o backend ou o próprio usuário pode ler seus logs.
+                if (user) {
+                    await db.collection('security_logs').add({
+                        uid: uid,
+                        event: event,
+                        details: details,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        page: window.location.pathname
+                    });
+                }
+                console.warn(`[SECURITY LOG] ${event}:`, details);
+            } catch (err) {
+                console.error('Falha ao gravar log de segurança', err);
+            }
+        }
+
+        // ====== SEGURANÇA: VALIDAÇÃO DE ARQUIVOS ======
+        function validateFile(file, isProfilePhoto = false) {
+            if (!file) return { valid: false, error: 'Nenhum arquivo selecionado.' };
+
+            // 1. Validar tamanho
+            const maxSize = isProfilePhoto ? 10 * 1024 * 1024 : 10 * 1024 * 1024; // 10MB
+            if (file.size > maxSize) {
+                return { valid: false, error: `Arquivo muito grande. O limite é ${maxSize / (1024 * 1024)}MB.` };
+            }
+
+            // 2. Validar MIME Type (extensões)
+            const allowedTypes = isProfilePhoto
+                ? ['image/jpeg', 'image/png', 'image/webp']
+                : ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+
+            if (!allowedTypes.includes(file.type)) {
+                return { valid: false, error: 'Formato de arquivo não permitido. Use JPG, PNG, WEBP ou PDF.' };
+            }
+
+            // 3. Validar nome do arquivo (evitar path traversal)
+            if (file.name.includes('..') || file.name.endsWith('.exe') || file.name.endsWith('.sh') || file.name.endsWith('.svg')) {
+                return { valid: false, error: 'Nome ou tipo de arquivo suspeito.' };
+            }
+
+            return { valid: true };
+        }
+
+        // Valores permitidos (validação por whitelist)
+        const VALID_TIPOS = ['Carga Leve', 'Fracionada', 'Carga Fechada', 'Complemento'];
+        const VALID_VEICULOS = ['3/4', 'Toco', 'Fiorino', 'Truck', 'Bitruck', 'Carreta LS', 'Bitrem', 'Rodotrem', 'Vanderléia', 'Caçamba', 'Silo', 'Graneleiro', 'Plataforma', 'Prancha', 'Tanque', 'Sider', 'Baú Refrigerado', 'Baú'];
+
+        // ====== SESSION TIMEOUT (1 hour) ======
+        let sessionTimer = null;
+        const SESSION_TIMEOUT = 60 * 60 * 1000; // 1 hour
+
+        function resetSessionTimer() {
+            if (sessionTimer) clearTimeout(sessionTimer);
+            sessionTimer = setTimeout(() => {
+                if (auth.currentUser) {
+                    showToast('Sessão expirada por inatividade.', 'info');
+                    logout();
+                }
+            }, SESSION_TIMEOUT);
+        }
+
+        // Reset timer on user activity
+        ['click', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+            document.addEventListener(event, resetSessionTimer, { passive: true });
+        });
+
+        // ====== FUNÇÕES DE SEGURANÇA ======
+
+        // Toggle visibilidade da senha aprimorado
+        function togglePassVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'ph ph-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'ph ph-eye';
+            }
+        }
+
+        // Previne XSS: escapa caracteres HTML perigosos
+        function sanitizeHTML(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // Validação de e-mail
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(String(email).toLowerCase());
+        }
+
+        // Validação algorítmica de CPF
+        function validateCPF(cpf) {
+            cpf = cpf.replace(/\D/g, '');
+            if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+            let soma = 0, resto;
+            for (let i = 1; i <= 9; i++) soma += parseInt(cpf[i - 1]) * (11 - i);
+            resto = (soma * 10) % 11;
+            if (resto === 10 || resto === 11) resto = 0;
+            if (resto !== parseInt(cpf[9])) return false;
+            soma = 0;
+            for (let i = 1; i <= 10; i++) soma += parseInt(cpf[i - 1]) * (12 - i);
+            resto = (soma * 10) % 11;
+            if (resto === 10 || resto === 11) resto = 0;
+            return resto === parseInt(cpf[10]);
+        }
+
+        // Validação algorítmica de CNPJ
+        function validateCNPJ(cnpj) {
+            cnpj = cnpj.replace(/\D/g, '');
+            if (cnpj.length !== 14 || /^(\d)\1{13}$/.test(cnpj)) return false;
+            const pesos1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+            const pesos2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+            let soma = 0;
+            for (let i = 0; i < 12; i++) soma += parseInt(cnpj[i]) * pesos1[i];
+            let resto = soma % 11;
+            if (parseInt(cnpj[12]) !== (resto < 2 ? 0 : 11 - resto)) return false;
+            soma = 0;
+            for (let i = 0; i < 13; i++) soma += parseInt(cnpj[i]) * pesos2[i];
+            resto = soma % 11;
+            return parseInt(cnpj[13]) === (resto < 2 ? 0 : 11 - resto);
+        }
+
+        let fretes = [
+            { id: 1, origem: 'Salvador', destino: 'Alagoinhas', valor: '620,00', tipo: 'Carga Leve', veiculo: 'VUC', status: 'transito', obs: 'Mercadoria alocada em paletes.' },
+            { id: 2, origem: 'Salvador', destino: 'Ilhéus', valor: '980,00', tipo: 'Fracionada', veiculo: 'Toco', status: 'pendente', obs: 'Carga urgente para hoje.' }
+        ];
+
+        let mensagens = [
+            { isMe: false, sender: 'Embarcador XPTO', text: 'Boa tarde! Qual a previsão de chegada para a coleta?', time: '14:30' },
+            { isMe: true, sender: 'Você', text: 'Estou a cerca de 15 minutos do local, o trânsito ajudou. Já estou próximo da entrada principal.', time: '14:35' }
+        ];
+
+        window.onload = () => {
+            renderChats();
+            navTo('splash');
+
+            // Monitora o estado de autenticação via Firebase
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    try {
+                        const docRef = await db.collection("users").doc(user.uid).get();
+                        if (docRef.exists) {
+                            userData = docRef.data();
+                            preencherPerfil();
+                            setRole(userData.role || 'driver');
+                            startFreightListener();
+                        } else {
+                            // Se logou com Google mas não tem perfil, vai escolher o papel
+                            navTo('choice');
+                        }
+                    } catch (error) {
+                        navTo('auth_entry');
+                    }
+                } else {
+                    navTo('auth_entry');
+                }
+            });
+        };
+
+        // ====== LÓGICA DE AUTENTICAÇÃO (NOVA) ======
+
+        async function handleContinuar(btn) {
+            const email = document.getElementById('authEmail').value.trim();
+            if (!email || !validateEmail(email)) {
+                showToast('Por favor, insira um e-mail válido.', 'error');
+                return;
+            }
+
+            const original = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Verificando...`;
+            btn.disabled = true;
+
+            try {
+                // SECURITY FIX: Instead of fetchSignInMethodsForEmail (deprecated/email enumeration),
+                // we always go to the login screen. If login fails with user-not-found,
+                // we redirect to registration. This prevents email enumeration attacks.
+                document.getElementById('loginEmail').value = email;
+
+                btn.innerHTML = original;
+                btn.disabled = false;
+
+                // Pre-fill registration forms in case the user needs to register
+                if (document.getElementById('regShipperEmail')) {
+                    document.getElementById('regShipperEmail').value = email;
+                }
+                if (document.getElementById('regDriverEmail')) {
+                    document.getElementById('regDriverEmail').value = email;
+                }
+
+                navTo('login');
+            } catch (error) {
+                btn.innerHTML = original;
+                btn.disabled = false;
+                showToast('Erro ao verificar e-mail. Tente novamente.', 'error');
+            }
+        }
+
+        async function loginComGoogle(btn) {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            const original = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Conectando...`;
+            btn.disabled = true;
+
+            try {
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+
+                // O onAuthStateChanged cuidará do redirecionamento
+                showToast('Login com Google realizado!', 'success');
+            } catch (error) {
+                btn.innerHTML = original;
+                btn.disabled = false;
+                if (error.code !== 'auth/popup-closed-by-user') {
+                    showToast('Erro ao entrar com Google.', 'error');
+                }
+            }
+        }
+
+        // Escuta novas cargas em tempo real
+        function startFreightListener() {
+            db.collection("freights").orderBy("createdAt", "desc").limit(20).onSnapshot((snapshot) => {
+                const novosDados = [];
+                snapshot.forEach(doc => novosDados.push({ id: doc.id, ...doc.data() }));
+
+                // Verifica se há novas cargas para notificar (se não for a carga que eu acabei de postar)
+                if (fretes.length > 0 && novosDados.length > fretes.length) {
+                    const ultimaCarga = novosDados[0];
+                    if (ultimaCarga.shipperUid !== auth.currentUser.uid) {
+                        showToast(`Nova carga disponível: ${ultimaCarga.origem} para ${ultimaCarga.destino}`, 'info');
+                    }
+                }
+
+                fretes = novosDados;
+                renderFretes();
+            });
+        }
+
+        function maskMoney(i) {
+            let v = i.value.replace(/\D/g, "");
+            v = (v / 100).toFixed(2) + "";
+            v = v.replace(".", ",");
+            v = v.replace(/(\d)(\d{3})(\d{3}),/g, "$1.$2.$3,");
+            v = v.replace(/(\d)(\d{3}),/g, "$1.$2,");
+            i.value = "R$ " + v;
+        }
+
+        function maskPhone(i) {
+            let v = i.value.replace(/\D/g, "");
+            if (v.length > 11) v = v.slice(0, 11);
+
+            if (v.length === 0) {
+                i.value = "";
+                return;
+            }
+
+            if (v.length <= 2) {
+                i.value = `(${v}`;
+            } else if (v.length <= 6) {
+                i.value = `(${v.slice(0, 2)}) ${v.slice(2)}`;
+            } else if (v.length <= 10) {
+                i.value = `(${v.slice(0, 2)}) ${v.slice(2, 6)}-${v.slice(6)}`;
+            } else {
+                i.value = `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`;
+            }
+        }
+
+        function maskCPF(i) {
+            let v = i.value.replace(/\D/g, "");
+            if (v.length > 11) v = v.slice(0, 11);
+            if (v.length === 11) {
+                i.value = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+            } else {
+                i.value = v;
+            }
+        }
+
+        function maskCNPJ(i) {
+            let v = i.value.replace(/\D/g, "");
+            if (v.length > 14) v = v.slice(0, 14);
+            if (v.length === 14) {
+                i.value = v.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
+            } else {
+                i.value = v;
+            }
+        }
+
+        function checkPasswordRequirements(val) {
+            const len = val.length >= 8;
+            const upper = /[A-Z]/.test(val);
+            const num = /[0-9]/.test(val);
+            const special = /[!@#$%^&*(),.?":{}|<>]/.test(val);
+
+            const updateReq = (id, met) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (met) {
+                    el.style.color = '#10b981';
+                    el.querySelector('i').className = 'ph-fill ph-check-circle';
+                } else {
+                    el.style.color = 'var(--text-muted)';
+                    el.querySelector('i').className = 'ph ph-circle';
+                }
+            };
+
+            updateReq('req-len', len);
+            updateReq('req-upper', upper);
+            updateReq('req-number', num);
+            updateReq('req-special', special);
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const safeMessage = sanitizeHTML(message);
+            let icon = type === 'success'
+                ? '<i class="ph-fill ph-check-circle" style="color: #22c55e; font-size: 20px;"></i>'
+                : type === 'error'
+                    ? '<i class="ph-fill ph-warning-circle" style="color: #ef4444; font-size: 20px;"></i>'
+                    : '<i class="ph-fill ph-info" style="color: #3b82f6; font-size: 20px;"></i>';
+
+            toast.innerHTML = `${icon} <span>${safeMessage}</span>`;
+            toast.classList.add('show');
+
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
+        function navTo(id, pushState = true) {
+            if (navHistory[navHistory.length - 1] !== id) navHistory.push(id);
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            window.scrollTo(0, 0);
+            updateNavbar(id);
+
+            if (pushState) {
+                window.history.pushState({ screen: id }, "", `#${id}`);
+            }
+        }
+
+        function goBack() {
+            if (navHistory.length > 1) {
+                window.history.back();
+            }
+        }
+
+        window.addEventListener('popstate', (event) => {
+            if (event.state && event.state.screen) {
+                const target = event.state.screen;
+                if (navHistory.length > 1) navHistory.pop();
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById(target).classList.add('active');
+                window.scrollTo(0, 0);
+                updateNavbar(target);
+            } else {
+                if (navHistory.length > 1) navHistory.pop();
+                const fallback = navHistory[navHistory.length - 1] || 'auth_entry';
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById(fallback).classList.add('active');
+                window.scrollTo(0, 0);
+                updateNavbar(fallback);
+            }
+        });
+
+        function goHome() {
+            if (currentUserRole) navTo(currentUserRole);
+            else navTo('choice');
+        }
+
+        function setRole(role) {
+            currentUserRole = role;
+
+            // Altera Navbar com base na Role
+            document.querySelectorAll('.driver-only').forEach(el => el.style.display = role === 'driver' ? 'flex' : 'none');
+            document.querySelectorAll('.shipper-only').forEach(el => el.style.display = role === 'shipper' ? 'flex' : 'none');
+
+            // Altera texto do botão de perfil
+            const changeRoleText = document.getElementById('changeRoleText');
+            if (changeRoleText) {
+                changeRoleText.innerText = role === 'driver' ? 'Mudar para Embarcador' : 'Mudar para Transportador';
+            }
+
+            navHistory = ['login', 'choice', role];
+            navTo(role);
+        }
+
+        function updateNavbar(id) {
+            const nav = document.getElementById('bottomNav');
+            const screensWithNav = ['driver', 'shipper', 'profile', 'financial', 'chat', 'freights_search', 'shipper_history', 'shipper_publish'];
+
+            if (screensWithNav.includes(id)) {
+                nav.style.display = 'flex';
+                document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+
+                let navId = id;
+                if (id === 'driver' || id === 'shipper') navId = 'home';
+                if (id === 'freights_search') navId = 'freights';
+                if (id === 'shipper_history') navId = 'my_freights';
+                if (id === 'shipper_publish') navId = 'shipper_publish';
+
+                const activeItem = document.querySelector(`.nav-item[data-target="${navId}"]`);
+                if (activeItem) {
+                    activeItem.classList.add('active');
+                }
+            } else {
+                nav.style.display = 'none';
+            }
+        }
+
+        // Modal de Filtros (Cargas)
+        function openFilters() { document.getElementById('filterModal').classList.add('active'); }
+        function closeFilters() { document.getElementById('filterModal').classList.remove('active'); }
+        function aplicarFiltros() {
+            closeFilters();
+            showToast('Filtros aplicados com sucesso!', 'success');
+        }
+        function limparFiltros() {
+            document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+            document.getElementById('distSlider').value = 250;
+            document.getElementById('distValue').innerText = '250 km';
+        }
+        function togglePill(pill) { pill.classList.toggle('active'); }
+
+        // Modal de Edição (Embarcador)
+        let currentEditId = null;
+        function abrirEdicaoFrete(id) {
+            const f = fretes.find(x => x.id === id);
+            if (!f) return;
+            currentEditId = id;
+            document.getElementById('editOrigem').value = f.origem;
+            document.getElementById('editDestino').value = f.destino;
+            document.getElementById('editValor').value = "R$ " + f.valor;
+            document.getElementById('editTipo').value = f.tipo;
+            document.getElementById('editVeiculo').value = f.veiculo;
+            document.getElementById('editObs').value = f.obs || '';
+            document.getElementById('editFreightModal').classList.add('active');
+        }
+        function fecharEdicaoFrete() {
+            document.getElementById('editFreightModal').classList.remove('active');
+        }
+        async function salvarEdicaoFrete(btn) {
+            const original = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Salvando...`;
+            btn.disabled = true;
+
+            try {
+                const updatedData = {
+                    origem: sanitizeInput(document.getElementById('editOrigem').value.trim(), 200),
+                    destino: sanitizeInput(document.getElementById('editDestino').value.trim(), 200),
+                    valor: sanitizeInput(document.getElementById('editValor').value.replace('R$ ', '').trim(), 20),
+                    tipo: document.getElementById('editTipo').value,
+                    veiculo: document.getElementById('editVeiculo').value,
+                    obs: sanitizeInput(document.getElementById('editObs').value.trim(), 500)
+                };
+
+                // Whitelist validation
+                if (!VALID_TIPOS.includes(updatedData.tipo) || !VALID_VEICULOS.includes(updatedData.veiculo)) {
+                    showToast('Tipo de carga ou veículo inválido.', 'error');
+                    logSecurityEvent('INVALID_INPUT', `Tipo de carga ou veículo inválido editado por ${auth.currentUser?.uid}`);
+                    btn.innerHTML = original;
+                    btn.disabled = false;
+                    return;
+                }
+
+                if (typeof currentEditId === 'string') {
+                    // Firestore protegido por Security Rules (ownership check server-side)
+                    updatedData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('freights').doc(currentEditId).update(updatedData);
+                }
+
+                // Atualiza local (real-time listener will also update)
+                const f = fretes.find(x => x.id === currentEditId);
+                if (f) Object.assign(f, updatedData);
+
+                btn.innerHTML = original;
+                btn.disabled = false;
+                fecharEdicaoFrete();
+                renderFretes();
+                showToast('As informações da carga foram atualizadas.');
+            } catch (error) {
+                btn.innerHTML = original;
+                btn.disabled = false;
+                showToast(error.message || 'Erro ao salvar alterações.', 'error');
+            }
+        }
+
+
+        let confirmationResult = null; // Armazena o resultado do envio de SMS do Firebase
+
+        async function verificarTelefone(btn) {
+            if (smsSendCooldown) {
+                showToast('Aguarde 60 segundos antes de reenviar o SMS.', 'error');
+                return;
+            }
+
+            const rawPhone = document.getElementById('checkPhone').value;
+            const phoneInput = "+55" + rawPhone.replace(/\D/g, "");
+
+            if (phoneInput.length < 13) {
+                showToast('Insira um número válido.', 'error');
+                return;
+            }
+
+            tempPhone = rawPhone;
+            const original = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Enviando SMS...`;
+            btn.disabled = true;
+
+            try {
+                if (!window.recaptchaVerifier) {
+                    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+                        'size': 'invisible'
+                    });
+                }
+
+                confirmationResult = await auth.signInWithPhoneNumber(phoneInput, window.recaptchaVerifier);
+
+                // Ativa cooldown de 60 segundos
+                smsSendCooldown = true;
+                setTimeout(() => { smsSendCooldown = false; }, 60000);
+
+                btn.innerHTML = original;
+                btn.disabled = false;
+                showToast('Código enviado com sucesso!', 'success');
+                navTo('otp_verify');
+            } catch (error) {
+                btn.innerHTML = original;
+                btn.disabled = false;
+                showToast('Erro ao enviar SMS. Tente novamente.', 'error');
+            }
+        }
+
+        async function confirmarCodigo(btn) {
+            const code = document.getElementById('otpCode').value;
+            if (code.length !== 6) {
+                showToast('O código deve ter 6 dígitos.', 'error');
+                return;
+            }
+
+            const original = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Validando...`;
+
+            try {
+                // Confirma o código no Firebase
+                const userCredential = await confirmationResult.confirm(code);
+                const user = userCredential.user;
+
+                btn.innerHTML = original;
+
+                // Agora que o telefone está validado, verificamos se ele já tem um perfil no banco
+                const querySnapshot = await db.collection("users").where("telefone", "==", tempPhone).get();
+
+                if (!querySnapshot.empty) {
+                    // Já tem cadastro, vai pro Login (onde ele põe o email e a senha que ele criou antes)
+                    // Ou podemos fazer o login direto se ele já tiver email salvo, mas o usuário pediu senha.
+                    navTo('login');
+                } else {
+                    // Não tem cadastro, vai escolher o perfil
+                    navTo('choice');
+                }
+            } catch (error) {
+                btn.innerHTML = original;
+                showToast('Código inválido ou expirado.', 'error');
+            }
+        }
+
+        async function fazerLogin(btn) {
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPassword').value;
+
+            if (!email || !pass) {
+                showToast('Preencha os campos corretamente.', 'error');
+                return;
+            }
+
+            const original = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Autenticando...`;
+
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, pass);
+                const docRef = await db.collection("users").doc(userCredential.user.uid).get();
+                btn.innerHTML = original;
+
+                if (docRef.exists) {
+                    userData = docRef.data();
+                    preencherPerfil();
+                    setRole(userData.role || 'driver');
+                    showToast('Bem-vindo de volta!');
+                } else {
+                    showToast('Perfil de usuário não encontrado.', 'error');
+                }
+            } catch (error) {
+                btn.innerHTML = original;
+                // SECURITY: Generic error message to prevent credential enumeration
+                // Don't distinguish between "user not found" and "wrong password"
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                    showToast('Credenciais inválidas. Verifique seu e-mail e senha.', 'error');
+                    // Offer registration option without confirming if email exists
+                    const registerLink = document.createElement('div');
+                    registerLink.style.cssText = 'text-align:center; margin-top:12px;';
+                    registerLink.innerHTML = '<a href="#" onclick="navTo(\'choice\')" style="color:var(--orange); font-weight:600; text-decoration:none;">Criar uma nova conta</a>';
+                } else if (error.code === 'auth/too-many-requests') {
+                    showToast('Muitas tentativas. Aguarde antes de tentar novamente.', 'error');
+                } else {
+                    showToast('Erro ao fazer login. Tente novamente.', 'error');
+                }
+            }
+        }
+
+        function iniciarCadastro(role) {
+            tempRole = role;
+            if (role === 'shipper') navTo('register_shipper');
+            else navTo('register_driver');
+        }
+
+        function irParaVeiculo() {
+            userData.nome = document.getElementById('regDriverName').value.trim();
+            userData.email = document.getElementById('regDriverEmail').value.trim();
+            userData.telefone = document.getElementById('regDriverPhone').value.trim();
+            userData.endereco = document.getElementById('regDriverAddress').value.trim();
+            userData.cpf = document.getElementById('regDriverCpf').value.trim();
+
+            if (!userData.nome || !userData.email || !userData.telefone) {
+                showToast('Preencha pelo menos os campos obrigatórios.', 'error');
+                return;
+            }
+            if (!validateEmail(userData.email)) {
+                showToast('Insira um e-mail válido.', 'error');
+                return;
+            }
+            if (userData.cpf && !validateCPF(userData.cpf)) {
+                showToast('CPF inválido. Verifique os dígitos.', 'error');
+                return;
+            }
+            navTo('register_vehicle');
+        }
+
+        function irParaSenha() {
+            if (tempRole === 'shipper') {
+                userData.nome = document.getElementById('regShipperName').value.trim();
+                userData.email = document.getElementById('regShipperEmail').value.trim();
+                userData.telefone = document.getElementById('regShipperPhone').value.trim();
+                userData.endereco = document.getElementById('regShipperAddress').value.trim();
+                userData.cnpj = document.getElementById('regShipperCnpj').value.trim();
+                userData.razao = document.getElementById('regShipperRazao').value.trim();
+
+                if (!userData.nome || !userData.email || !userData.telefone) {
+                    showToast('Preencha pelo menos os campos obrigatórios.', 'error');
+                    return;
+                }
+                if (!validateEmail(userData.email)) {
+                    showToast('Insira um e-mail válido.', 'error');
+                    return;
+                }
+                if (userData.cnpj && !validateCNPJ(userData.cnpj)) {
+                    showToast('CNPJ inválido. Verifique os dígitos.', 'error');
+                    return;
+                }
+            } else {
+                const selObj = document.getElementById('regDriverVehicle');
+                const opt = selObj.options[selObj.selectedIndex];
+                if (opt.disabled || opt.value === "") {
+                    showToast('Por favor, selecione o seu veículo.', 'error');
+                    return;
+                }
+                userData.veiculo = opt.value;
+            }
+
+            navTo('register_password');
+        }
+
+        async function finalizarCadastro(btn) {
+            const pass1 = document.getElementById('regPassword').value;
+            const pass2 = document.getElementById('regPasswordConfirm').value;
+
+            // Validação de senha: 8 dígitos, letra maiúscula, caractere especial
+            const passRegex = /^(?=.*[A-Z])(?=.*[!@#$&*]).{8,}$/;
+            if (!passRegex.test(pass1)) {
+                showToast('A senha não cumpre os requisitos.', 'error');
+                return;
+            }
+
+            if (pass1 !== pass2) {
+                showToast('As senhas não coincidem.', 'error');
+                return;
+            }
+
+            const original = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Criando conta...`;
+
+            try {
+                // Cria o usuário na Auth do Firebase
+                const userCredential = await auth.createUserWithEmailAndPassword(userData.email, pass1);
+                const uid = userCredential.user.uid;
+
+                // Adiciona o role e salva no Firestore
+                userData.role = tempRole;
+                await db.collection("users").doc(uid).set(userData);
+
+                btn.innerHTML = original;
+                preencherPerfil();
+                setRole(tempRole);
+                showToast('Cadastro realizado com sucesso! Bem-vindo ao PegaFrete.');
+            } catch (error) {
+                btn.innerHTML = original;
+                const errMsg = error.code === 'auth/email-already-in-use'
+                    ? 'Este e-mail já está em uso.'
+                    : error.code === 'auth/weak-password'
+                        ? 'A senha é muito fraca.'
+                        : 'Erro ao criar conta. Verifique seus dados.';
+                showToast(errMsg, 'error');
+            }
+        }
+
+        function preencherPerfil() {
+            if (document.getElementById('profName')) document.getElementById('profName').value = userData.nome || '';
+            if (document.getElementById('profileDisplayName')) document.getElementById('profileDisplayName').innerText = userData.nome || 'Usuário';
+            if (document.getElementById('profEmail')) document.getElementById('profEmail').value = userData.email || '';
+            if (document.getElementById('profPhone')) document.getElementById('profPhone').value = userData.telefone || '';
+            if (document.getElementById('profAddress')) document.getElementById('profAddress').value = userData.endereco || '';
+
+            if (userData.role === 'driver' && userData.veiculo) {
+                if (document.getElementById('profVehicleGroup')) document.getElementById('profVehicleGroup').style.display = 'block';
+                if (document.getElementById('profVehicle')) document.getElementById('profVehicle').value = userData.veiculo;
+            } else {
+                if (document.getElementById('profVehicleGroup')) document.getElementById('profVehicleGroup').style.display = 'none';
+            }
+
+            if (userData.foto && document.getElementById('profileAvatar')) {
+                document.getElementById('profileAvatar').style.backgroundImage = `url('${userData.foto}')`;
+            }
+        }
+
+        function openPhotoActionSheet() {
+            document.getElementById('photoActionSheet').style.display = 'flex';
+        }
+
+        function closePhotoActionSheet() {
+            document.getElementById('photoActionSheet').style.display = 'none';
+        }
+
+        async function handleProfilePhoto(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Security Rules Enforcement
+            if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                showToast('Tipo de arquivo não permitido.', 'error');
+                return;
+            }
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('Imagem muito grande (máx 10MB).', 'error');
+                return;
+            }
+
+            showToast('Fazendo upload da foto...', 'info');
+            try {
+                const storageRef = storage.ref(`users/${auth.currentUser.uid}/profile/photo_${Date.now()}`);
+                await storageRef.put(file);
+                const url = await storageRef.getDownloadURL();
+
+                await db.collection("users").doc(auth.currentUser.uid).update({ foto: url, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                userData.foto = url;
+                preencherPerfil();
+                showToast('Foto de perfil atualizada!');
+            } catch (error) {
+                showToast('Erro ao atualizar foto.', 'error');
+            }
+        }
+
+        async function logout(btn) {
+            if (btn) {
+                const original = btn.innerHTML;
+                btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Saindo...`;
+            }
+            try {
+                await auth.signOut();
+                navHistory = [];
+                currentUserRole = null;
+                userData = {};
+                showToast('Você saiu da conta com segurança.', 'info');
+                navTo('auth_entry');
+                if (btn) btn.innerHTML = `Sair da Conta <i class="ph ph-sign-out"></i>`;
+            } catch (error) {
+                showToast('Erro ao sair.', 'error');
+            }
+        }
+
+        // Controla o modo de edição do perfil
+        let profileEditMode = false;
+
+        function toggleEditProfile() {
+            profileEditMode = !profileEditMode;
+            const fields = ['profName', 'profPhone', 'profAddress'];
+            const btnEdit = document.getElementById('btnEditProfile');
+            const btnSave = document.getElementById('btnSaveProfile');
+
+            if (profileEditMode) {
+                // Ativar edição
+                fields.forEach(id => {
+                    const el = document.getElementById(id);
+                    el.disabled = false;
+                    el.style.background = '#fff';
+                    el.style.color = 'var(--text-main)';
+                    el.style.cursor = 'text';
+                    el.style.borderColor = 'var(--orange)';
+                });
+                btnEdit.innerHTML = '<i class="ph ph-x" style="margin-right: 6px;"></i> Cancelar';
+                btnEdit.style.borderColor = '#ef4444';
+                btnEdit.style.color = '#ef4444';
+                btnSave.style.display = 'block';
+                // Foca no primeiro campo
+                document.getElementById('profName').focus();
+            } else {
+                // Desativar edição (cancelar)
+                fields.forEach(id => {
+                    const el = document.getElementById(id);
+                    el.disabled = true;
+                    el.style.background = '#f1f5f9';
+                    el.style.color = '#64748b';
+                    el.style.cursor = 'not-allowed';
+                    el.style.borderColor = 'var(--border)';
+                });
+                btnEdit.innerHTML = '<i class="ph ph-pencil-simple" style="margin-right: 6px;"></i> Editar';
+                btnEdit.style.borderColor = '';
+                btnEdit.style.color = '';
+                btnSave.style.display = 'none';
+                // Restaurar dados originais
+                if (userData) {
+                    document.getElementById('profName').value = userData.nome || '';
+                    document.getElementById('profPhone').value = userData.telefone || '';
+                    document.getElementById('profAddress').value = userData.endereco || '';
+                }
+            }
+        }
+
+        async function salvarPerfil(btn) {
+            const original = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Salvando...`;
+            btn.disabled = true;
+
+            try {
+                const user = auth.currentUser;
+                if (!user) {
+                    showToast('Usuário não autenticado.', 'error');
+                    logSecurityEvent('UNAUTHENTICATED_ACCESS', 'Tentativa de salvar perfil sem autenticação');
+                    btn.innerHTML = original;
+                    btn.disabled = false;
+                    return;
+                }
+
+                // SECURITY: Validate and sanitize input before writing
+                const updatedData = {
+                    nome: sanitizeInput(document.getElementById('profName').value.trim(), 200),
+                    telefone: sanitizeInput(document.getElementById('profPhone').value.trim(), 20),
+                    endereco: sanitizeInput(document.getElementById('profAddress').value.trim(), 300)
+                };
+
+                // Firestore protegido por Security Rules (só permite atualizar campos permitidos)
+                updatedData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+                await db.collection('users').doc(user.uid).update(updatedData);
+                Object.assign(userData, updatedData);
+
+                btn.innerHTML = original;
+                btn.disabled = false;
+
+                // Volta ao modo bloqueado
+                profileEditMode = true; // Forçar toggle para desligar
+                toggleEditProfile();
+
+                showToast('Dados do perfil atualizados com sucesso!');
+            } catch (error) {
+                btn.innerHTML = original;
+                btn.disabled = false;
+                showToast(error.message || 'Erro ao salvar perfil.', 'error');
+            }
+        }
+
+        function handleUpload(elementId, type, isButton = false) {
+            // OBS: Esta função atualmente simula o upload para o UI.
+            // Quando implementada com input type="file" real, chame validateFile(file) antes:
+            // const validation = validateFile(file, type === 'Foto');
+            // if (!validation.valid) {
+            //     showToast(validation.error, 'error');
+            //     logSecurityEvent('INVALID_UPLOAD', validation.error);
+            //     return;
+            // }
+
+            showToast(`Iniciando upload: ${type}...`, 'info');
+
+            const el = document.getElementById(elementId);
+            if (isButton && el) {
+                el.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Aguarde...`;
+            }
+
+            setTimeout(() => {
+                if (el && !isButton) {
+                    if (el.classList.contains('upload-item')) {
+                        el.classList.add('uploaded');
+                        const subtitle = el.querySelector('div > div > p:last-child');
+                        if (subtitle) subtitle.innerText = "Enviado e aguardando validação";
+                        const iconRight = el.querySelector('i.ph-upload-simple');
+                        if (iconRight) {
+                            iconRight.className = 'ph-fill ph-clock';
+                            iconRight.style.color = '#f59e0b';
+                            iconRight.style.fontSize = '24px';
+                        }
+                    } else {
+                        el.classList.add('uploaded');
+                        el.innerHTML = `<i class="ph-fill ph-check-circle"></i><p style="font-size: 13px; font-weight: 600;">Enviado</p>`;
+                    }
+                } else if (el && isButton) {
+                    if (elementId === 'btnPhoto') {
+                        el.innerHTML = `<i class="ph-fill ph-check" style="font-size: 18px;"></i>`;
+                        el.style.background = '#22c55e';
+                        el.style.borderColor = '#22c55e';
+                        el.style.color = '#fff';
+                    } else {
+                        el.innerHTML = `<i class="ph-fill ph-check-circle"></i> Capturada`;
+                        el.style.background = '#f0fdf4';
+                        el.style.borderColor = '#22c55e';
+                        el.style.color = '#15803d';
+                    }
+                }
+                showToast(`${type} enviado com sucesso!`);
+            }, 1500);
+        }
+
+        function salvarCadastroMotorista(btn) {
+            const original = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Criando conta...`;
+            setTimeout(() => {
+                btn.innerHTML = original;
+                showToast('Cadastro realizado com sucesso! Bem-vindo ao PegaFrete.');
+                setRole('driver');
+            }, 1500);
+        }
+
+        function solicitarSaque(btn) {
+            const original = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Processando PIX...`;
+            setTimeout(() => {
+                btn.innerHTML = original;
+                showToast('Transferência enviada. O valor cairá na sua conta em instantes.');
+            }, 2000);
+        }
+
+        function toggleStatus(btn) {
+            const box = document.getElementById('driverStatusBox');
+            const indicator = document.getElementById('driverStatusIndicator');
+
+            if (btn.innerText === 'Ficar Online') {
+                btn.innerText = 'Pausar';
+                btn.style.borderColor = 'var(--border)';
+                btn.style.color = 'var(--primary)';
+
+                box.style.background = '#ecfccb';
+                box.style.borderColor = '#d9f99d';
+                box.style.color = '#3f6212';
+
+                indicator.innerHTML = '<div class="dot"></div> Disponível para cargas';
+                showToast('Você está online e visível para novas cargas!');
+            } else {
+                btn.innerText = 'Ficar Online';
+                btn.style.borderColor = '#22c55e';
+                btn.style.color = '#22c55e';
+
+                box.style.background = '#fef2f2';
+                box.style.borderColor = '#fecaca';
+                box.style.color = '#991b1b';
+
+                indicator.innerHTML = '<div class="dot" style="background:#ef4444; box-shadow:none; animation:none;"></div> Oculto no Radar';
+                showToast('Você agora está invisível no radar.', 'info');
+            }
+        }
+
+        function aceitarFrete(btn) {
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Reservando carga...`;
+
+            setTimeout(() => {
+                btn.innerHTML = `<i class="ph-fill ph-check-circle"></i> Viagem Iniciada!`;
+                btn.style.background = '#22c55e';
+                showToast('Carga confirmada! Acompanhe os detalhes na área de Chat.');
+            }, 1500);
+        }
+
+        function renderFretes() {
+            const areaHome = document.getElementById('dynamicFreights');
+            const areaSearch = document.getElementById('dynamicFreightsSearch');
+            const areaShipper = document.getElementById('shipperActiveFreights');
+
+            let html = '';
+            if (fretes.length === 0) {
+                html = `<div class="text-center" style="padding: 40px 0; color: var(--text-muted);"><i class="ph ph-package" style="font-size: 48px; margin-bottom: 16px;"></i><p>Nenhuma carga encontrada no momento.</p></div>`;
+            } else {
+                fretes.forEach((frete, index) => {
+                    html += `
+                  <div class="freight-card" onclick="openFreight(${index})" style="cursor: pointer;">
+                    <div class="route">
+                      <span>${sanitizeHTML(frete.origem)}</span>
+                      <i class="ph ph-arrow-right route-arrow"></i>
+                      <span>${sanitizeHTML(frete.destino)}</span>
+                    </div>
+                    
+                    <div class="value">R$ ${sanitizeHTML(frete.valor)}</div>
+                    
+                    <div class="badge-container" style="margin-bottom: 0;">
+                        <div class="tag blue"><i class="ph ph-package"></i> ${sanitizeHTML(frete.tipo)}</div>
+                        <div class="tag orange"><i class="ph ph-truck"></i> ${sanitizeHTML(frete.veiculo)}</div>
+                    </div>
+                  </div>
+                `;
+                });
+            }
+
+            if (areaHome) areaHome.innerHTML = html;
+            if (areaSearch) areaSearch.innerHTML = html;
+
+            // Render para o painel do Embarcador (com botão editar)
+            if (areaShipper) {
+                let shipperHtml = '';
+                fretes.forEach(f => {
+                    const statusLabel = f.status === 'transito' ? '<i class="ph ph-navigation-arrow"></i> Em trânsito' : '<i class="ph ph-hourglass"></i> Aguardando motorista';
+                    const statusClass = f.status === 'transito' ? 'status-transito' : 'status-pendente';
+                    const safeId = typeof f.id === 'string' ? `'${sanitizeHTML(f.id)}'` : f.id;
+
+                    shipperHtml += `
+                    <div class="freight-card">
+                      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                          <div class="status-badge ${statusClass}" style="margin:0;">${statusLabel}</div>
+                          <button class="icon-btn" style="color:var(--text-muted); background:#f1f5f9; padding:8px; border-radius:8px; display:flex; align-items:center;" onclick="abrirEdicaoFrete(${safeId})"><i class="ph ph-pencil-simple"></i></button>
+                      </div>
+                      <div class="route">
+                        <span>${sanitizeHTML(f.origem)}</span>
+                        <i class="ph ph-arrow-right route-arrow"></i>
+                        <span>${sanitizeHTML(f.destino)}</span>
+                      </div>
+                      <div class="value">R$ ${sanitizeHTML(f.valor)}</div>
+                    </div>
+                `;
+                });
+                areaShipper.innerHTML = shipperHtml || html;
+            }
+        }
+
+        function openFreight(index) {
+            const frete = fretes[index];
+            window.currentFreight = frete;
+            document.getElementById('detailRoute').innerHTML = `${sanitizeHTML(frete.origem)} <i class="ph ph-arrow-right route-arrow"></i> ${sanitizeHTML(frete.destino)}`;
+            document.getElementById('detailOriginText').innerText = frete.origem;
+            document.getElementById('detailDestinationText').innerText = frete.destino;
+            document.getElementById('detailPaymentText').innerText = `R$ ${frete.valor}`;
+            document.getElementById('detailObsText').innerText = frete.obs || 'Nenhuma observação informada.';
+
+            const badges = document.getElementById('detailBadges');
+            badges.innerHTML = `
+            <div class="tag blue"><i class="ph ph-package"></i> ${sanitizeHTML(frete.tipo)}</div>
+            <div class="tag orange"><i class="ph ph-truck"></i> ${sanitizeHTML(frete.veiculo)}</div>
+            <div class="tag" style="background: #fef2f2; color: #ef4444;"><i class="ph ph-clock"></i> Carga Imediata</div>
+        `;
+
+            navTo('freightDetails');
+        }
+
+        function buscarFretes() {
+            const termo = document.getElementById('searchFrete').value.toLowerCase();
+            const cards = document.querySelectorAll('#dynamicFreightsSearch .freight-card');
+
+            cards.forEach(card => {
+                const texto = card.innerText.toLowerCase();
+                if (texto.includes(termo)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        async function publicarFrete(btn) {
+            const originalContent = btn.innerHTML;
+
+            const origem = document.getElementById('origem').value.trim();
+            const destino = document.getElementById('destino').value.trim();
+            const tipo = document.getElementById('tipoCarga').value;
+            const veiculo = document.getElementById('veiculo').value;
+            const valor = document.getElementById('valorFrete').value.trim();
+            const obs = document.getElementById('obsCarga').value.trim();
+            const telefoneContato = document.getElementById('telefoneContato').value.trim();
+            const whatsappContato = document.getElementById('whatsappContato').value.trim();
+
+            // Client-side validation (also validated server-side)
+            if (!origem || !destino || !valor || !tipo || !veiculo || !telefoneContato || !whatsappContato) {
+                showToast('Preencha todas as informações (incluindo contatos) para publicar.', 'error');
+                return;
+            }
+
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Divulgando no Radar...`;
+            btn.disabled = true;
+
+            try {
+                // Whitelist validation
+                if (!VALID_TIPOS.includes(tipo) || !VALID_VEICULOS.includes(veiculo)) {
+                    showToast('Tipo de carga ou veículo inválido.', 'error');
+                    logSecurityEvent('INVALID_INPUT', `Tentativa de publicar carga com veículo/tipo inválido: ${tipo} / ${veiculo}`);
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+                    return;
+                }
+
+                // Firestore protegido por Security Rules (valida role, ownership e campos)
+                const novoFrete = {
+                    origem: sanitizeInput(origem, 200),
+                    destino: sanitizeInput(destino, 200),
+                    valor: sanitizeInput(valor.replace('R$ ', ''), 20),
+                    tipo,
+                    veiculo,
+                    telefoneContato: sanitizeInput(telefoneContato, 20),
+                    whatsappContato: sanitizeInput(whatsappContato, 20),
+                    status: 'pendente',
+                    obs: sanitizeInput(obs, 500) || 'Carga publicada via radar.',
+                    shipperUid: auth.currentUser.uid,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                await db.collection('freights').add(novoFrete);
+
+                showToast('Carga publicada com sucesso! Divulgada em tempo real para os motoristas.');
+
+                // Limpa campos
+                document.getElementById('origem').value = '';
+                document.getElementById('destino').value = '';
+                document.getElementById('tipoCarga').value = '';
+                document.getElementById('veiculo').value = '';
+                document.getElementById('valorFrete').value = '';
+                document.getElementById('obsCarga').value = '';
+                document.getElementById('telefoneContato').value = '';
+                document.getElementById('whatsappContato').value = '';
+
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+                navTo('shipper');
+            } catch (error) {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+                showToast(error.message || 'Erro ao publicar carga.', 'error');
+            }
+        }
+
+        function renderChats() {
+            const area = document.getElementById('chatMessages');
+            if (!area) return;
+            area.innerHTML = '';
+
+            mensagens.forEach(msg => {
+                area.innerHTML += `
+                <div class="chat-bubble ${msg.isMe ? 'me' : ''}">
+                    <div class="chat-sender">${sanitizeHTML(msg.sender)}</div>
+                    <div class="chat-text">${sanitizeHTML(msg.text)}</div>
+                    <div class="chat-time">${sanitizeHTML(msg.time)}</div>
+                </div>
+            `;
+            });
+            area.scrollTop = area.scrollHeight;
+        }
+
+        function enviarMensagem() {
+            const input = document.getElementById('newMessage');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const now = new Date();
+            const time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+            mensagens.push({ isMe: true, sender: 'Você', text: text, time: time });
+            input.value = '';
+            renderChats();
+        }
