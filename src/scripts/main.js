@@ -1306,6 +1306,132 @@ function enviarMensagem() {
     input.value = '';
     renderChats();
 }
+
+// ====== FLUXO DE CADASTRO ======
+function iniciarCadastro(role) {
+    tempRole = role;
+    navTo(role === 'shipper' ? 'register_shipper' : 'register_driver');
+}
+
+function irParaVeiculo() {
+    const nome = document.getElementById('regDriverName').value.trim();
+    const cpf = document.getElementById('regDriverCpf').value.trim();
+    const email = document.getElementById('regDriverEmail').value.trim();
+    const tel = document.getElementById('regDriverPhone').value.trim();
+
+    if (!nome || !cpf || !email || !tel) {
+        showToast('Preencha os campos obrigatórios.', 'error');
+        return;
+    }
+    if (!validateEmail(email)) {
+        showToast('E-mail inválido.', 'error');
+        return;
+    }
+    if (!validateCPF(cpf)) {
+        showToast('CPF inválido.', 'error');
+        return;
+    }
+
+    navTo('register_vehicle');
+}
+
+function irParaSenha() {
+    if (tempRole === 'shipper') {
+        const razao = document.getElementById('regShipperRazao').value.trim();
+        const cnpj = document.getElementById('regShipperCnpj').value.trim();
+        const email = document.getElementById('regShipperEmail').value.trim();
+        const tel = document.getElementById('regShipperPhone').value.trim();
+
+        if (!razao || !cnpj || !email || !tel) {
+            showToast('Preencha os campos obrigatórios.', 'error');
+            return;
+        }
+        if (!validateEmail(email)) {
+            showToast('E-mail inválido.', 'error');
+            return;
+        }
+        if (!validateCNPJ(cnpj)) {
+            showToast('CNPJ inválido.', 'error');
+            return;
+        }
+    } else if (tempRole === 'driver') {
+        const veiculo = document.getElementById('regDriverVehicle').value;
+        if (!veiculo) {
+            showToast('Selecione um veículo.', 'error');
+            return;
+        }
+    }
+
+    navTo('register_password');
+}
+
+async function finalizarCadastro(btn) {
+    const pass1 = document.getElementById('regPassword').value;
+    const pass2 = document.getElementById('regPasswordConfirm').value;
+
+    if (!pass1 || pass1 !== pass2) {
+        showToast('As senhas não conferem ou estão vazias.', 'error');
+        return;
+    }
+
+    // Validação de força da senha
+    if (pass1.length < 8 || !/[A-Z]/.test(pass1) || !/[0-9]/.test(pass1) || !/[!@#$%^&*(),.?":{}|<>]/.test(pass1)) {
+        showToast('Sua senha não atende aos requisitos de segurança.', 'error');
+        return;
+    }
+
+    const originalText = btn.innerHTML;
+    btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Criando...`;
+    btn.disabled = true;
+
+    try {
+        let email, nome, telefone, endereco, documento, veiculo;
+
+        if (tempRole === 'shipper') {
+            email = document.getElementById('regShipperEmail').value.trim();
+            nome = sanitizeInput(document.getElementById('regShipperName').value.trim() || document.getElementById('regShipperRazao').value.trim(), 100);
+            telefone = document.getElementById('regShipperPhone').value.trim();
+            endereco = sanitizeInput(document.getElementById('regShipperAddress').value.trim(), 200);
+            documento = document.getElementById('regShipperCnpj').value.trim();
+        } else {
+            email = document.getElementById('regDriverEmail').value.trim();
+            nome = sanitizeInput(document.getElementById('regDriverName').value.trim(), 100);
+            telefone = document.getElementById('regDriverPhone').value.trim();
+            endereco = sanitizeInput(document.getElementById('regDriverAddress').value.trim(), 200);
+            documento = document.getElementById('regDriverCpf').value.trim();
+            veiculo = document.getElementById('regDriverVehicle').value;
+        }
+
+        const cred = await auth.createUserWithEmailAndPassword(email, pass1);
+        
+        const novoUsuario = {
+            nome: nome,
+            email: email,
+            telefone: telefone,
+            endereco: endereco,
+            documento: documento,
+            role: tempRole,
+            walletBalance: 0,
+            isVerified: false,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        if (tempRole === 'driver') {
+            novoUsuario.veiculo = veiculo;
+        }
+
+        await db.collection('users').doc(cred.user.uid).set(novoUsuario);
+        
+        showToast('Conta criada com sucesso!', 'success');
+        // O onAuthStateChanged (já configurado no window.onload) vai gerenciar o redirecionamento
+    } catch (error) {
+        console.error("Erro no cadastro:", error);
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        showToast(`Erro ao finalizar cadastro: ${error.message}`, 'error');
+    }
+}
+
 // Expondo globalmente para o HTML
 window.sanitizeInput = sanitizeInput;
 window.validateFile = validateFile;
@@ -1337,6 +1463,7 @@ window.fecharEdicaoFrete = fecharEdicaoFrete;
 window.iniciarCadastro = iniciarCadastro;
 window.irParaVeiculo = irParaVeiculo;
 window.irParaSenha = irParaSenha;
+window.finalizarCadastro = finalizarCadastro;
 window.preencherPerfil = preencherPerfil;
 window.openPhotoActionSheet = openPhotoActionSheet;
 window.closePhotoActionSheet = closePhotoActionSheet;
