@@ -2169,6 +2169,7 @@
         const db = firebase.firestore();
 
         let navHistory = ['splash'];
+        window.history.replaceState({ screen: 'splash' }, "", "#splash");
         let currentUserRole = null;
         let userData = {};
         let tempPhone = '';
@@ -2531,24 +2532,41 @@
             setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
-        function navTo(id) {
+        function navTo(id, pushState = true) {
             if (navHistory[navHistory.length - 1] !== id) navHistory.push(id);
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             window.scrollTo(0, 0);
             updateNavbar(id);
+
+            if (pushState) {
+                window.history.pushState({ screen: id }, "", `#${id}`);
+            }
         }
 
         function goBack() {
             if (navHistory.length > 1) {
-                navHistory.pop();
-                const previous = navHistory[navHistory.length - 1];
-                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-                document.getElementById(previous).classList.add('active');
-                window.scrollTo(0, 0);
-                updateNavbar(previous);
+                window.history.back();
             }
         }
+
+        window.addEventListener('popstate', (event) => {
+            if (event.state && event.state.screen) {
+                const target = event.state.screen;
+                if (navHistory.length > 1) navHistory.pop();
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById(target).classList.add('active');
+                window.scrollTo(0, 0);
+                updateNavbar(target);
+            } else {
+                if (navHistory.length > 1) navHistory.pop();
+                const fallback = navHistory[navHistory.length - 1] || 'auth_entry';
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById(fallback).classList.add('active');
+                window.scrollTo(0, 0);
+                updateNavbar(fallback);
+            }
+        });
 
         function goHome() {
             if (currentUserRole) navTo(currentUserRole);
