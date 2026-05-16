@@ -8,7 +8,7 @@
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://unpkg.com https://apis.google.com https://www.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://unpkg.com https://cdn.jsdelivr.net; img-src 'self' data: https: blob:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com;" />
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://unpkg.com https://apis.google.com https://www.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://unpkg.com https://cdn.jsdelivr.net; img-src 'self' data: https: blob:; connect-src 'self' https://www.gstatic.com https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com;" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2165,6 +2165,54 @@
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
+
+        // ==========================================
+        // PROTEÇÃO DE FRONTEND E ANTI-DEVTOOLS
+        // ==========================================
+        
+        // Bloqueia clique com botão direito
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        
+        // Bloqueia atalhos comuns de inspeção
+        document.addEventListener('keydown', event => {
+            // F12
+            if (event.keyCode === 123) {
+                event.preventDefault();
+                return false;
+            }
+            // Ctrl+Shift+I ou Cmd+Option+I (Inspecionar)
+            if (event.ctrlKey && event.shiftKey && event.keyCode === 73) {
+                event.preventDefault();
+                return false;
+            }
+            // Ctrl+Shift+J ou Cmd+Option+J (Console)
+            if (event.ctrlKey && event.shiftKey && event.keyCode === 74) {
+                event.preventDefault();
+                return false;
+            }
+            // Ctrl+U ou Cmd+U (Ver Código Fonte)
+            if (event.ctrlKey && event.keyCode === 85) {
+                event.preventDefault();
+                return false;
+            }
+            // Ctrl+S ou Cmd+S (Salvar página)
+            if (event.ctrlKey && event.keyCode === 83) {
+                event.preventDefault();
+                return false;
+            }
+        });
+
+        // Debugger trap (dificulta a depuração manual bloqueando a thread do DevTools)
+        setInterval(function() {
+            const before = new Date().getTime();
+            debugger;
+            const after = new Date().getTime();
+            if (after - before > 100) {
+                // Alerta silencioso para logs caso tenha sido engatilhado
+                console.warn('Atenção: A depuração não é permitida.');
+            }
+        }, 3000);
+
         const auth = firebase.auth();
         const db = firebase.firestore();
 
