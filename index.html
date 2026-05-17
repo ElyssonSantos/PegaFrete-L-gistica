@@ -984,17 +984,17 @@
                               style="min-height: 100px; padding: 16px; background: rgba(255,255,255,0.5); border-radius: 18px; border: 1.5px solid var(--border); transition: 0.3s;"></textarea>
                 </div>
             </div>
-        </main>
 
-        <!-- Fixed Footer Actions -->
-        <footer style="position: fixed; bottom: 0; left: 0; right: 0; padding: 16px 20px; background: #fff; border-top: 1.5px solid var(--border); display: flex; gap: 12px; z-index: 100;">
-            <button class="btn btn-outline" id="btnPublishCancel" style="flex: 1; padding: 14px; font-weight: 700; border-radius: 14px; margin: 0;" onclick="prevPublishStep()">
-                Cancelar
-            </button>
-            <button class="btn btn-primary" id="btnPublishNext" style="flex: 2; padding: 14px; font-weight: 700; border-radius: 14px; background: var(--orange); border-color: var(--orange); color: white; margin: 0; box-shadow: 0 4px 14px rgba(249, 115, 22, 0.25);" onclick="nextPublishStep(this)">
-                Próximo Passo <i class="ph ph-arrow-right" id="btnPublishNextIcon"></i>
-            </button>
-        </footer>
+            <!-- Action Buttons (Static within scrollable main) -->
+            <div style="padding: 24px 0 0 0; display: flex; gap: 12px; margin-top: 16px;">
+                <button class="btn btn-outline" id="btnPublishCancel" style="flex: 1; padding: 14px; font-weight: 700; border-radius: 14px; margin: 0; background: transparent;" onclick="prevPublishStep()">
+                    Cancelar
+                </button>
+                <button class="btn btn-primary" id="btnPublishNext" style="flex: 2; padding: 14px; font-weight: 700; border-radius: 14px; background: var(--orange); border-color: var(--orange); color: white; margin: 0; box-shadow: 0 4px 14px rgba(249, 115, 22, 0.25);" onclick="nextPublishStep(this)">
+                    Próximo Passo <i class="ph ph-arrow-right" id="btnPublishNextIcon"></i>
+                </button>
+            </div>
+        </main>
     </section>
 
     <!-- TELA: HISTÓRICO DE ENVIOS (Menu Inferior Embarcador) -->
@@ -1074,153 +1074,154 @@
     </section>
 
     <!-- TELA: PERFIL / CONFIGURAÇÕES -->
-    <section id="profile" class="screen">
+    <section id="profile" class="screen" style="padding-bottom: 120px;">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
-            <h1 style="font-size: 22px;">Perfil e Segurança</h1>
+            <h1 style="font-size: 20px; font-weight: 800;">Meu Perfil</h1>
             <div style="width: 44px;"></div>
         </div>
 
-        <div class="glass-card text-center" style="padding-top: 32px; border-top: 4px solid var(--orange); position: relative; overflow: hidden;">
-            <div style="position: absolute; top: -50px; left: -50px; width: 100px; height: 100px; background: rgba(249, 115, 22, 0.1); border-radius: 50%; filter: blur(20px);"></div>
-            <div style="position: absolute; bottom: -50px; right: -50px; width: 150px; height: 150px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; filter: blur(30px);"></div>
+        <!-- Premium Header Cover Section -->
+        <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 24px; padding: 32px 20px; position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(15,23,42,0.15); display: flex; flex-direction: column; align-items: center; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.05); text-align: center;">
+            <div style="position: absolute; top: -40px; right: -40px; width: 120px; height: 120px; background: rgba(249, 115, 22, 0.15); border-radius: 50%; filter: blur(30px);"></div>
+            <div style="position: absolute; bottom: -50px; left: -50px; width: 160px; height: 160px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; filter: blur(40px);"></div>
             
-            <div style="position: relative; z-index: 2; display: inline-block; margin-bottom: 16px;">
+            <div style="position: relative; margin-bottom: 16px; display: inline-block; z-index: 2;">
                 <div class="profile-avatar" id="profileAvatar" onclick="openPhotoActionSheet()"
-                    style="width: 100px; height: 100px; font-size: 36px; border-radius: 50%; margin: 0; background: url('https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80') center/cover; border: 4px solid white; box-shadow: 0 8px 20px rgba(0,0,0,0.08);">
+                    style="width: 108px; height: 108px; border-radius: 50%; background: url('https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80') center/cover; border: 4px solid #fff; box-shadow: 0 8px 24px rgba(0,0,0,0.12); cursor: pointer;">
                 </div>
                 <button class="btn btn-primary" id="btnPhoto"
-                    style="position: absolute; bottom: 0; right: 0; width: 36px; height: 36px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.2s;"
-                    onclick="openPhotoActionSheet()" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-                    <i class="ph-fill ph-camera" style="font-size: 16px; margin: 0;"></i>
+                    style="position: absolute; bottom: 4px; right: 4px; width: 34px; height: 34px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; border: 3px solid #fff; background: var(--orange); color: white; box-shadow: 0 4px 12px rgba(249,115,22,0.3); cursor: pointer;"
+                    onclick="openPhotoActionSheet()">
+                    <i class="ph ph-camera" style="font-size: 16px; margin: 0;"></i>
                 </button>
             </div>
-            <h2 style="margin-bottom: 4px; font-weight: 800; color: var(--primary); font-size: 24px;" id="profileDisplayName">Carregando...</h2>
-            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px; display: inline-flex; align-items: center; gap: 6px; background: #f1f5f9; padding: 6px 12px; border-radius: 999px;">
-                Identidade Verificada <i class="ph-fill ph-shield-check" style="color: #10b981; font-size: 18px;"></i>
-            </p>
 
-            <div class="profile-stats" style="display: flex; justify-content: center; gap: 24px; margin-top: 8px;">
-                <div style="background: rgba(255,255,255,0.6); padding: 12px 24px; border-radius: 16px; border: 1px solid var(--border);">
-                    <p style="font-size: 24px; font-weight: 800; color: var(--primary);" id="profileRating">5.0</p>
-                    <p style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Avaliação <i class="ph-fill ph-star" style="color: #f59e0b;"></i></p>
-                </div>
-                <div style="background: rgba(255,255,255,0.6); padding: 12px 24px; border-radius: 16px; border: 1px solid var(--border);">
-                    <p style="font-size: 24px; font-weight: 800; color: var(--primary);" id="profileDeliveries">0</p>
-                    <p style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;" id="profileDeliveriesLabel">Concluídas</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="glass-card" style="padding: 12px 16px;">
-            <div class="list-item" onclick="navTo('choice')" style="border-bottom: none;">
-                <div class="list-icon" style="background: #fef2f2; color: #ef4444;"><i class="ph-fill ph-arrows-left-right"></i></div>
-                <div class="list-text" id="changeRoleText">Mudar para Embarcador</div>
-                <i class="ph ph-caret-right" style="color: var(--text-muted);"></i>
-            </div>
-        </div>
-
-        <div class="glass-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                <h3 style="font-size: 18px; color: var(--primary); margin: 0; font-weight: 800;"><i class="ph-fill ph-user-list" style="color: var(--orange); margin-right: 6px;"></i> Informações de Cadastro</h3>
-                <button class="btn btn-outline" id="btnEditProfile"
-                    style="margin: 0; padding: 8px 16px; font-size: 13px; border-radius: 12px; width: auto; font-weight: 700;"
-                    onclick="toggleEditProfile()">
-                    <i class="ph ph-pencil-simple" style="margin-right: 6px;"></i> Atualizar
-                </button>
-            </div>
+            <h2 style="font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 6px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 2;" id="profileDisplayName">Carregando...</h2>
             
-            <div style="display: grid; grid-template-columns: 1fr; gap: 16px;">
-                <div class="input-group no-icon" style="margin-bottom: 0;">
-                    <label style="font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 4px; display: block; text-transform: uppercase;">Nome Completo</label>
-                    <input type="text" id="profName" placeholder="Nome Completo" disabled
-                        style="background: rgba(15, 23, 42, 0.03); color: #475569; cursor: not-allowed; border-color: transparent; font-weight: 600;" />
+            <div style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 2; margin-bottom: 8px;">
+                <span style="font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.9); text-transform: uppercase; letter-spacing: 0.5px;">Embarcador Homologado</span>
+                <i class="ph-fill ph-seal-check" style="color: #10b981; font-size: 16px;"></i>
+            </div>
+
+            <!-- Dynamic Stats Subcard -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; margin-top: 16px; z-index: 2;">
+                <div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); padding: 14px 16px; border-radius: 18px; text-align: center; display: flex; flex-direction: column; align-items: center;">
+                    <span style="font-size: 24px; font-weight: 850; color: #fff; line-height: 1.2; display: flex; align-items: center; gap: 4px;" id="profileRating">5.0</span>
+                    <span style="font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; display: inline-flex; align-items: center; gap: 4px;">Avaliação <i class="ph-fill ph-star" style="color: #fbbf24; font-size: 12px;"></i></span>
                 </div>
-                <div class="input-group no-icon" style="margin-bottom: 0;">
-                    <label style="font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 4px; display: block; text-transform: uppercase;">E-mail <span style="color: #94a3b8; font-weight: 500;">(Credencial Segura)</span></label>
-                    <input type="email" id="profEmail" readonly
-                        style="background: rgba(15, 23, 42, 0.06); color: #94a3b8; cursor: not-allowed; border-color: transparent; font-weight: 600;" />
-                </div>
-                <div class="input-group no-icon" style="margin-bottom: 0;">
-                    <label style="font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 4px; display: block; text-transform: uppercase;">Celular / WhatsApp</label>
-                    <input type="text" id="profPhone" placeholder="Celular / WhatsApp" disabled
-                        style="background: rgba(15, 23, 42, 0.03); color: #475569; cursor: not-allowed; border-color: transparent; font-weight: 600;" />
-                </div>
-                <div class="input-group no-icon" style="margin-bottom: 0;">
-                    <label style="font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 4px; display: block; text-transform: uppercase;">Endereço Verificado</label>
-                    <input type="text" id="profAddress" placeholder="Endereço (Cidade - Estado)" disabled
-                        style="background: rgba(15, 23, 42, 0.03); color: #475569; cursor: not-allowed; border-color: transparent; font-weight: 600;" />
-                </div>
-                <div class="input-group no-icon" id="profVehicleGroup" style="display: none; margin-bottom: 0;">
-                    <label style="font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 4px; display: block; text-transform: uppercase;">Veículo Cadastrado</label>
-                    <input type="text" id="profVehicle" disabled
-                        style="background: rgba(15, 23, 42, 0.03); color: #475569; cursor: not-allowed; border-color: transparent; font-weight: 600;" />
+                <div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); padding: 14px 16px; border-radius: 18px; text-align: center; display: flex; flex-direction: column; align-items: center;">
+                    <span style="font-size: 24px; font-weight: 850; color: #fff; line-height: 1.2;" id="profileDeliveries">0</span>
+                    <span style="font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px;" id="profileDeliveriesLabel">Enviadas</span>
                 </div>
             </div>
+        </div>
+
+        <!-- Informações de Cadastro Card -->
+        <div class="glass-card" style="padding: 24px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); border: 1px solid var(--border); margin-bottom: 20px; background: white;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h3 style="font-size: 16px; color: var(--primary); margin: 0; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                    <i class="ph-fill ph-buildings" style="color: var(--orange); font-size: 20px;"></i> Dados Cadastrais
+                </h3>
+                <button class="btn btn-outline" id="btnEditProfile"
+                    style="margin: 0; padding: 6px 14px; font-size: 12px; border-radius: 10px; width: auto; font-weight: 700; border-color: var(--orange); color: var(--orange); background: transparent;"
+                    onclick="toggleEditProfile()">
+                    <i class="ph ph-pencil-simple" style="margin-right: 4px;"></i> Editar
+                </button>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 18px;">
+                <!-- Razão Social -->
+                <div class="input-group-premium" style="margin: 0; display: flex; flex-direction: column;">
+                    <label style="display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Razão Social / Nome</label>
+                    <div class="input-wrapper" style="background: #f8fafc; border: 1.5px solid var(--border); border-radius: 14px; display: flex; align-items: center;">
+                        <input type="text" id="profName" placeholder="Razão Social" disabled style="border: none; background: transparent; padding: 12px 14px; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1;" />
+                        <div class="input-suffix" style="padding-right: 14px;"><i class="ph ph-buildings" style="font-size: 18px; color: #94a3b8;"></i></div>
+                    </div>
+                </div>
+
+                <!-- E-mail -->
+                <div class="input-group-premium" style="margin: 0; display: flex; flex-direction: column;">
+                    <label style="display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">E-mail Corporativo</label>
+                    <div class="input-wrapper" style="background: #f1f5f9; border: 1.5px solid var(--border); border-radius: 14px; display: flex; align-items: center; opacity: 0.85;">
+                        <input type="email" id="profEmail" readonly style="border: none; background: transparent; padding: 12px 14px; margin: 0; box-shadow: none; font-weight: 600; color: #64748b; font-size: 14px; flex: 1; cursor: not-allowed;" />
+                        <div class="input-suffix" style="padding-right: 14px;"><i class="ph ph-envelope" style="font-size: 18px; color: #94a3b8;"></i></div>
+                    </div>
+                </div>
+
+                <!-- Celular / WhatsApp -->
+                <div class="input-group-premium" style="margin: 0; display: flex; flex-direction: column;">
+                    <label style="display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Celular / WhatsApp</label>
+                    <div class="input-wrapper" style="background: #f8fafc; border: 1.5px solid var(--border); border-radius: 14px; display: flex; align-items: center;">
+                        <input type="text" id="profPhone" placeholder="Celular" disabled style="border: none; background: transparent; padding: 12px 14px; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1;" />
+                        <div class="input-suffix" style="padding-right: 14px;"><i class="ph ph-phone" style="font-size: 18px; color: #94a3b8;"></i></div>
+                    </div>
+                </div>
+
+                <!-- Endereço -->
+                <div class="input-group-premium" style="margin: 0; display: flex; flex-direction: column;">
+                    <label style="display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Endereço Verificado</label>
+                    <div class="input-wrapper" style="background: #f8fafc; border: 1.5px solid var(--border); border-radius: 14px; display: flex; align-items: center;">
+                        <input type="text" id="profAddress" placeholder="Cidade - Estado" disabled style="border: none; background: transparent; padding: 12px 14px; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1;" />
+                        <div class="input-suffix" style="padding-right: 14px;"><i class="ph ph-map-pin" style="font-size: 18px; color: #94a3b8;"></i></div>
+                    </div>
+                </div>
+
+                <!-- Veículo Cadastrado (Compatibilidade Opcional Motorista) -->
+                <div class="input-group-premium" id="profVehicleGroup" style="display: none; margin: 0; flex-direction: column;">
+                    <label style="display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Veículo Cadastrado</label>
+                    <div class="input-wrapper" style="background: #f8fafc; border: 1.5px solid var(--border); border-radius: 14px; display: flex; align-items: center;">
+                        <input type="text" id="profVehicle" disabled style="border: none; background: transparent; padding: 12px 14px; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1;" />
+                        <div class="input-suffix" style="padding-right: 14px;"><i class="ph ph-truck" style="font-size: 18px; color: #94a3b8;"></i></div>
+                    </div>
+                </div>
+            </div>
+
             <button class="btn btn-orange" id="btnSaveProfile"
-                style="margin-top: 24px; margin-bottom: 0; display: none; border-radius: 18px; padding: 18px; font-weight: 700; width: 100%;"
+                style="margin-top: 24px; margin-bottom: 0; display: none; border-radius: 14px; padding: 14px; font-weight: 700; width: 100%; font-size: 14px;"
                 onclick="salvarPerfil(this)">
-                Salvar Alterações Seguras <i class="ph ph-check-circle"></i>
+                Salvar Alterações <i class="ph ph-check-circle"></i>
             </button>
         </div>
 
-        <div class="card">
-            <h3 style="font-size: 16px; margin-bottom: 8px; color: var(--primary);">Documentação (Segurança)</h3>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.4;">Estes
-                documentos serão validados internamente pela equipe administrativa.</p>
+        <!-- Homologação da Empresa Card -->
+        <div class="glass-card" style="padding: 24px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 24px; background: white;">
+            <h3 style="font-size: 16px; margin: 0 0 6px 0; color: var(--primary); font-weight: 800;">Homologação de Segurança</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.45; font-weight: 500;">
+                Envie a documentação de sua empresa para obter o selo ouro e prioridade de atendimento dos motoristas.
+            </p>
 
-            <div class="upload-list">
-                <div class="upload-item" id="upCNH" onclick="handleUpload('upCNH', 'CNH')">
-                    <div style="display: flex; align-items: center; gap: 16px;">
-                        <i class="ph-fill ph-identification-card" style="font-size: 28px; color: var(--orange);"></i>
+            <div class="upload-list" style="display: flex; flex-direction: column; gap: 12px;">
+                <!-- Cartão CNPJ (Repurposed upCPF) -->
+                <div class="upload-item" id="upCPF" onclick="handleUpload('upCPF', 'Cartão CNPJ')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <i class="ph-fill ph-file-text" style="font-size: 24px; color: var(--orange);"></i>
                         <div style="text-align: left;">
-                            <p style="font-weight: 700; font-size: 14px; color: var(--primary);">CNH</p>
-                            <p style="font-size: 12px; color: var(--text-muted); font-weight: 500;">Pendente envio</p>
+                            <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">Cartão CNPJ</p>
+                            <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;">Toque para enviar</p>
                         </div>
                     </div>
-                    <i class="ph ph-upload-simple"></i>
+                    <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
                 </div>
 
-                <div class="upload-item" id="upCPF" onclick="handleUpload('upCPF', 'Documento CPF')">
-                    <div style="display: flex; align-items: center; gap: 16px;">
-                        <i class="ph-fill ph-cardholder" style="font-size: 28px; color: var(--orange);"></i>
+                <!-- Comprovante de Endereço (Repurposed upResidencia) -->
+                <div class="upload-item" id="upResidencia" onclick="handleUpload('upResidencia', 'Comprovante de Endereço')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <i class="ph-fill ph-house-line" style="font-size: 24px; color: var(--orange);"></i>
                         <div style="text-align: left;">
-                            <p style="font-weight: 700; font-size: 14px; color: var(--primary);">CPF</p>
-                            <p style="font-size: 12px; color: var(--text-muted); font-weight: 500;">Pendente envio</p>
+                            <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">Comprovante de Endereço</p>
+                            <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;">Toque para enviar</p>
                         </div>
                     </div>
-                    <i class="ph ph-upload-simple"></i>
-                </div>
-
-                <div class="upload-item" id="upResidencia"
-                    onclick="handleUpload('upResidencia', 'Comprovante de Residência')">
-                    <div style="display: flex; align-items: center; gap: 16px;">
-                        <i class="ph-fill ph-house-line" style="font-size: 28px; color: var(--orange);"></i>
-                        <div style="text-align: left;">
-                            <p style="font-weight: 700; font-size: 14px; color: var(--primary);">Residência</p>
-                            <p style="font-size: 12px; color: var(--text-muted); font-weight: 500;">Pendente envio</p>
-                        </div>
-                    </div>
-                    <i class="ph ph-upload-simple"></i>
-                </div>
-
-                <div class="upload-item" id="upVeiculo" onclick="handleUpload('upVeiculo', 'CRLV do Veículo')">
-                    <div style="display: flex; align-items: center; gap: 16px;">
-                        <i class="ph-fill ph-truck" style="font-size: 28px; color: var(--orange);"></i>
-                        <div style="text-align: left;">
-                            <p style="font-weight: 700; font-size: 14px; color: var(--primary);">CRLV (Veículo)</p>
-                            <p style="font-size: 12px; color: var(--text-muted); font-weight: 500;">Pendente envio</p>
-                        </div>
-                    </div>
-                    <i class="ph ph-upload-simple"></i>
+                    <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
                 </div>
             </div>
         </div>
 
         <button class="btn btn-outline"
-            style="color: #ef4444; border-color: #fca5a5; margin-top: 12px; width: 100%; background: #fef2f2;"
+            style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2); margin-top: 12px; width: 100%; background: #fef2f2; border-radius: 16px; padding: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.05);"
             onclick="logout()">
-            Sair da Conta <i class="ph ph-sign-out"></i>
+            Sair da Conta <i class="ph ph-sign-out" style="font-size: 18px;"></i>
         </button>
         
         <div id="photoActionSheet" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 10000; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: opacity 0.3s ease;">
