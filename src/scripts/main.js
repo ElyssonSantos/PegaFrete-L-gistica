@@ -162,9 +162,10 @@ function validateFile(file, isProfilePhoto = false) {
 const VALID_TIPOS = ['Carga Leve', 'Fracionada', 'Carga Fechada', 'Complemento'];
 const VALID_VEICULOS = ['3/4', 'Toco', 'Fiorino', 'Truck', 'Bitruck', 'Carreta LS', 'Bitrem', 'Rodotrem', 'Vanderléia', 'Caçamba', 'Silo', 'Graneleiro', 'Plataforma', 'Prancha', 'Tanque', 'Sider', 'Baú Refrigerado', 'Baú'];
 
-// ====== SESSION TIMEOUT (1 hour) ======
+// ====== SESSION TIMEOUT (24 hours) ======
 let sessionTimer = null;
-const SESSION_TIMEOUT = 60 * 60 * 1000; // 1 hour
+const SESSION_TIMEOUT = 24 * 60 * 60 * 1000; // 24 hours
+let currentShipperHistoryTab = 'concluida';
 
 function resetSessionTimer() {
     if (sessionTimer) clearTimeout(sessionTimer);
@@ -830,6 +831,8 @@ async function finalizarCadastro(btn) {
 
         // Adiciona o role e salva no Firestore
         userData.role = tempRole;
+        userData.rating = 5.0;
+        userData.entregas = 0;
         await db.collection("users").doc(uid).set(userData);
 
         btn.innerHTML = original;
@@ -854,6 +857,32 @@ function preencherPerfil() {
     if (document.getElementById('profPhone')) document.getElementById('profPhone').value = userData.telefone || '';
     if (document.getElementById('profAddress')) document.getElementById('profAddress').value = userData.endereco || '';
 
+    // Estrelas (Rating)
+    if (document.getElementById('profileRating')) {
+        const rating = userData.rating !== undefined ? Number(userData.rating).toFixed(1) : '5.0';
+        document.getElementById('profileRating').innerText = rating;
+    }
+
+    // Entregas enviadas / concluídas
+    if (document.getElementById('profileDeliveries')) {
+        const deliveries = userData.entregas !== undefined ? userData.entregas : 0;
+        document.getElementById('profileDeliveries').innerText = deliveries;
+    }
+    
+    if (document.getElementById('profileDeliveriesLabel')) {
+        document.getElementById('profileDeliveriesLabel').innerText = userData.role === 'shipper' ? 'Enviadas' : 'Concluídas';
+    }
+
+    if (userData.role === 'shipper') {
+        const companyName = userData.razao || userData.nome || 'Distribuidora XPTO';
+        if (document.getElementById('shipperCompanyName')) {
+            document.getElementById('shipperCompanyName').innerText = companyName;
+        }
+        if (document.getElementById('shipperAvatarInitials')) {
+            document.getElementById('shipperAvatarInitials').innerText = companyName.substring(0, 2).toUpperCase();
+        }
+    }
+
     if (userData.role === 'driver' && userData.veiculo) {
         if (document.getElementById('profVehicleGroup')) document.getElementById('profVehicleGroup').style.display = 'block';
         if (document.getElementById('profVehicle')) document.getElementById('profVehicle').value = userData.veiculo;
@@ -867,11 +896,22 @@ function preencherPerfil() {
 }
 
 function openPhotoActionSheet() {
-    document.getElementById('photoActionSheet').style.display = 'flex';
+    const sheet = document.getElementById('photoActionSheet');
+    if (sheet) {
+        sheet.style.display = 'flex';
+        sheet.offsetHeight; // force reflow
+        sheet.style.opacity = '1';
+    }
 }
 
 function closePhotoActionSheet() {
-    document.getElementById('photoActionSheet').style.display = 'none';
+    const sheet = document.getElementById('photoActionSheet');
+    if (sheet) {
+        sheet.style.opacity = '0';
+        setTimeout(() => {
+            sheet.style.display = 'none';
+        }, 300);
+    }
 }
 
 async function handleProfilePhoto(event) {
@@ -903,10 +943,30 @@ async function handleProfilePhoto(event) {
     }
 }
 
-async function logout(btn) {
+function logout() {
+    const sheet = document.getElementById('logoutConfirmModal');
+    if (sheet) {
+        sheet.style.display = 'flex';
+        sheet.offsetHeight; // force reflow
+        sheet.style.opacity = '1';
+    }
+}
+
+function fecharModalLogout() {
+    const sheet = document.getElementById('logoutConfirmModal');
+    if (sheet) {
+        sheet.style.opacity = '0';
+        setTimeout(() => {
+            sheet.style.display = 'none';
+        }, 300);
+    }
+}
+
+async function confirmarLogoutExec() {
+    const btn = document.getElementById('btnConfirmarLogout');
     if (btn) {
-        const original = btn.innerHTML;
         btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Saindo...`;
+        btn.disabled = true;
     }
     try {
         if (typeof freightListenerUnsubscribe === 'function') {
@@ -918,10 +978,14 @@ async function logout(btn) {
         currentUserRole = null;
         userData = {};
         showToast('Você saiu da conta com segurança.', 'info');
+        fecharModalLogout();
         navTo('auth_entry');
-        if (btn) btn.innerHTML = `Sair da Conta <i class="ph ph-sign-out"></i>`;
     } catch (error) {
         showToast('Erro ao sair.', 'error');
+        if (btn) {
+            btn.innerHTML = `Sim, Sair`;
+            btn.disabled = false;
+        }
     }
 }
 
@@ -1129,13 +1193,20 @@ function renderFretes() {
     const areaSearch = document.getElementById('dynamicFreightsSearch');
     const areaShipper = document.getElementById('shipperActiveFreights');
 
+    // Se for embarcador, ele só vê as próprias publicações em todas as listas dele
+    let listFretes = fretes;
+    if (userData && userData.role === 'shipper') {
+        listFretes = fretes.filter(f => f.shipperUid === auth.currentUser?.uid);
+    }
+
     let html = '';
-    if (fretes.length === 0) {
+    if (listFretes.length === 0) {
         html = `<div class="text-center" style="padding: 40px 0; color: var(--text-muted);"><i class="ph ph-package" style="font-size: 48px; margin-bottom: 16px;"></i><p>Nenhuma carga encontrada no momento.</p></div>`;
     } else {
-        fretes.forEach((frete, index) => {
+        listFretes.forEach((frete) => {
+            const idParam = typeof frete.id === 'string' ? `'${frete.id}'` : frete.id;
             html += `
-                  <div class="freight-card" onclick="openFreight(${index})" style="cursor: pointer;">
+                  <div class="freight-card" onclick="openFreight(${idParam})" style="cursor: pointer;">
                     <div class="route">
                       <span>${sanitizeHTML(frete.origem)}</span>
                       <i class="ph ph-arrow-right route-arrow"></i>
@@ -1159,7 +1230,7 @@ function renderFretes() {
     // Render para o painel do Embarcador (com botão editar)
     if (areaShipper) {
         let shipperHtml = '';
-        fretes.forEach(f => {
+        listFretes.forEach(f => {
             const statusLabel = f.status === 'transito' ? '<i class="ph ph-navigation-arrow"></i> Em trânsito' : '<i class="ph ph-hourglass"></i> Aguardando motorista';
             const statusClass = f.status === 'transito' ? 'status-transito' : 'status-pendente';
             const safeId = typeof f.id === 'string' ? `'${sanitizeHTML(f.id)}'` : f.id;
@@ -1181,10 +1252,19 @@ function renderFretes() {
         });
         areaShipper.innerHTML = shipperHtml || html;
     }
+
+    // Atualiza também o histórico do Embarcador
+    renderShipperHistory();
 }
 
-function openFreight(index) {
-    const frete = fretes[index];
+function openFreight(idOrIndex) {
+    let frete;
+    if (typeof idOrIndex === 'number') {
+        frete = fretes[idOrIndex];
+    } else {
+        frete = fretes.find(f => f.id === idOrIndex);
+    }
+    if (!frete) return;
     window.currentFreight = frete;
     document.getElementById('detailRoute').innerHTML = `${sanitizeHTML(frete.origem)} <i class="ph ph-arrow-right route-arrow"></i> ${sanitizeHTML(frete.destino)}`;
     document.getElementById('detailOriginText').innerText = frete.origem;
@@ -1234,7 +1314,7 @@ async function publicarFrete(btn) {
         return;
     }
 
-    btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Divulgando no Radar...`;
+    btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Publicando...`;
     btn.disabled = true;
 
     try {
@@ -1368,6 +1448,10 @@ window.fazerLogin = fazerLogin;
 window.publicarFrete = publicarFrete;
 window.salvarEdicaoFrete = salvarEdicaoFrete;
 window.logout = logout;
+window.fecharModalLogout = fecharModalLogout;
+window.confirmarLogoutExec = confirmarLogoutExec;
+window.setShipperHistoryTab = setShipperHistoryTab;
+window.renderShipperHistory = renderShipperHistory;
 
 window.navHistory = navHistory;
 window.currentUserRole = currentUserRole;
@@ -1375,3 +1459,68 @@ window.userData = userData;
 window.db = db;
 window.auth = auth;
 window.firebase = firebase;
+
+// Implementações do Histórico do Embarcador
+function setShipperHistoryTab(tab, element) {
+    currentShipperHistoryTab = tab;
+    const tabs = document.querySelectorAll('#shipperHistoryTabs .tag');
+    tabs.forEach(t => {
+        t.classList.remove('active');
+        t.style.background = '';
+        t.style.color = '';
+    });
+    if (element) {
+        element.classList.add('active');
+        element.style.background = 'var(--primary)';
+        element.style.color = 'white';
+    }
+    renderShipperHistory();
+}
+
+function renderShipperHistory() {
+    const listArea = document.getElementById('shipperHistoryList');
+    if (!listArea) return;
+    if (userData && userData.role !== 'shipper') {
+        listArea.innerHTML = '';
+        return;
+    }
+    const targetStatus = currentShipperHistoryTab === 'concluida' ? 'entregue' : 'cancelado';
+    const historyFreites = fretes.filter(f => f.shipperUid === auth.currentUser?.uid && f.status === targetStatus);
+    
+    let html = '';
+    if (historyFreites.length === 0) {
+        html = `
+            <div class="text-center" style="padding: 40px 24px; color: var(--text-muted);">
+                <i class="ph ph-clock-counter-clockwise" style="font-size: 48px; margin-bottom: 16px; color: var(--text-muted); opacity: 0.5;"></i>
+                <p style="font-size: 14px; font-weight: 500;">Nenhum envio ${currentShipperHistoryTab === 'concluida' ? 'concluído' : 'cancelado'} ainda.</p>
+            </div>
+        `;
+    } else {
+        historyFreites.forEach(frete => {
+            const dateStr = frete.createdAt ? new Date(frete.createdAt.seconds * 1000).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR');
+            const badgeClass = targetStatus === 'entregue' ? 'status-entregue' : 'status-pendente';
+            const badgeIcon = targetStatus === 'entregue' ? 'ph-fill ph-check-circle' : 'ph-fill ph-x-circle';
+            const badgeLabel = targetStatus === 'entregue' ? 'Entregue com Sucesso' : 'Cancelado';
+            
+            html += `
+                <div class="freight-card" style="opacity: 0.9;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                        <div class="status-badge ${badgeClass}" style="margin:0;">
+                            <i class="${badgeIcon}"></i> ${badgeLabel}
+                        </div>
+                        <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">${dateStr}</span>
+                    </div>
+                    <div class="route">
+                        <span>${sanitizeHTML(frete.origem)}</span>
+                        <i class="ph ph-arrow-right route-arrow"></i>
+                        <span>${sanitizeHTML(frete.destino)}</span>
+                    </div>
+                    <div class="value" style="${targetStatus === 'cancelado' ? 'color: var(--text-muted); text-decoration: line-through;' : ''}">
+                        R$ ${sanitizeHTML(frete.valor)}
+                    </div>
+                </div>
+            `;
+        });
+    }
+    listArea.innerHTML = html;
+}

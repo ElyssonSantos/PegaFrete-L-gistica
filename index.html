@@ -391,6 +391,11 @@
     <!-- TELA: ESCOLHA DE PERFIL -->
     <section id="choice" class="screen">
         <style>
+            @keyframes modalScaleIn {
+                from { transform: scale(0.95); opacity: 0; }
+                to { transform: scale(1); opacity: 1; }
+            }
+
             .role-card:hover {
                 transform: translateY(-5px) scale(1.02);
                 box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
@@ -742,10 +747,10 @@
     <section id="shipper" class="screen">
         <div class="topbar">
             <div>
-                <h1 style="font-size: 24px; color: var(--primary);">Distribuidora XPTO</h1>
+                <h1 id="shipperCompanyName" style="font-size: 24px; color: var(--primary);">Distribuidora XPTO</h1>
                 <p style="color: var(--text-muted); font-size: 14px;">Gerencie seus envios de forma inteligente.</p>
             </div>
-            <div class="profile-avatar" onclick="navTo('profile')">XP</div>
+            <div class="profile-avatar" id="shipperAvatarInitials" onclick="navTo('profile')">XP</div>
         </div>
 
         <div class="card"
@@ -832,7 +837,7 @@
                 </div>
 
                 <div class="input-group no-icon" style="margin-bottom: 20px; background: #ecfdf5; padding: 16px; border-radius: 16px; border: 1px solid rgba(16, 185, 129, 0.3);">
-                    <span style="font-size: 12px; font-weight: 800; color: #059669; display: block; margin-bottom: 8px; text-transform: uppercase;"><i class="ph-fill ph-currency-circle-dollar"></i> Valor Ofertado (PIX Seguro)</span>
+                    <span style="font-size: 12px; font-weight: 800; color: #059669; display: block; margin-bottom: 8px; text-transform: uppercase;"><i class="ph-fill ph-currency-circle-dollar" style="position: static !important; font-size: 16px !important; color: inherit !important; margin-right: 6px; vertical-align: middle;"></i> Valor Ofertado (PIX Seguro)</span>
                     <input id="valorFrete" type="text" placeholder="R$ 0,00" oninput="maskMoney(this)" style="font-size: 24px; font-weight: 800; color: #059669; background: transparent; border: none; padding: 0; box-shadow: none;" />
                 </div>
 
@@ -842,7 +847,7 @@
                 </div>
 
                 <button class="btn btn-primary" style="margin: 0; font-size: 16px; padding: 18px; font-weight: 800; border-radius: 100px;" id="btnPublicar" onclick="publicarFrete(this)">
-                    Lançar no Radar <i class="ph ph-rocket-launch"></i>
+                    Publicar <i class="ph ph-paper-plane-tilt"></i>
                 </button>
             </div>
         </div>
@@ -856,24 +861,13 @@
             <div style="width: 44px;"></div>
         </div>
 
-        <div style="display: flex; gap: 8px; margin-bottom: 24px; overflow-x: auto; padding-bottom: 8px;">
-            <div class="tag active" style="background:var(--primary); color:white; white-space:nowrap; cursor:pointer;">
+        <div style="display: flex; gap: 8px; margin-bottom: 24px; overflow-x: auto; padding-bottom: 8px;" id="shipperHistoryTabs">
+            <div class="tag active" onclick="setShipperHistoryTab('concluida', this)" style="background:var(--primary); color:white; white-space:nowrap; cursor:pointer;">
                 Concluídas</div>
-            <div class="tag" style="white-space:nowrap; cursor:pointer;">Canceladas</div>
+            <div class="tag" onclick="setShipperHistoryTab('cancelada', this)" style="white-space:nowrap; cursor:pointer;">Canceladas</div>
         </div>
 
-        <div class="freight-card">
-            <div class="status-badge status-entregue">
-                <i class="ph-fill ph-check-circle"></i> Entregue com Sucesso
-            </div>
-            <div class="route">
-                <span>Aracaju</span>
-                <i class="ph ph-arrow-right route-arrow"></i>
-                <span>Maceió</span>
-            </div>
-            <div class="value">R$ 1.100,00</div>
-            <p style="font-size: 13px; color: var(--text-muted);">Finalizado em 02/05/2026</p>
-        </div>
+        <div id="shipperHistoryList"></div>
     </section>
 
     <!-- TELA: DETALHES DA CARGA -->
@@ -948,7 +942,7 @@
             <div style="position: absolute; bottom: -50px; right: -50px; width: 150px; height: 150px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; filter: blur(30px);"></div>
             
             <div style="position: relative; z-index: 2; display: inline-block; margin-bottom: 16px;">
-                <div class="profile-avatar" id="profileAvatar"
+                <div class="profile-avatar" id="profileAvatar" onclick="openPhotoActionSheet()"
                     style="width: 100px; height: 100px; font-size: 36px; border-radius: 50%; margin: 0; background: url('https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80') center/cover; border: 4px solid white; box-shadow: 0 8px 20px rgba(0,0,0,0.08);">
                 </div>
                 <button class="btn btn-primary" id="btnPhoto"
@@ -964,22 +958,17 @@
 
             <div class="profile-stats" style="display: flex; justify-content: center; gap: 24px; margin-top: 8px;">
                 <div style="background: rgba(255,255,255,0.6); padding: 12px 24px; border-radius: 16px; border: 1px solid var(--border);">
-                    <p style="font-size: 24px; font-weight: 800; color: var(--primary);">4.9</p>
+                    <p style="font-size: 24px; font-weight: 800; color: var(--primary);" id="profileRating">5.0</p>
                     <p style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Avaliação <i class="ph-fill ph-star" style="color: #f59e0b;"></i></p>
                 </div>
                 <div style="background: rgba(255,255,255,0.6); padding: 12px 24px; border-radius: 16px; border: 1px solid var(--border);">
-                    <p style="font-size: 24px; font-weight: 800; color: var(--primary);">124</p>
-                    <p style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Concluídas</p>
+                    <p style="font-size: 24px; font-weight: 800; color: var(--primary);" id="profileDeliveries">0</p>
+                    <p style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;" id="profileDeliveriesLabel">Concluídas</p>
                 </div>
             </div>
         </div>
 
         <div class="glass-card" style="padding: 12px 16px;">
-            <div class="list-item" onclick="navTo('financial')">
-                <div class="list-icon" style="background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);"><i class="ph-fill ph-wallet"></i></div>
-                <div class="list-text" style="font-weight: 700;">Carteira Digital (Financeiro)</div>
-                <i class="ph ph-caret-right" style="color: var(--text-muted);"></i>
-            </div>
             <div class="list-item" onclick="navTo('choice')" style="border-bottom: none;">
                 <div class="list-icon" style="background: #fef2f2; color: #ef4444;"><i class="ph-fill ph-arrows-left-right"></i></div>
                 <div class="list-text" id="changeRoleText">Mudar para Embarcador</div>
@@ -1086,25 +1075,50 @@
 
         <button class="btn btn-outline"
             style="color: #ef4444; border-color: #fca5a5; margin-top: 12px; width: 100%; background: #fef2f2;"
-            onclick="logout(this)">
+            onclick="logout()">
             Sair da Conta <i class="ph ph-sign-out"></i>
         </button>
-        <div id="photoActionSheet" class="modal-overlay" style="display: none; z-index: 10000;">
-            <div class="modal-content" style="padding: 24px; text-align: center; margin: auto; max-width: 320px;">
-                <h3 style="margin-bottom: 24px;">Atualizar Foto de Perfil</h3>
-                <div style="display: flex; flex-direction: column; gap: 16px;">
-                    <button class="btn btn-primary"
+        
+        <div id="photoActionSheet" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 10000; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: opacity 0.3s ease;">
+            <div style="background: white; padding: 32px 24px; text-align: center; margin: 16px; max-width: 340px; width: 100%; border-radius: 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.7); animation: modalScaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                <div style="width: 56px; height: 56px; background: #fff7ed; color: var(--orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 16px auto;">
+                    <i class="ph-fill ph-camera"></i>
+                </div>
+                <h3 style="margin-bottom: 8px; font-weight: 800; font-size: 20px; color: var(--primary);">Foto de Perfil</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">Escolha como deseja adicionar ou atualizar sua foto de perfil.</p>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <button class="btn btn-primary" style="margin: 0; border-radius: 16px; padding: 14px; font-weight: 700;"
                         onclick="document.getElementById('cameraInput').click(); closePhotoActionSheet();">
                         <i class="ph ph-camera"></i> Tirar Foto (Câmera)
                     </button>
-                    <button class="btn btn-outline"
+                    <button class="btn btn-outline" style="margin: 0; border-radius: 16px; padding: 14px; font-weight: 700;"
                         onclick="document.getElementById('galleryInput').click(); closePhotoActionSheet();">
                         <i class="ph ph-image"></i> Escolher da Galeria
                     </button>
-                    <button class="text-btn mt-2" onclick="closePhotoActionSheet()">Cancelar</button>
+                    <button class="text-btn" style="margin-top: 8px; font-weight: 700; color: #ef4444;" onclick="closePhotoActionSheet()">Cancelar</button>
                 </div>
             </div>
         </div>
+
+        <!-- MODAL DE CONFIRMAÇÃO DE LOGOUT -->
+        <div id="logoutConfirmModal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 10001; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: opacity 0.3s ease;">
+            <div style="background: white; padding: 32px 24px; text-align: center; margin: 16px; max-width: 340px; width: 100%; border-radius: 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.7); animation: modalScaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                <div style="width: 56px; height: 56px; background: #fef2f2; color: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 16px auto;">
+                    <i class="ph-fill ph-sign-out"></i>
+                </div>
+                <h3 style="margin-bottom: 8px; font-weight: 800; font-size: 20px; color: var(--primary);">Sair da Conta?</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">Tem certeza que deseja sair da sua conta? Você precisará digitar suas credenciais novamente para acessar.</p>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-outline" style="margin: 0; flex: 1; border-radius: 16px; padding: 14px; font-weight: 700;" onclick="fecharModalLogout()">
+                        Cancelar
+                    </button>
+                    <button class="btn btn-orange" id="btnConfirmarLogout" style="margin: 0; flex: 1; border-radius: 16px; padding: 14px; font-weight: 700; background: #ef4444; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);" onclick="confirmarLogoutExec()">
+                        Sim, Sair
+                    </button>
+                </div>
+            </div>
+        </div>
+        
         <input type="file" accept="image/*" capture="user" id="cameraInput" style="display:none;"
             onchange="handleProfilePhoto(event)">
         <input type="file" accept="image/*" id="galleryInput" style="display:none;"
