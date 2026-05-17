@@ -859,6 +859,12 @@ async function finalizarCadastro(btn) {
 function preencherPerfil() {
     if (document.getElementById('profName')) document.getElementById('profName').value = userData.nome || '';
     if (document.getElementById('profileDisplayName')) document.getElementById('profileDisplayName').innerText = userData.nome || 'Usuário';
+    
+    if (document.getElementById('driverHomeGreeting')) {
+        const firstName = userData.nome ? userData.nome.split(' ')[0] : 'Usuário';
+        document.getElementById('driverHomeGreeting').innerText = `Olá, ${firstName}`;
+    }
+
     if (document.getElementById('profEmail')) document.getElementById('profEmail').value = userData.email || '';
     if (document.getElementById('profPhone')) document.getElementById('profPhone').value = userData.telefone || '';
     if (document.getElementById('profAddress')) document.getElementById('profAddress').value = userData.endereco || '';

@@ -753,7 +753,7 @@
     <section id="driver" class="screen">
         <div class="topbar">
             <div>
-                <h1 style="font-size: 24px; color: var(--primary);">Olá, Emerson</h1>
+                <h1 id="driverHomeGreeting" style="font-size: 24px; color: var(--primary);">Olá</h1>
                 <p style="color: var(--text-muted); font-size: 14px;">Pronto para pegar a estrada?</p>
             </div>
             <div class="profile-avatar" id="driverHomeAvatar" onclick="navTo('profile')"
@@ -959,12 +959,35 @@
                         <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Veículo</label>
                         <div class="input-wrapper">
                             <select id="veiculo" style="border: none; background: transparent; padding: 14px 16px; margin: 0; box-shadow: none; padding-left: 16px; height: 50px;">
-                                <option value="" disabled selected>Selecione...</option>
-                                <option value="VLC">VLC</option>
-                                <option value="VUC">VUC</option>
-                                <option value="Toco">Toco</option>
-                                <option value="Truck">Truck</option>
-                                <option value="Carreta">Carreta</option>
+                                <option value="" disabled selected>Selecione um veículo...</option>
+                                <optgroup label="Leves">
+                                    <option value="3/4">3/4</option>
+                                    <option value="Toco">Toco</option>
+                                    <option value="Fiorino">Fiorino</option>
+                                </optgroup>
+                                <optgroup label="Médios">
+                                    <option value="Truck">Truck</option>
+                                    <option value="Bitruck">Bitruck</option>
+                                </optgroup>
+                                <optgroup label="Carreta">
+                                    <option value="Carreta LS">Carreta LS</option>
+                                    <option value="Bitrem">Bitrem</option>
+                                    <option value="Rodotrem">Rodotrem</option>
+                                    <option value="Vanderléia">Vanderléia</option>
+                                </optgroup>
+                                <optgroup label="Especiais">
+                                    <option value="Caçamba">Caçamba</option>
+                                    <option value="Silo">Silo</option>
+                                    <option value="Graneleiro">Graneleiro</option>
+                                    <option value="Plataforma">Plataforma</option>
+                                    <option value="Prancha">Prancha</option>
+                                    <option value="Tanque">Tanque</option>
+                                </optgroup>
+                                <optgroup label="Veículo Fechado">
+                                    <option value="Sider">Sider</option>
+                                    <option value="Baú Refrigerado">Baú Refrigerado</option>
+                                    <option value="Baú">Baú</option>
+                                </optgroup>
                             </select>
                         </div>
                     </div>
