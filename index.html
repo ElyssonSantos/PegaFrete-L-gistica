@@ -750,32 +750,37 @@
     </section>
 
     <!-- TELA: DASHBOARD MOTORISTA (HOME) -->
-    <section id="driver" class="screen">
-        <div class="topbar">
-            <div>
-                <h1 id="driverHomeGreeting" style="font-size: 24px; color: var(--primary);">Olá</h1>
-                <p style="color: var(--text-muted); font-size: 14px;">Pronto para pegar a estrada?</p>
+    <section id="driver" class="screen" style="padding-bottom: 120px;">
+        <div class="topbar" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div style="text-align: left;">
+                <h1 id="driverHomeGreeting" style="font-size: 26px; font-weight: 850; color: var(--primary); margin: 0 0 4px 0; letter-spacing: -0.5px;">Olá</h1>
+                <p style="color: var(--text-muted); font-size: 15px; font-weight: 500; margin: 0;">Pronto para pegar a estrada?</p>
             </div>
             <div class="profile-avatar" id="driverHomeAvatar" onclick="navTo('profile')"
-                style="background: url('/avatar-default.png') center/cover;">
+                style="background: url('/avatar-default.png') center/cover; width: 48px; height: 48px; border-radius: 50%; border: 2px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.08); cursor: pointer;">
             </div>
         </div>
 
         <!-- Modificado para iniciar como oculto por padrão -->
         <div class="online-status" id="driverStatusBox"
-            style="background:#fef2f2; border-color:#fecaca; color:#991b1b;">
-            <div class="online-indicator" id="driverStatusIndicator">
-                <div class="dot" style="background:#ef4444; box-shadow:none; animation:none;"></div>
+            style="background: #fef2f2; border: 1.5px solid #fecaca; color: #991b1b; border-radius: 20px; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; transition: all 0.3s ease;">
+            <div class="online-indicator" id="driverStatusIndicator" style="font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                <div class="dot" style="width: 10px; height: 10px; background: #ef4444; border-radius: 50%; flex-shrink: 0;"></div>
                 Oculto no Radar
             </div>
             <button class="btn btn-outline" id="driverStatusBtn"
-                style="width: auto; padding: 8px 16px; margin: 0; border-radius: 999px; font-size: 13px; border-color:#22c55e; color:#22c55e;"
+                style="width: auto; padding: 8px 18px; margin: 0; border-radius: 999px; font-size: 13px; font-weight: 700; border: 1.5px solid #22c55e; color: #22c55e; background: white; cursor: pointer; transition: 0.2s;"
                 onclick="toggleStatus(this)">Ficar Online</button>
         </div>
 
-        <h2 class="mb-4" style="margin-top: 16px;">Destaques do Radar</h2>
-        <div id="dynamicFreights"></div>
-        <button class="btn btn-outline mt-4" onclick="navTo('freights_search')">
+        <h2 style="font-size: 20px; font-weight: 850; color: var(--primary); margin-top: 24px; margin-bottom: 16px; text-align: left;">Destaques do Radar</h2>
+        
+        <!-- Horizontal Scrollable Container for cards -->
+        <div id="dynamicFreights" style="display: flex; gap: 16px; overflow-x: auto; padding: 4px 4px 16px 4px; margin-bottom: 20px; scrollbar-width: none; -webkit-overflow-scrolling: touch;">
+            <!-- Cargas dinâmicas aparecem aqui -->
+        </div>
+
+        <button class="btn btn-outline" onclick="navTo('freights_search')" style="margin-top: 8px; border-radius: 18px; padding: 18px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1.5px solid var(--border); color: var(--primary); background: #f8fafc; font-size: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); width: 100%;">
             Ver Todas as Cargas <i class="ph ph-arrow-right"></i>
         </button>
     </section>
@@ -1214,7 +1219,7 @@
                 Envie a documentação de sua empresa para obter o selo ouro e prioridade de atendimento dos motoristas.
             </p>
 
-            <div class="upload-list" style="display: flex; flex-direction: column; gap: 12px;">
+            <div class="upload-list" id="profileUploadList" style="display: flex; flex-direction: column; gap: 12px;">
                 <!-- Cartão CNPJ (Repurposed upCPF) -->
                 <div class="upload-item" id="upCPF" onclick="handleUpload('upCPF', 'Cartão CNPJ')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
                     <div style="display: flex; align-items: center; gap: 14px;">

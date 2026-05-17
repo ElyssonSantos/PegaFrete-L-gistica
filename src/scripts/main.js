@@ -916,6 +916,88 @@ function preencherPerfil() {
     if (document.getElementById('driverHomeAvatar')) {
         document.getElementById('driverHomeAvatar').style.backgroundImage = `url('${avatarUrl}')`;
     }
+
+    const uploadList = document.getElementById('profileUploadList');
+    if (uploadList) {
+        if (userData.role === 'shipper') {
+            uploadList.innerHTML = `
+                <!-- Cartão CNPJ -->
+                <div class="upload-item" id="upCNPJ" onclick="handleUpload('upCNPJ', 'Cartão CNPJ')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <i class="ph-fill ph-file-text" style="font-size: 24px; color: var(--orange);"></i>
+                        <div style="text-align: left;">
+                            <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">Cartão CNPJ</p>
+                            <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;">Toque para enviar</p>
+                        </div>
+                    </div>
+                    <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
+                </div>
+
+                <!-- Comprovante de Endereço da Empresa -->
+                <div class="upload-item" id="upEnderecoEmpresa" onclick="handleUpload('upEnderecoEmpresa', 'Comprovante de Endereço da Empresa')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <i class="ph-fill ph-house-line" style="font-size: 24px; color: var(--orange);"></i>
+                        <div style="text-align: left;">
+                            <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">Comprovante de Endereço da Empresa</p>
+                            <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;">Toque para enviar</p>
+                        </div>
+                    </div>
+                    <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
+                </div>
+            `;
+        } else {
+            // Transportador (driver)
+            uploadList.innerHTML = `
+                <!-- CRLV -->
+                <div class="upload-item" id="upCRLV" onclick="handleUpload('upCRLV', 'CRLV')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <i class="ph-fill ph-file-text" style="font-size: 24px; color: var(--orange);"></i>
+                        <div style="text-align: left;">
+                            <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">CRLV</p>
+                            <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;">Toque para enviar</p>
+                        </div>
+                    </div>
+                    <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
+                </div>
+
+                <!-- Comprovante de Residência -->
+                <div class="upload-item" id="upResidencia" onclick="handleUpload('upResidencia', 'Comprovante de Residência')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <i class="ph-fill ph-house-line" style="font-size: 24px; color: var(--orange);"></i>
+                        <div style="text-align: left;">
+                            <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">Comprovante de Residência</p>
+                            <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;">Toque para enviar</p>
+                        </div>
+                    </div>
+                    <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
+                </div>
+
+                <!-- CPF -->
+                <div class="upload-item" id="upCPF" onclick="handleUpload('upCPF', 'CPF')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <i class="ph-fill ph-identification-card" style="font-size: 24px; color: var(--orange);"></i>
+                        <div style="text-align: left;">
+                            <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">CPF</p>
+                            <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;">Toque para enviar</p>
+                        </div>
+                    </div>
+                    <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
+                </div>
+
+                <!-- CNH -->
+                <div class="upload-item" id="upCNH" onclick="handleUpload('upCNH', 'CNH')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <i class="ph-fill ph-identification-badge" style="font-size: 24px; color: var(--orange);"></i>
+                        <div style="text-align: left;">
+                            <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">CNH</p>
+                            <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;">Toque para enviar</p>
+                        </div>
+                    </div>
+                    <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
+                </div>
+            `;
+        }
+    }
 }
 
 function openPhotoActionSheet() {
@@ -1236,11 +1318,11 @@ function toggleStatus(btn) {
         btn.style.borderColor = 'var(--border)';
         btn.style.color = 'var(--primary)';
 
-        box.style.background = '#ecfccb';
-        box.style.borderColor = '#d9f99d';
-        box.style.color = '#3f6212';
+        box.style.background = '#ecfdf5';
+        box.style.borderColor = '#d1fae5';
+        box.style.color = '#065f46';
 
-        indicator.innerHTML = '<div class="dot"></div> Disponível para cargas';
+        indicator.innerHTML = '<div class="dot" style="width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; flex-shrink: 0;"></div> Disponível para cargas';
         showToast('Você está online e visível para novas cargas!');
     } else {
         btn.innerText = 'Ficar Online';
@@ -1251,7 +1333,7 @@ function toggleStatus(btn) {
         box.style.borderColor = '#fecaca';
         box.style.color = '#991b1b';
 
-        indicator.innerHTML = '<div class="dot" style="background:#ef4444; box-shadow:none; animation:none;"></div> Oculto no Radar';
+        indicator.innerHTML = '<div class="dot" style="width: 10px; height: 10px; background: #ef4444; border-radius: 50%; flex-shrink: 0;"></div> Oculto no Radar';
         showToast('Você agora está invisível no radar.', 'info');
     }
 }
@@ -1278,33 +1360,82 @@ function renderFretes() {
         listFretes = fretes.filter(f => f.shipperUid === auth.currentUser?.uid);
     }
 
-    let html = '';
+    let htmlHome = '';
+    let htmlSearch = '';
     if (listFretes.length === 0) {
-        html = `<div class="text-center" style="padding: 40px 0; color: var(--text-muted);"><i class="ph ph-package" style="font-size: 48px; margin-bottom: 16px;"></i><p>Nenhuma carga encontrada no momento.</p></div>`;
+        const noCargas = `<div class="text-center" style="padding: 40px 0; color: var(--text-muted); width: 100%;"><i class="ph ph-package" style="font-size: 48px; margin-bottom: 16px;"></i><p>Nenhuma carga encontrada no momento.</p></div>`;
+        htmlHome = noCargas;
+        htmlSearch = noCargas;
     } else {
+        // Render Home Radar Highlights (Horizontal scrolling cards)
         listFretes.forEach((frete) => {
             const idParam = typeof frete.id === 'string' ? `'${frete.id}'` : frete.id;
-            html += `
-                  <div class="freight-card" onclick="openFreight(${idParam})" style="cursor: pointer;">
-                    <div class="route">
-                      <span>${sanitizeHTML(frete.origem)}</span>
-                      <i class="ph ph-arrow-right route-arrow"></i>
-                      <span>${sanitizeHTML(frete.destino)}</span>
+            htmlHome += `
+              <div class="freight-card" onclick="openFreight(${idParam})" style="cursor: pointer; background: white; border: 1.5px solid var(--border); border-radius: 24px; padding: 20px; min-width: 280px; flex: 0 0 280px; box-shadow: 0 4px 14px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 14px; position: relative; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.05)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 14px rgba(0,0,0,0.02)';">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="background: #eff6ff; color: #2563eb; font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.5px;">URGENTE</span>
+                    <span style="color: #15803d; font-size: 18px; font-weight: 800;">R$ ${sanitizeHTML(frete.valor)}</span>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <!-- Origem -->
+                    <div style="display: flex; align-items: flex-start; gap: 10px;">
+                        <div style="width: 8px; height: 8px; background: #2563eb; border-radius: 50%; margin-top: 5px; flex-shrink: 0;"></div>
+                        <div style="display: flex; flex-direction: column; text-align: left;">
+                            <span style="font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; line-height: 1;">Origem</span>
+                            <span style="font-size: 14px; font-weight: 700; color: var(--primary); margin-top: 2px;">${sanitizeHTML(frete.origem)}</span>
+                        </div>
                     </div>
                     
-                    <div class="value">R$ ${sanitizeHTML(frete.valor)}</div>
-                    
-                    <div class="badge-container" style="margin-bottom: 0;">
-                        <div class="tag blue"><i class="ph ph-package"></i> ${sanitizeHTML(frete.tipo)}</div>
-                        <div class="tag orange"><i class="ph ph-truck"></i> ${sanitizeHTML(frete.veiculo)}</div>
+                    <!-- Destino -->
+                    <div style="display: flex; align-items: flex-start; gap: 10px;">
+                        <div style="width: 8px; height: 8px; background: #ea580c; border-radius: 50%; margin-top: 5px; flex-shrink: 0;"></div>
+                        <div style="display: flex; flex-direction: column; text-align: left;">
+                            <span style="font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; line-height: 1;">Destino</span>
+                            <span style="font-size: 14px; font-weight: 700; color: var(--primary); margin-top: 2px;">${sanitizeHTML(frete.destino)}</span>
+                        </div>
                     </div>
-                  </div>
-                `;
+                </div>
+                
+                <div style="border-top: 1.5px dashed var(--border); margin-top: 4px; padding-top: 14px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 12px; font-weight: 600; color: var(--text-muted);">${sanitizeHTML(frete.tipo)} • ${sanitizeHTML(frete.veiculo)}</span>
+                    <span style="color: #2563eb; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;">Ver Detalhes</span>
+                </div>
+              </div>
+            `;
+        });
+
+        // Render Search List (Vertical standard cards, beautifully styled)
+        listFretes.forEach((frete) => {
+            const idParam = typeof frete.id === 'string' ? `'${frete.id}'` : frete.id;
+            htmlSearch += `
+              <div class="freight-card" onclick="openFreight(${idParam})" style="cursor: pointer; background: white; border: 1.5px solid var(--border); border-radius: 20px; padding: 18px; margin-bottom: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.01); display: flex; flex-direction: column; gap: 12px; transition: 0.2s;" onmouseover="this.style.borderColor='var(--orange)'" onmouseout="this.style.borderColor='var(--border)'">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="background: #fff7ed; color: #ea580c; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;">NOVO</span>
+                    <span style="color: #15803d; font-size: 16px; font-weight: 800;">R$ ${sanitizeHTML(frete.valor)}</span>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 6px; height: 6px; background: #2563eb; border-radius: 50%;"></div>
+                        <span style="font-size: 13px; font-weight: 600; color: var(--primary);">${sanitizeHTML(frete.origem)}</span>
+                        <i class="ph ph-arrow-right" style="color: var(--text-muted); font-size: 12px;"></i>
+                        <div style="width: 6px; height: 6px; background: #ea580c; border-radius: 50%;"></div>
+                        <span style="font-size: 13px; font-weight: 600; color: var(--primary);">${sanitizeHTML(frete.destino)}</span>
+                    </div>
+                </div>
+                
+                <div style="border-top: 1px solid var(--border); padding-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">${sanitizeHTML(frete.tipo)} • ${sanitizeHTML(frete.veiculo)}</span>
+                    <span style="color: #orange; font-size: 12px; font-weight: 700;">Ver Carga <i class="ph ph-caret-right"></i></span>
+                </div>
+              </div>
+            `;
         });
     }
 
-    if (areaHome) areaHome.innerHTML = html;
-    if (areaSearch) areaSearch.innerHTML = html;
+    if (areaHome) areaHome.innerHTML = htmlHome;
+    if (areaSearch) areaSearch.innerHTML = htmlSearch;
 
     // Render para o painel do Embarcador (com botão editar)
     if (areaShipper) {
@@ -1329,7 +1460,7 @@ function renderFretes() {
                     </div>
                 `;
         });
-        areaShipper.innerHTML = shipperHtml || html;
+        areaShipper.innerHTML = shipperHtml || htmlHome;
     }
 
     // Atualiza também o histórico do Embarcador
