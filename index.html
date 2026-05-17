@@ -329,6 +329,11 @@
                     Continuar <i class="ph ph-arrow-right"></i>
                 </button>
 
+                <div class="text-center mt-4">
+                    <span style="color: var(--text-muted); font-size: 14px;">Não tem uma conta?</span>
+                    <a href="#" onclick="navTo('choice')" style="color: var(--orange); font-weight: 700; text-decoration: none; margin-left: 4px; font-size: 14px;">Cadastre-se</a>
+                </div>
+
                 <div class="auth-footer" style="margin-top: 40px;">
                     Criando uma conta, você concorda com nossos <a href="terms.html" target="_blank">Termos e Condições</a>.
                 </div>
@@ -371,9 +376,13 @@
                 <button class="btn btn-orange mt-4" onclick="fazerLogin(this)">
                     Acessar Plataforma <i class="ph ph-sign-in"></i>
                 </button>
-                <div class="text-center mt-4">
+                <div class="text-center mt-4" style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
                     <button class="text-btn" style="color: var(--orange); font-weight: 700;"
                         onclick="showToast('Recuperação de senha em manutenção')">Esqueci minha senha</button>
+                    <div>
+                        <span style="color: var(--text-muted); font-size: 14px;">Não tem uma conta?</span>
+                        <a href="#" onclick="navTo('choice')" style="color: var(--orange); font-weight: 700; text-decoration: none; margin-left: 4px; font-size: 14px;">Criar uma nova conta</a>
+                    </div>
                 </div>
             </div>
         </div>
