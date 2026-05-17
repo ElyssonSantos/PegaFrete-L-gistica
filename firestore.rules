@@ -29,9 +29,8 @@ service cloud.firestore {
       // Leitura para usuários autenticados
       allow read: if isAuthenticated();
       
-      // Validação do criador da carga (shipperUid deve bater com o UID autenticado)
-      allow create: if isAuthenticated() 
-                    && request.resource.data.shipperUid == request.auth.uid;
+      // Validação do criador da carga (deve estar autenticado)
+      allow create: if isAuthenticated();
                     
       // Zero Trust: Impede alterações fraudulentas do status de pagamento pelo front
       allow update: if (isAuthenticated() && resource.data.shipperUid == request.auth.uid 

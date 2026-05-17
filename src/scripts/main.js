@@ -1313,27 +1313,38 @@ function toggleStatus(btn) {
     const box = document.getElementById('driverStatusBox');
     const indicator = document.getElementById('driverStatusIndicator');
 
-    if (btn.innerText === 'Ficar Online') {
+    if (btn.innerText.trim() === 'Ficar Online') {
         btn.innerText = 'Pausar';
-        btn.style.borderColor = 'var(--border)';
-        btn.style.color = 'var(--primary)';
+        btn.className = 'bg-white/80 hover:bg-white text-[#1A1C1E] text-xs font-bold py-2 px-6 rounded-full transition-colors duration-200 border border-gray-200 shadow-sm';
+        btn.style.borderColor = '';
+        btn.style.color = '';
 
-        box.style.background = '#ecfdf5';
-        box.style.borderColor = '#d1fae5';
-        box.style.color = '#065f46';
+        box.style.background = '#E9F8D6';
+        box.style.borderColor = '#D9ECC0';
 
-        indicator.innerHTML = '<div class="dot" style="width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; flex-shrink: 0;"></div> Disponível para cargas';
+        indicator.innerHTML = `
+            <span class="relative flex h-3 w-3" style="display: inline-flex; align-items: center; justify-content: center; width: 12px; height: 12px; position: relative;">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" style="position: absolute; width: 100%; height: 100%; border-radius: 50%; background-color: #4ade80;"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-green-600" style="position: relative; width: 12px; height: 12px; border-radius: 50%; background-color: #16a34a;"></span>
+            </span>
+            <span class="text-[#3A5A1C] font-semibold text-sm">Disponível para cargas</span>
+        `;
         showToast('Você está online e visível para novas cargas!');
     } else {
         btn.innerText = 'Ficar Online';
-        btn.style.borderColor = '#22c55e';
-        btn.style.color = '#22c55e';
+        btn.className = 'bg-white/80 hover:bg-white text-[#1A1C1E] text-xs font-bold py-2 px-6 rounded-full transition-colors duration-200 border border-gray-200 shadow-sm';
+        btn.style.borderColor = '';
+        btn.style.color = '';
 
         box.style.background = '#fef2f2';
         box.style.borderColor = '#fecaca';
-        box.style.color = '#991b1b';
 
-        indicator.innerHTML = '<div class="dot" style="width: 10px; height: 10px; background: #ef4444; border-radius: 50%; flex-shrink: 0;"></div> Oculto no Radar';
+        indicator.innerHTML = `
+            <span class="relative flex h-3 w-3" style="display: inline-flex; align-items: center; justify-content: center; width: 12px; height: 12px; position: relative;">
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-[#ef4444]" style="position: relative; width: 12px; height: 12px; border-radius: 50%; background-color: #ef4444;"></span>
+            </span>
+            <span class="font-semibold text-sm text-[#991b1b]">Oculto no Radar</span>
+        `;
         showToast('Você agora está invisível no radar.', 'info');
     }
 }
@@ -1354,80 +1365,105 @@ function renderFretes() {
     const areaSearch = document.getElementById('dynamicFreightsSearch');
     const areaShipper = document.getElementById('shipperActiveFreights');
 
-    // Se for embarcador, ele só vê as próprias publicações em todas as listas dele
-    let listFretes = fretes;
-    if (userData && userData.role === 'shipper') {
-        listFretes = fretes.filter(f => f.shipperUid === auth.currentUser?.uid);
+    // Filtragem de cargas
+    let listFretesHome = fretes;
+    let listFretesSearch = fretes;
+
+    if (userData) {
+        if (userData.role === 'shipper') {
+            listFretesHome = fretes.filter(f => f.shipperUid === auth.currentUser?.uid);
+            listFretesSearch = listFretesHome;
+        } else if (userData.role === 'driver') {
+            // Se o motorista tem um veículo cadastrado, vincula a Home (Destaques) com o sistema de filtro
+            if (userData.veiculo) {
+                listFretesHome = fretes.filter(f => f.veiculo && f.veiculo.toLowerCase() === userData.veiculo.toLowerCase());
+            }
+        }
     }
 
     let htmlHome = '';
     let htmlSearch = '';
-    if (listFretes.length === 0) {
-        const noCargas = `<div class="text-center" style="padding: 40px 0; color: var(--text-muted); width: 100%;"><i class="ph ph-package" style="font-size: 48px; margin-bottom: 16px;"></i><p>Nenhuma carga encontrada no momento.</p></div>`;
-        htmlHome = noCargas;
-        htmlSearch = noCargas;
+
+    // Render Home Feed
+    if (listFretesHome.length === 0) {
+        htmlHome = `
+            <div class="text-center bg-white rounded-2xl p-8 border border-gray-100 shadow-sm flex flex-col items-center justify-center gap-3" style="width: 100%;">
+                <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center text-gray-400" style="margin: 0 auto;">
+                    <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>
+                </div>
+                <h3 class="font-bold text-sm text-[#1A1C1E]" style="margin: 0;">Sem cargas compatíveis</h3>
+                <p class="text-xs text-gray-500 max-w-[240px]" style="margin: 0 auto;">Não encontramos nenhuma carga publicada compatível com seu veículo no momento.</p>
+            </div>
+        `;
     } else {
-        // Render Home Radar Highlights (Horizontal scrolling cards)
-        listFretes.forEach((frete) => {
+        listFretesHome.forEach((frete) => {
             const idParam = typeof frete.id === 'string' ? `'${frete.id}'` : frete.id;
             htmlHome += `
-              <div class="freight-card" onclick="openFreight(${idParam})" style="cursor: pointer; background: white; border: 1.5px solid var(--border); border-radius: 24px; padding: 20px; min-width: 280px; flex: 0 0 280px; box-shadow: 0 4px 14px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 14px; position: relative; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.05)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 14px rgba(0,0,0,0.02)';">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="background: #eff6ff; color: #2563eb; font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.5px;">URGENTE</span>
-                    <span style="color: #15803d; font-size: 18px; font-weight: 800;">R$ ${sanitizeHTML(frete.valor)}</span>
-                </div>
-                
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <!-- Origem -->
-                    <div style="display: flex; align-items: flex-start; gap: 10px;">
-                        <div style="width: 8px; height: 8px; background: #2563eb; border-radius: 50%; margin-top: 5px; flex-shrink: 0;"></div>
-                        <div style="display: flex; flex-direction: column; text-align: left;">
-                            <span style="font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; line-height: 1;">Origem</span>
-                            <span style="font-size: 14px; font-weight: 700; color: var(--primary); margin-top: 2px;">${sanitizeHTML(frete.origem)}</span>
-                        </div>
+              <div class="bg-white rounded-2xl p-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col gap-3" data-purpose="load-card" onclick="openFreight(${idParam})" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.06)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)';">
+                <div class="flex justify-between items-start">
+                  <div class="flex flex-col" style="text-align: left;">
+                    <span class="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">Rota</span>
+                    <div class="flex items-center gap-2">
+                      <span class="font-bold text-sm text-[#1A1C1E]">${sanitizeHTML(frete.origem)}</span>
+                      <span class="text-gray-400">→</span>
+                      <span class="font-bold text-sm text-[#1A1C1E]">${sanitizeHTML(frete.destino)}</span>
                     </div>
-                    
-                    <!-- Destino -->
-                    <div style="display: flex; align-items: flex-start; gap: 10px;">
-                        <div style="width: 8px; height: 8px; background: #ea580c; border-radius: 50%; margin-top: 5px; flex-shrink: 0;"></div>
-                        <div style="display: flex; flex-direction: column; text-align: left;">
-                            <span style="font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; line-height: 1;">Destino</span>
-                            <span style="font-size: 14px; font-weight: 700; color: var(--primary); margin-top: 2px;">${sanitizeHTML(frete.destino)}</span>
-                        </div>
-                    </div>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1 block">Pagamento</span>
+                    <span class="text-green-600 font-bold text-lg">R$ ${sanitizeHTML(frete.valor)}</span>
+                  </div>
                 </div>
-                
-                <div style="border-top: 1.5px dashed var(--border); margin-top: 4px; padding-top: 14px; display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 12px; font-weight: 600; color: var(--text-muted);">${sanitizeHTML(frete.tipo)} • ${sanitizeHTML(frete.veiculo)}</span>
-                    <span style="color: #2563eb; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;">Ver Detalhes</span>
+                <hr class="border-gray-50" style="margin: 0;"/>
+                <div class="flex justify-between items-center">
+                  <div class="flex gap-2">
+                    <span class="bg-gray-100 text-gray-600 text-[11px] px-3 py-1 rounded-full font-medium">${sanitizeHTML(frete.tipo)}</span>
+                    <span class="bg-gray-100 text-gray-600 text-[11px] px-3 py-1 rounded-full font-medium">${sanitizeHTML(frete.veiculo)}</span>
+                  </div>
+                  <button class="bg-[#1A1C1E] hover:bg-black text-white text-xs px-4 py-2 rounded-lg font-semibold transition-colors border-none" style="cursor: pointer;" onclick="event.stopPropagation(); openFreight(${idParam})">Candidatar</button>
                 </div>
               </div>
             `;
         });
+    }
 
-        // Render Search List (Vertical standard cards, beautifully styled)
-        listFretes.forEach((frete) => {
+    // Render Search Feed
+    if (listFretesSearch.length === 0) {
+        htmlSearch = `
+            <div class="text-center bg-white rounded-2xl p-8 border border-gray-100 shadow-sm flex flex-col items-center justify-center gap-3" style="width: 100%;">
+                <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center text-gray-400" style="margin: 0 auto;">
+                    <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>
+                </div>
+                <h3 class="font-bold text-sm text-[#1A1C1E]" style="margin: 0;">Nenhuma carga disponível</h3>
+                <p class="text-xs text-gray-500" style="margin: 0 auto;">Não há nenhuma publicação de carga ativa no momento.</p>
+            </div>
+        `;
+    } else {
+        listFretesSearch.forEach((frete) => {
             const idParam = typeof frete.id === 'string' ? `'${frete.id}'` : frete.id;
             htmlSearch += `
-              <div class="freight-card" onclick="openFreight(${idParam})" style="cursor: pointer; background: white; border: 1.5px solid var(--border); border-radius: 20px; padding: 18px; margin-bottom: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.01); display: flex; flex-direction: column; gap: 12px; transition: 0.2s;" onmouseover="this.style.borderColor='var(--orange)'" onmouseout="this.style.borderColor='var(--border)'">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="background: #fff7ed; color: #ea580c; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;">NOVO</span>
-                    <span style="color: #15803d; font-size: 16px; font-weight: 800;">R$ ${sanitizeHTML(frete.valor)}</span>
-                </div>
-                
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="width: 6px; height: 6px; background: #2563eb; border-radius: 50%;"></div>
-                        <span style="font-size: 13px; font-weight: 600; color: var(--primary);">${sanitizeHTML(frete.origem)}</span>
-                        <i class="ph ph-arrow-right" style="color: var(--text-muted); font-size: 12px;"></i>
-                        <div style="width: 6px; height: 6px; background: #ea580c; border-radius: 50%;"></div>
-                        <span style="font-size: 13px; font-weight: 600; color: var(--primary);">${sanitizeHTML(frete.destino)}</span>
+              <div class="bg-white rounded-2xl p-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col gap-3 mb-4 freight-card" onclick="openFreight(${idParam})" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.06)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)';">
+                <div class="flex justify-between items-start">
+                  <div class="flex flex-col" style="text-align: left;">
+                    <span class="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">Rota</span>
+                    <div class="flex items-center gap-2">
+                      <span class="font-bold text-sm text-[#1A1C1E]">${sanitizeHTML(frete.origem)}</span>
+                      <span class="text-gray-400">→</span>
+                      <span class="font-bold text-sm text-[#1A1C1E]">${sanitizeHTML(frete.destino)}</span>
                     </div>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1 block">Pagamento</span>
+                    <span class="text-green-600 font-bold text-lg">R$ ${sanitizeHTML(frete.valor)}</span>
+                  </div>
                 </div>
-                
-                <div style="border-top: 1px solid var(--border); padding-top: 10px; display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">${sanitizeHTML(frete.tipo)} • ${sanitizeHTML(frete.veiculo)}</span>
-                    <span style="color: #orange; font-size: 12px; font-weight: 700;">Ver Carga <i class="ph ph-caret-right"></i></span>
+                <hr class="border-gray-50" style="margin: 0;"/>
+                <div class="flex justify-between items-center">
+                  <div class="flex gap-2">
+                    <span class="bg-gray-100 text-gray-600 text-[11px] px-3 py-1 rounded-full font-medium">${sanitizeHTML(frete.tipo)}</span>
+                    <span class="bg-gray-100 text-gray-600 text-[11px] px-3 py-1 rounded-full font-medium">${sanitizeHTML(frete.veiculo)}</span>
+                  </div>
+                  <button class="bg-[#1A1C1E] hover:bg-black text-white text-xs px-4 py-2 rounded-lg font-semibold transition-colors border-none" style="cursor: pointer;" onclick="event.stopPropagation(); openFreight(${idParam})">Candidatar</button>
                 </div>
               </div>
             `;

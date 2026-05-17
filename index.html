@@ -750,39 +750,43 @@
     </section>
 
     <!-- TELA: DASHBOARD MOTORISTA (HOME) -->
-    <section id="driver" class="screen" style="padding-bottom: 120px;">
-        <div class="topbar" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
-            <div style="text-align: left;">
-                <h1 id="driverHomeGreeting" style="font-size: 26px; font-weight: 850; color: var(--primary); margin: 0 0 4px 0; letter-spacing: -0.5px;">Olá</h1>
-                <p style="color: var(--text-muted); font-size: 15px; font-weight: 500; margin: 0;">Pronto para pegar a estrada?</p>
+    <section id="driver" class="screen" style="padding-bottom: 120px; background-color: #FAF9F6; min-height: 100vh;">
+        <header class="flex justify-between items-start" style="padding: 24px 0 16px 0;" data-purpose="app-header">
+            <div class="flex flex-col" style="text-align: left;">
+                <h1 id="driverHomeGreeting" style="font-size: 24px; font-weight: 800; color: #1A1C1E; margin: 0 0 4px 0; letter-spacing: -0.5px;">Olá</h1>
+                <p class="text-sm text-gray-500 font-medium" style="margin: 0;">Pronto para pegar a estrada?</p>
             </div>
-            <div class="profile-avatar" id="driverHomeAvatar" onclick="navTo('profile')"
-                style="background: url('/avatar-default.png') center/cover; width: 48px; height: 48px; border-radius: 50%; border: 2px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.08); cursor: pointer;">
+            <div class="profile-avatar w-12 h-12 rounded-full border-2 border-white shadow-sm cursor-pointer" id="driverHomeAvatar" onclick="navTo('profile')"
+                style="background: url('/avatar-default.png') center/cover;">
             </div>
+        </header>
+
+        <!-- Status Banner -->
+        <section style="margin-bottom: 24px;" data-purpose="availability-status">
+            <!-- Inicia como Oculto por padrão -->
+            <div id="driverStatusBox" class="rounded-2xl p-4 flex items-center justify-between shadow-sm border" style="background: #fef2f2; border-color: #fecaca; transition: all 0.3s ease;">
+                <div class="flex items-center gap-3" id="driverStatusIndicator">
+                    <span class="relative flex h-3 w-3">
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-[#ef4444]"></span>
+                    </span>
+                    <span class="font-semibold text-sm text-[#991b1b]">Oculto no Radar</span>
+                </div>
+                <button id="driverStatusBtn" class="bg-white/80 hover:bg-white text-[#1A1C1E] text-xs font-bold py-2 px-6 rounded-full transition-colors duration-200 border border-gray-200 shadow-sm" onclick="toggleStatus(this)">
+                    Ficar Online
+                </button>
+            </div>
+        </section>
+
+        <!-- Featured Feed Title -->
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold text-[#2D3142]" style="margin: 0;">Cargas em Destaque</h2>
+            <button class="text-blue-600 text-xs font-semibold" style="background: none; border: none; cursor: pointer;" onclick="navTo('freights_search')">Ver todas</button>
         </div>
 
-        <!-- Modificado para iniciar como oculto por padrão -->
-        <div class="online-status" id="driverStatusBox"
-            style="background: #fef2f2; border: 1.5px solid #fecaca; color: #991b1b; border-radius: 20px; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; transition: all 0.3s ease;">
-            <div class="online-indicator" id="driverStatusIndicator" style="font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
-                <div class="dot" style="width: 10px; height: 10px; background: #ef4444; border-radius: 50%; flex-shrink: 0;"></div>
-                Oculto no Radar
-            </div>
-            <button class="btn btn-outline" id="driverStatusBtn"
-                style="width: auto; padding: 8px 18px; margin: 0; border-radius: 999px; font-size: 13px; font-weight: 700; border: 1.5px solid #22c55e; color: #22c55e; background: white; cursor: pointer; transition: 0.2s;"
-                onclick="toggleStatus(this)">Ficar Online</button>
-        </div>
-
-        <h2 style="font-size: 20px; font-weight: 850; color: var(--primary); margin-top: 24px; margin-bottom: 16px; text-align: left;">Destaques do Radar</h2>
-        
-        <!-- Horizontal Scrollable Container for cards -->
-        <div id="dynamicFreights" style="display: flex; gap: 16px; overflow-x: auto; padding: 4px 4px 16px 4px; margin-bottom: 20px; scrollbar-width: none; -webkit-overflow-scrolling: touch;">
+        <!-- Feed List (Vertical cards stack) -->
+        <div class="space-y-4" id="dynamicFreights" style="display: flex; flex-direction: column; gap: 16px;">
             <!-- Cargas dinâmicas aparecem aqui -->
         </div>
-
-        <button class="btn btn-outline" onclick="navTo('freights_search')" style="margin-top: 8px; border-radius: 18px; padding: 18px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1.5px solid var(--border); color: var(--primary); background: #f8fafc; font-size: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); width: 100%;">
-            Ver Todas as Cargas <i class="ph ph-arrow-right"></i>
-        </button>
     </section>
 
     <!-- TELA: BUSCA DE CARGAS (SEARCH LIST) -->
