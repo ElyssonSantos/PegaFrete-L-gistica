@@ -21,6 +21,65 @@
 
 
 
+    <style>
+        /* Estilos Premium para Multi-Step de Publicação */
+        .input-group-premium {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            border-radius: 16px;
+            background: #f8fafc;
+            border: 1.5px solid var(--border);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+        .input-wrapper:focus-within {
+            border-color: var(--orange) !important;
+            background: #fff !important;
+            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15) !important;
+        }
+        .input-wrapper input,
+        .input-wrapper select {
+            flex: 1;
+            border: none !important;
+            background: transparent !important;
+            padding: 14px 16px !important;
+            font-size: 15px !important;
+            color: var(--text-main) !important;
+            outline: none !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+        .input-suffix {
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-left: 1.5px solid var(--border);
+            background: #f8fafc;
+            height: 50px;
+        }
+        .stepper-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+            z-index: 3;
+        }
+        .stepper-item.completed .step-num {
+            background: #22c55e !important;
+            color: white !important;
+        }
+        .stepper-item.completed .step-label {
+            color: #22c55e !important;
+        }
+    </style>
     <link rel="stylesheet" href="src/styles/global.css" />
 </head>
 
@@ -774,83 +833,168 @@
         </div>
     </section>
 
-    <!-- TELA: PUBLICAR CARGA (NOVA ABA) -->
-    <section id="shipper_publish" class="screen">
-        <div class="topbar">
-            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
-            <h1 style="font-size: 22px;">Anunciar Carga</h1>
-            <div style="width: 44px;"></div>
-        </div>
+    <!-- TELA: ANUNCIAR CARGA -->
+    <section id="shipper_publish" class="screen" style="padding: 0; background: #fff; min-height: 100vh;">
+        <!-- Header minimal for Focused View -->
+        <header style="display: flex; align-items: center; padding: 16px; border-bottom: 1.5px solid var(--border); background: #fff; position: sticky; top: 0; z-index: 10;">
+            <button class="back-btn" style="background: transparent;" onclick="prevPublishStep()"><i class="ph ph-arrow-left" style="font-size: 20px;"></i></button>
+            <h1 style="font-size: 18px; font-weight: 800; color: var(--primary); margin-left: 12px;" id="publishHeaderTitle">Nova Publicação</h1>
+        </header>
 
-        <div class="glass-card"
-            style="padding: 0; overflow: hidden; border: none; box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08); margin-bottom: 32px; border-radius: 24px;">
-            <div style="background: linear-gradient(135deg, var(--primary), #1e293b); padding: 28px 24px; color: white; position: relative;">
-                <i class="ph-fill ph-rocket-launch" style="position: absolute; right: -10px; top: -10px; font-size: 100px; color: rgba(255,255,255,0.05); transform: rotate(15deg);"></i>
-                <h2 style="color: white; margin-bottom: 8px; font-size: 22px; font-weight: 800; position: relative; z-index: 2;">Nova Publicação</h2>
-                <p style="color: rgba(255,255,255,0.8); font-size: 14px; margin: 0; max-width: 90%; position: relative; z-index: 2;">Anuncie rapidamente para nossa rede de motoristas verificados.</p>
+        <!-- Progress Stepper -->
+        <div style="padding: 24px 20px 16px 20px; background: #fff;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; position: relative;">
+                <!-- Line background -->
+                <div style="position: absolute; top: 16px; left: 10%; right: 10%; height: 2px; background: #f1f5f9; z-index: 1;"></div>
+                <!-- Dynamic progress line overlay -->
+                <div id="stepperProgressLine" style="position: absolute; top: 16px; left: 10%; width: 0%; height: 2px; background: var(--orange); z-index: 2; transition: width 0.3s ease;"></div>
+
+                <div class="stepper-item active" id="step1Indicator">
+                    <div class="step-num" style="width: 32px; height: 32px; border-radius: 50%; background: var(--orange); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; margin-bottom: 6px; transition: 0.3s;">1</div>
+                    <span class="step-label" style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--orange); letter-spacing: 0.5px;">Rota</span>
+                </div>
+                <div class="stepper-item" id="step2Indicator">
+                    <div class="step-num" style="width: 32px; height: 32px; border-radius: 50%; background: #e2e8f0; color: #94a3b8; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; margin-bottom: 6px; transition: 0.3s;">2</div>
+                    <span class="step-label" style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px;">Contato</span>
+                </div>
+                <div class="stepper-item" id="step3Indicator">
+                    <div class="step-num" style="width: 32px; height: 32px; border-radius: 50%; background: #e2e8f0; color: #94a3b8; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; margin-bottom: 6px; transition: 0.3s;">3</div>
+                    <span class="step-label" style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px;">Carga</span>
+                </div>
             </div>
-            <div style="padding: 24px; background: rgba(255,255,255,0.9);">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
-                    <div class="input-group no-icon" style="margin: 0;">
-                        <span style="font-size: 11px; font-weight: 800; color: var(--orange); display: block; margin-bottom: 6px; text-transform: uppercase;">Origem</span>
-                        <input id="origem" type="text" placeholder="Ex: São Paulo, SP" style="font-weight: 700; background: #f8fafc; border-color: rgba(249, 115, 22, 0.2);" />
-                    </div>
-                    <div class="input-group no-icon" style="margin: 0;">
-                        <span style="font-size: 11px; font-weight: 800; color: #10b981; display: block; margin-bottom: 6px; text-transform: uppercase;">Destino</span>
-                        <input id="destino" type="text" placeholder="Ex: Campinas, SP" style="font-weight: 700; background: #f8fafc; border-color: rgba(16, 185, 129, 0.2);" />
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
-                    <div class="input-group no-icon" style="margin: 0;">
-                        <span style="font-size: 11px; font-weight: 800; color: var(--text-muted); display: block; margin-bottom: 6px; text-transform: uppercase;">Contato</span>
-                        <input id="telefoneContato" type="tel" placeholder="(00) 00000-0000" oninput="maskPhone(this)" style="font-weight: 600; background: #f8fafc;" />
-                    </div>
-                    <div class="input-group no-icon" style="margin: 0;">
-                        <span style="font-size: 11px; font-weight: 800; color: #25D366; display: block; margin-bottom: 6px; text-transform: uppercase;">WhatsApp</span>
-                        <input id="whatsappContato" type="tel" placeholder="(00) 00000-0000" oninput="maskPhone(this)" style="font-weight: 600; background: #f8fafc; border-color: rgba(37, 211, 102, 0.2);" />
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
-                    <div class="input-group no-icon" style="margin: 0;">
-                        <span style="font-size: 11px; font-weight: 800; color: var(--text-muted); display: block; margin-bottom: 6px; text-transform: uppercase;">Tipo</span>
-                        <select id="tipoCarga" style="font-weight: 600; background: #f8fafc;">
-                            <option value="" disabled selected>Selecione...</option>
-                            <option value="Carga Leve">Carga Leve</option>
-                            <option value="Fracionada">Fracionada</option>
-                            <option value="Carga Fechada">Carga Fechada</option>
-                            <option value="Complemento">Complemento</option>
-                        </select>
-                    </div>
-                    <div class="input-group no-icon" style="margin: 0;">
-                        <span style="font-size: 11px; font-weight: 800; color: var(--text-muted); display: block; margin-bottom: 6px; text-transform: uppercase;">Veículo</span>
-                        <select id="veiculo" style="font-weight: 600; background: #f8fafc;">
-                            <option value="" disabled selected>Selecione...</option>
-                            <option value="VLC">VLC</option>
-                            <option value="VUC">VUC</option>
-                            <option value="Toco">Toco</option>
-                            <option value="Truck">Truck</option>
-                            <option value="Carreta">Carreta</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="input-group no-icon" style="margin-bottom: 20px; background: #ecfdf5; padding: 16px; border-radius: 16px; border: 1px solid rgba(16, 185, 129, 0.3);">
-                    <span style="font-size: 12px; font-weight: 800; color: #059669; display: block; margin-bottom: 8px; text-transform: uppercase;"><i class="ph-fill ph-currency-circle-dollar" style="position: static !important; font-size: 16px !important; color: inherit !important; margin-right: 6px; vertical-align: middle;"></i> Valor Ofertado (PIX Seguro)</span>
-                    <input id="valorFrete" type="text" placeholder="R$ 0,00" oninput="maskMoney(this)" style="font-size: 24px; font-weight: 800; color: #059669; background: transparent; border: none; padding: 0; box-shadow: none;" />
-                </div>
-
-                <div class="input-group no-icon" style="margin-bottom: 28px;">
-                    <span style="font-size: 11px; font-weight: 800; color: var(--text-muted); display: block; margin-bottom: 6px; text-transform: uppercase;">Observações</span>
-                    <textarea id="obsCarga" placeholder="Ex: Carga frágil, exige ajudante para descarregar..." style="min-height: 100px; padding: 16px; background: #f8fafc; border-radius: 16px;"></textarea>
-                </div>
-
-                <button class="btn btn-primary" style="margin: 0; font-size: 16px; padding: 18px; font-weight: 800; border-radius: 100px;" id="btnPublicar" onclick="publicarFrete(this)">
-                    Publicar <i class="ph ph-paper-plane-tilt"></i>
-                </button>
+            
+            <!-- Progress Bar Detail -->
+            <div style="width: 100%; background: #f1f5f9; height: 5px; border-radius: 99px; overflow: hidden;">
+                <div id="stepperProgressBar" style="background: var(--orange); height: 100%; width: 33%; border-radius: 99px; transition: width 0.3s ease;"></div>
             </div>
         </div>
+
+        <!-- Form Content -->
+        <main style="padding: 16px 20px 120px 20px;">
+            <!-- Step 1: Rota -->
+            <div id="publishStep1" class="publish-step-panel active" style="display: flex; flex-direction: column; gap: 20px;">
+                <div style="margin-bottom: 4px;">
+                    <h2 style="font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 4px;">Defina a rota da carga</h2>
+                    <p style="font-size: 14px; color: var(--text-muted); font-weight: 500;">Informe os pontos de partida e chegada.</p>
+                </div>
+
+                <div class="input-group-premium">
+                    <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Origem</label>
+                    <div class="input-wrapper">
+                        <input id="origem" type="text" placeholder="Ex: São Paulo, SP" style="border: none; background: transparent; padding: 14px 16px; margin: 0; box-shadow: none;" />
+                        <div class="input-suffix">
+                            <i class="ph ph-map-pin" style="font-size: 20px; color: var(--orange);"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group-premium">
+                    <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Destino</label>
+                    <div class="input-wrapper">
+                        <input id="destino" type="text" placeholder="Ex: Campinas, SP" style="border: none; background: transparent; padding: 14px 16px; margin: 0; box-shadow: none;" />
+                        <div class="input-suffix">
+                            <i class="ph ph-map-pin" style="font-size: 20px; color: #10b981;"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map Preview Context -->
+                <div style="border-radius: 20px; overflow: hidden; position: relative; height: 210px; border: 1.5px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPRxrZ9EnX7WbNO8TcTEx-vPRBg9Yvf5EbkBI2-q-F_TyAH8xJefUer3byxqn1B6S7Wx3PSvdPVzFqH37u84pI6hXIjvtgZ3Vnz5gJbDR3sS6xxZ_iBBcj0v4CaIZ-AxqsUjU-Li51HEBhd8g_tKIgkgBHdpHJN2zWmmEo6M0gJD9KSr4fnAFUvcC97I6z5iDX3T7X4EzQFblpkWEyfMyXP_MpA0CIHe2P-kNpSPUQ8wzUQI70aAjVo1Z1SSNDGe3lgIL-tDGg5_qw" 
+                         alt="Mapa da rota" style="width: 100%; height: 100%; object-fit: cover;" />
+                    <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.15) 0%, transparent 100%); pointer-events: none;"></div>
+                </div>
+            </div>
+
+            <!-- Step 2: Contato -->
+            <div id="publishStep2" class="publish-step-panel" style="display: none; flex-direction: column; gap: 20px;">
+                <div style="margin-bottom: 4px;">
+                    <h2 style="font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 4px;">Informações de Contato</h2>
+                    <p style="font-size: 14px; color: var(--text-muted); font-weight: 500;">Preencha os dados do responsável pela carga.</p>
+                </div>
+
+                <div class="input-group-premium">
+                    <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Telefone de Contato</label>
+                    <div class="input-wrapper">
+                        <input id="telefoneContato" type="tel" placeholder="(00) 00000-0000" oninput="maskPhone(this)" style="border: none; background: transparent; padding: 14px 16px; margin: 0; box-shadow: none;" />
+                        <div class="input-suffix">
+                            <i class="ph ph-phone" style="font-size: 20px; color: #94a3b8;"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group-premium">
+                    <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">WhatsApp</label>
+                    <div class="input-wrapper">
+                        <input id="whatsappContato" type="tel" placeholder="(00) 00000-0000" oninput="maskPhone(this)" style="border: none; background: transparent; padding: 14px 16px; margin: 0; box-shadow: none;" />
+                        <div class="input-suffix">
+                            <i class="ph ph-whatsapp-logo" style="font-size: 20px; color: #25d366;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Carga -->
+            <div id="publishStep3" class="publish-step-panel" style="display: none; flex-direction: column; gap: 20px;">
+                <div style="margin-bottom: 4px;">
+                    <h2 style="font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 4px;">Veículo e Valor</h2>
+                    <p style="font-size: 14px; color: var(--text-muted); font-weight: 500;">Defina o tipo, veículo necessário e oferta.</p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="input-group-premium">
+                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Tipo</label>
+                        <div class="input-wrapper">
+                            <select id="tipoCarga" style="border: none; background: transparent; padding: 14px 16px; margin: 0; box-shadow: none; padding-left: 16px; height: 50px;">
+                                <option value="" disabled selected>Selecione...</option>
+                                <option value="Carga Leve">Carga Leve</option>
+                                <option value="Fracionada">Fracionada</option>
+                                <option value="Carga Fechada">Carga Fechada</option>
+                                <option value="Complemento">Complemento</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group-premium">
+                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Veículo</label>
+                        <div class="input-wrapper">
+                            <select id="veiculo" style="border: none; background: transparent; padding: 14px 16px; margin: 0; box-shadow: none; padding-left: 16px; height: 50px;">
+                                <option value="" disabled selected>Selecione...</option>
+                                <option value="VLC">VLC</option>
+                                <option value="VUC">VUC</option>
+                                <option value="Toco">Toco</option>
+                                <option value="Truck">Truck</option>
+                                <option value="Carreta">Carreta</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group-premium" style="background: #f0fdf4; border: 1.5px solid rgba(34, 197, 94, 0.2); border-radius: 18px; padding: 12px 16px;">
+                    <label style="display: block; font-size: 12px; font-weight: 800; color: #166534; text-transform: uppercase; margin-bottom: 6px;">
+                        <i class="ph-fill ph-currency-circle-dollar" style="vertical-align: middle; margin-right: 4px; font-size: 16px;"></i> Valor Ofertado (PIX Seguro)
+                    </label>
+                    <input id="valorFrete" type="text" placeholder="R$ 0,00" oninput="maskMoney(this)" 
+                           style="font-size: 24px; font-weight: 800; color: #166534; background: transparent; border: none; padding: 0; box-shadow: none; outline: none; margin: 0;" />
+                </div>
+
+                <div class="input-group-premium">
+                    <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Observações</label>
+                    <textarea id="obsCarga" placeholder="Ex: Carga frágil, exige ajudante para descarregar..." 
+                              style="min-height: 100px; padding: 16px; background: rgba(255,255,255,0.5); border-radius: 18px; border: 1.5px solid var(--border); transition: 0.3s;"></textarea>
+                </div>
+            </div>
+        </main>
+
+        <!-- Fixed Footer Actions -->
+        <footer style="position: fixed; bottom: 0; left: 0; right: 0; padding: 16px 20px; background: #fff; border-top: 1.5px solid var(--border); display: flex; gap: 12px; z-index: 100;">
+            <button class="btn btn-outline" id="btnPublishCancel" style="flex: 1; padding: 14px; font-weight: 700; border-radius: 14px; margin: 0;" onclick="prevPublishStep()">
+                Cancelar
+            </button>
+            <button class="btn btn-primary" id="btnPublishNext" style="flex: 2; padding: 14px; font-weight: 700; border-radius: 14px; background: var(--orange); border-color: var(--orange); color: white; margin: 0; box-shadow: 0 4px 14px rgba(249, 115, 22, 0.25);" onclick="nextPublishStep(this)">
+                Próximo Passo <i class="ph ph-arrow-right" id="btnPublishNextIcon"></i>
+            </button>
+        </footer>
     </section>
 
     <!-- TELA: HISTÓRICO DE ENVIOS (Menu Inferior Embarcador) -->

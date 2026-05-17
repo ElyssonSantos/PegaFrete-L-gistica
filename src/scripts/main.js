@@ -469,6 +469,12 @@ function navTo(id, pushState = true) {
     window.scrollTo(0, 0);
     updateNavbar(id);
 
+    if (id === 'shipper_publish') {
+        if (typeof resetPublishStep === 'function') {
+            resetPublishStep();
+        }
+    }
+
     if (pushState) {
         window.history.pushState({ screen: id }, "", `#${id}`);
     }
@@ -1346,15 +1352,8 @@ async function publicarFrete(btn) {
 
         showToast('Carga publicada com sucesso! Divulgada em tempo real para os motoristas.');
 
-        // Limpa campos
-        document.getElementById('origem').value = '';
-        document.getElementById('destino').value = '';
-        document.getElementById('tipoCarga').value = '';
-        document.getElementById('veiculo').value = '';
-        document.getElementById('valorFrete').value = '';
-        document.getElementById('obsCarga').value = '';
-        document.getElementById('telefoneContato').value = '';
-        document.getElementById('whatsappContato').value = '';
+        // Limpa campos e reseta steps
+        resetPublishStep();
 
         btn.innerHTML = originalContent;
         btn.disabled = false;
@@ -1524,3 +1523,179 @@ function renderShipperHistory() {
     }
     listArea.innerHTML = html;
 }
+
+// ====== CONTROLLER MULTI-STEP DE PUBLICAÇÃO DE CARGA ======
+let publishStep = 1;
+
+function resetPublishStep() {
+    publishStep = 1;
+    // Limpa campos
+    const origemInput = document.getElementById('origem');
+    const destinoInput = document.getElementById('destino');
+    const telefoneContatoInput = document.getElementById('telefoneContato');
+    const whatsappContatoInput = document.getElementById('whatsappContato');
+    const tipoCargaSelect = document.getElementById('tipoCarga');
+    const veiculoSelect = document.getElementById('veiculo');
+    const valorFreteInput = document.getElementById('valorFrete');
+    const obsCargaInput = document.getElementById('obsCarga');
+
+    if (origemInput) origemInput.value = '';
+    if (destinoInput) destinoInput.value = '';
+    if (telefoneContatoInput) telefoneContatoInput.value = '';
+    if (whatsappContatoInput) whatsappContatoInput.value = '';
+    if (tipoCargaSelect) tipoCargaSelect.value = '';
+    if (veiculoSelect) veiculoSelect.value = '';
+    if (valorFreteInput) valorFreteInput.value = '';
+    if (obsCargaInput) obsCargaInput.value = '';
+
+    updatePublishStep();
+}
+
+function prevPublishStep() {
+    if (publishStep === 1) {
+        goBack();
+    } else {
+        publishStep--;
+        updatePublishStep();
+    }
+}
+
+function nextPublishStep(btn) {
+    if (publishStep === 1) {
+        const oVal = document.getElementById('origem').value.trim();
+        const dVal = document.getElementById('destino').value.trim();
+        if (!oVal || !dVal) {
+            showToast('Por favor, informe a origem e o destino da carga.', 'error');
+            return;
+        }
+        publishStep++;
+        updatePublishStep();
+    } else if (publishStep === 2) {
+        const tVal = document.getElementById('telefoneContato').value.trim();
+        const wVal = document.getElementById('whatsappContato').value.trim();
+        if (!tVal || !wVal) {
+            showToast('Por favor, informe as informações de contato.', 'error');
+            return;
+        }
+        publishStep++;
+        updatePublishStep();
+    } else if (publishStep === 3) {
+        const typeSelect = document.getElementById('tipoCarga').value;
+        const vehicleSelect = document.getElementById('veiculo').value;
+        const priceVal = document.getElementById('valorFrete').value.trim();
+        
+        if (!typeSelect) {
+            showToast('Selecione o tipo de carga.', 'error');
+            return;
+        }
+        if (!vehicleSelect) {
+            showToast('Selecione o tipo de veículo.', 'error');
+            return;
+        }
+        if (!priceVal || priceVal === 'R$ 0,00') {
+            showToast('Informe o valor ofertado para o frete.', 'error');
+            return;
+        }
+
+        // Se passar nas validações finais, publica a carga!
+        publicarFrete(btn);
+    }
+}
+
+function updatePublishStep() {
+    // Esconde/mostra painéis
+    for (let i = 1; i <= 3; i++) {
+        const panel = document.getElementById(`publishStep${i}`);
+        if (panel) {
+            panel.style.display = i === publishStep ? 'flex' : 'none';
+        }
+    }
+
+    // Atualiza Stepper progress line and bar
+    const stepperLine = document.getElementById('stepperProgressLine');
+    const stepperBar = document.getElementById('stepperProgressBar');
+
+    if (stepperLine) {
+        // Step 1: 0%, Step 2: 40%, Step 3: 80%
+        const lineWidth = publishStep === 1 ? '0%' : publishStep === 2 ? '40%' : '80%';
+        stepperLine.style.width = lineWidth;
+    }
+
+    if (stepperBar) {
+        const barWidth = publishStep === 1 ? '33%' : publishStep === 2 ? '66%' : '100%';
+        stepperBar.style.width = barWidth;
+    }
+
+    // Atualiza Stepper indicators
+    for (let i = 1; i <= 3; i++) {
+        const indicator = document.getElementById(`step${i}Indicator`);
+        if (indicator) {
+            const numBox = indicator.querySelector('.step-num');
+            const labelText = indicator.querySelector('.step-label');
+
+            if (i < publishStep) {
+                // Concluído
+                indicator.classList.add('completed');
+                indicator.classList.remove('active');
+                if (numBox) {
+                    numBox.style.background = '#22c55e';
+                    numBox.style.color = '#fff';
+                    numBox.innerHTML = '<i class="ph ph-check" style="font-size: 16px; font-weight: bold;"></i>';
+                }
+                if (labelText) {
+                    labelText.style.color = '#22c55e';
+                }
+            } else if (i === publishStep) {
+                // Ativo
+                indicator.classList.remove('completed');
+                indicator.classList.add('active');
+                if (numBox) {
+                    numBox.style.background = 'var(--orange)';
+                    numBox.style.color = '#fff';
+                    numBox.innerHTML = i;
+                }
+                if (labelText) {
+                    labelText.style.color = 'var(--orange)';
+                }
+            } else {
+                // Futuro
+                indicator.classList.remove('completed', 'active');
+                if (numBox) {
+                    numBox.style.background = '#e2e8f0';
+                    numBox.style.color = '#94a3b8';
+                    numBox.innerHTML = i;
+                }
+                if (labelText) {
+                    labelText.style.color = '#94a3b8';
+                }
+            }
+        }
+    }
+
+    // Atualiza botões do Footer
+    const cancelBtn = document.getElementById('btnPublishCancel');
+    const nextBtn = document.getElementById('btnPublishNext');
+
+    if (cancelBtn) {
+        cancelBtn.textContent = publishStep === 1 ? 'Cancelar' : 'Voltar';
+    }
+
+    if (nextBtn) {
+        if (publishStep === 3) {
+            nextBtn.innerHTML = 'Publicar <i class="ph ph-paper-plane-tilt" id="btnPublishNextIcon"></i>';
+            nextBtn.style.background = '#22c55e';
+            nextBtn.style.borderColor = '#22c55e';
+            nextBtn.style.boxShadow = '0 4px 14px rgba(34, 197, 94, 0.25)';
+        } else {
+            nextBtn.innerHTML = 'Próximo Passo <i class="ph ph-arrow-right" id="btnPublishNextIcon"></i>';
+            nextBtn.style.background = 'var(--orange)';
+            nextBtn.style.borderColor = 'var(--orange)';
+            nextBtn.style.boxShadow = '0 4px 14px rgba(249, 115, 22, 0.25)';
+        }
+    }
+}
+
+// Exporta para escopo global
+window.prevPublishStep = prevPublishStep;
+window.nextPublishStep = nextPublishStep;
+window.resetPublishStep = resetPublishStep;
