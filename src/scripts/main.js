@@ -878,14 +878,21 @@ function preencherPerfil() {
     if (document.getElementById('profileDeliveriesLabel')) {
         document.getElementById('profileDeliveriesLabel').innerText = userData.role === 'shipper' ? 'Enviadas' : 'Concluídas';
     }
-
     if (userData.role === 'shipper') {
         const companyName = userData.razao || userData.nome || 'Distribuidora XPTO';
         if (document.getElementById('shipperCompanyName')) {
             document.getElementById('shipperCompanyName').innerText = companyName;
         }
         if (document.getElementById('shipperAvatarInitials')) {
-            document.getElementById('shipperAvatarInitials').innerText = companyName.substring(0, 2).toUpperCase();
+            if (userData.foto) {
+                document.getElementById('shipperAvatarInitials').style.backgroundImage = `url('${userData.foto}')`;
+                document.getElementById('shipperAvatarInitials').style.backgroundSize = 'cover';
+                document.getElementById('shipperAvatarInitials').style.backgroundPosition = 'center';
+                document.getElementById('shipperAvatarInitials').innerText = '';
+            } else {
+                document.getElementById('shipperAvatarInitials').style.backgroundImage = 'none';
+                document.getElementById('shipperAvatarInitials').innerText = companyName.substring(0, 2).toUpperCase();
+            }
         }
     }
 
@@ -896,8 +903,12 @@ function preencherPerfil() {
         if (document.getElementById('profVehicleGroup')) document.getElementById('profVehicleGroup').style.display = 'none';
     }
 
-    if (userData.foto && document.getElementById('profileAvatar')) {
-        document.getElementById('profileAvatar').style.backgroundImage = `url('${userData.foto}')`;
+    const avatarUrl = userData.foto || '/avatar-default.png';
+    if (document.getElementById('profileAvatar')) {
+        document.getElementById('profileAvatar').style.backgroundImage = `url('${avatarUrl}')`;
+    }
+    if (document.getElementById('driverHomeAvatar')) {
+        document.getElementById('driverHomeAvatar').style.backgroundImage = `url('${avatarUrl}')`;
     }
 }
 
@@ -920,32 +931,88 @@ function closePhotoActionSheet() {
     }
 }
 
+function compressImageToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 150;
+                const MAX_HEIGHT = 150;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width *= MAX_HEIGHT / height;
+                        height = MAX_HEIGHT;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Export to high-quality compressed JPEG (0.75)
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+                resolve(dataUrl);
+            };
+            img.onerror = function() { reject(new Error('Erro ao processar imagem')); };
+            img.src = e.target.result;
+        };
+        reader.onerror = function() { reject(new Error('Erro ao ler arquivo')); };
+        reader.readAsDataURL(file);
+    });
+}
+
 async function handleProfilePhoto(event) {
     const file = event.target.files[0];
     if (!file) return;
 
-    // Security Rules Enforcement
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+    if (!['image/jpeg', 'image/png', 'image/webp', 'image/jpg', 'image/gif'].includes(file.type)) {
         showToast('Tipo de arquivo não permitido.', 'error');
         return;
     }
-    if (file.size > 10 * 1024 * 1024) {
-        showToast('Imagem muito grande (máx 10MB).', 'error');
-        return;
-    }
 
-    showToast('Fazendo upload da foto...', 'info');
+    showToast('Processando foto de perfil...', 'info');
+    
     try {
+        // Tentativa 1: Firebase Storage
         const storageRef = storage.ref(`users/${auth.currentUser.uid}/profile/photo_${Date.now()}`);
         await storageRef.put(file);
         const url = await storageRef.getDownloadURL();
 
-        await db.collection("users").doc(auth.currentUser.uid).update({ foto: url, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        await db.collection("users").doc(auth.currentUser.uid).update({ 
+            foto: url, 
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
+        });
         userData.foto = url;
         preencherPerfil();
-        showToast('Foto de perfil atualizada!');
-    } catch (error) {
-        showToast('Erro ao atualizar foto.', 'error');
+        showToast('Foto de perfil atualizada com sucesso!');
+    } catch (storageError) {
+        console.warn('Firebase Storage upload failed, trying local canvas compression fallback...', storageError);
+        
+        // Tentativa 2: Fallback Firestore + Base64
+        try {
+            const base64Url = await compressImageToBase64(file);
+            await db.collection("users").doc(auth.currentUser.uid).update({ 
+                foto: base64Url, 
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
+            });
+            userData.foto = base64Url;
+            preencherPerfil();
+            showToast('Foto de perfil atualizada com sucesso!');
+        } catch (fallbackError) {
+            console.error('Profile photo update failed completely:', fallbackError);
+            showToast('Erro ao atualizar foto.', 'error');
+        }
     }
 }
 

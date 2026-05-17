@@ -756,8 +756,8 @@
                 <h1 style="font-size: 24px; color: var(--primary);">Olá, Emerson</h1>
                 <p style="color: var(--text-muted); font-size: 14px;">Pronto para pegar a estrada?</p>
             </div>
-            <div class="profile-avatar" onclick="navTo('profile')"
-                style="background: url('https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80') center/cover;">
+            <div class="profile-avatar" id="driverHomeAvatar" onclick="navTo('profile')"
+                style="background: url('/avatar-default.png') center/cover;">
             </div>
         </div>
 
@@ -1088,7 +1088,7 @@
             
             <div style="position: relative; margin-bottom: 16px; display: inline-block; z-index: 2;">
                 <div class="profile-avatar" id="profileAvatar" onclick="openPhotoActionSheet()"
-                    style="width: 108px; height: 108px; border-radius: 50%; background: url('https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80') center/cover; border: 4px solid #fff; box-shadow: 0 8px 24px rgba(0,0,0,0.08); cursor: pointer;">
+                    style="width: 108px; height: 108px; border-radius: 50%; background: url('/avatar-default.png') center/cover; border: 4px solid #fff; box-shadow: 0 8px 24px rgba(0,0,0,0.08); cursor: pointer;">
                 </div>
                 <button class="btn btn-primary" id="btnPhoto"
                     style="position: absolute; bottom: 4px; right: 4px; width: 34px; height: 34px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; border: 3px solid #fff; background: var(--orange); color: white; box-shadow: 0 4px 12px rgba(249,115,22,0.25); cursor: pointer;"
