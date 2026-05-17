@@ -90,6 +90,7 @@ let currentUserRole = null;
 let userData = {};
 let tempPhone = '';
 let tempRole = '';
+let isRegisteringProcess = false; // Flag to block onAuthStateChanged auto-redirects during registration
 let smsSendCooldown = false; // Rate limit para envio de SMS
 
 // ====== SEGURANÇA: SANITIZAÇÃO E VALIDAÇÃO ======
@@ -262,6 +263,10 @@ window.onload = () => {
 
     // Monitora o estado de autenticação via Firebase
     auth.onAuthStateChanged(async (user) => {
+        if (isRegisteringProcess) {
+            console.log("Ignorando redirecionamento automático do onAuthStateChanged durante o cadastro.");
+            return;
+        }
         if (user) {
             try {
                 const docRef = await db.collection("users").doc(user.uid).get();
@@ -463,6 +468,13 @@ function showToast(message, type = 'success') {
 }
 
 function navTo(id, pushState = true) {
+    // Gerenciamento da flag isRegisteringProcess para evitar auto-redirecionamento da sessão
+    if (['choice', 'register_shipper', 'register_driver', 'register_vehicle', 'register_password'].includes(id)) {
+        isRegisteringProcess = true;
+    } else if (['auth_entry', 'login', 'driver', 'shipper', 'profile', 'chat', 'financial'].includes(id)) {
+        isRegisteringProcess = false;
+    }
+
     if (navHistory[navHistory.length - 1] !== id) navHistory.push(id);
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
@@ -835,12 +847,23 @@ async function finalizarCadastro(btn) {
         const userCredential = await auth.createUserWithEmailAndPassword(userData.email, pass1);
         const uid = userCredential.user.uid;
 
-        // Adiciona o role e salva no Firestore
-        userData.role = tempRole;
-        userData.rating = 5.0;
-        userData.entregas = 0;
-        await db.collection("users").doc(uid).set(userData);
+        // Sanitiza o objeto para remover campos undefined ou null para evitar erros do Firestore
+        const cleanUserData = {};
+        Object.keys(userData).forEach(key => {
+            if (userData[key] !== undefined && userData[key] !== null) {
+                cleanUserData[key] = userData[key];
+            }
+        });
 
+        cleanUserData.role = tempRole;
+        cleanUserData.rating = 5.0;
+        cleanUserData.entregas = 0;
+
+        // Salva no Firestore
+        await db.collection("users").doc(uid).set(cleanUserData);
+        userData = cleanUserData; // Atualiza a variável global
+
+        isRegisteringProcess = false; // Finaliza o cadastro com sucesso
         btn.innerHTML = original;
         preencherPerfil();
         setRole(tempRole);
@@ -909,7 +932,7 @@ function preencherPerfil() {
         if (document.getElementById('profVehicleGroup')) document.getElementById('profVehicleGroup').style.display = 'none';
     }
 
-    const avatarUrl = userData.foto || '/avatar-default.png';
+    const avatarUrl = userData.foto || 'https://i.imgur.com/vnYcevV.png';
     if (document.getElementById('profileAvatar')) {
         document.getElementById('profileAvatar').style.backgroundImage = `url('${avatarUrl}')`;
     }
