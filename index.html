@@ -1082,37 +1082,37 @@
         </div>
 
         <!-- Premium Header Cover Section -->
-        <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 24px; padding: 32px 20px; position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(15,23,42,0.15); display: flex; flex-direction: column; align-items: center; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.05); text-align: center;">
-            <div style="position: absolute; top: -40px; right: -40px; width: 120px; height: 120px; background: rgba(249, 115, 22, 0.15); border-radius: 50%; filter: blur(30px);"></div>
-            <div style="position: absolute; bottom: -50px; left: -50px; width: 160px; height: 160px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; filter: blur(40px);"></div>
+        <div style="background: white; border-radius: 24px; padding: 32px 20px; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.02); display: flex; flex-direction: column; align-items: center; margin-bottom: 24px; border: 1.5px solid var(--border); text-align: center;">
+            <div style="position: absolute; top: -40px; right: -40px; width: 120px; height: 120px; background: rgba(249, 115, 22, 0.04); border-radius: 50%; filter: blur(30px);"></div>
+            <div style="position: absolute; bottom: -50px; left: -50px; width: 160px; height: 160px; background: rgba(16, 185, 129, 0.03); border-radius: 50%; filter: blur(40px);"></div>
             
             <div style="position: relative; margin-bottom: 16px; display: inline-block; z-index: 2;">
                 <div class="profile-avatar" id="profileAvatar" onclick="openPhotoActionSheet()"
-                    style="width: 108px; height: 108px; border-radius: 50%; background: url('https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80') center/cover; border: 4px solid #fff; box-shadow: 0 8px 24px rgba(0,0,0,0.12); cursor: pointer;">
+                    style="width: 108px; height: 108px; border-radius: 50%; background: url('https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80') center/cover; border: 4px solid #fff; box-shadow: 0 8px 24px rgba(0,0,0,0.08); cursor: pointer;">
                 </div>
                 <button class="btn btn-primary" id="btnPhoto"
-                    style="position: absolute; bottom: 4px; right: 4px; width: 34px; height: 34px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; border: 3px solid #fff; background: var(--orange); color: white; box-shadow: 0 4px 12px rgba(249,115,22,0.3); cursor: pointer;"
+                    style="position: absolute; bottom: 4px; right: 4px; width: 34px; height: 34px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; border: 3px solid #fff; background: var(--orange); color: white; box-shadow: 0 4px 12px rgba(249,115,22,0.25); cursor: pointer;"
                     onclick="openPhotoActionSheet()">
                     <i class="ph ph-camera" style="font-size: 16px; margin: 0;"></i>
                 </button>
             </div>
 
-            <h2 style="font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 6px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 2;" id="profileDisplayName">Carregando...</h2>
+            <h2 style="font-size: 22px; font-weight: 800; color: var(--primary); margin-bottom: 8px; z-index: 2;" id="profileDisplayName">Carregando...</h2>
             
-            <div style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 2; margin-bottom: 8px;">
-                <span style="font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.9); text-transform: uppercase; letter-spacing: 0.5px;">Embarcador Homologado</span>
+            <div style="display: flex; align-items: center; gap: 6px; background: #ecfdf5; border: 1.5px solid #d1fae5; padding: 5px 14px; border-radius: 99px; z-index: 2; margin-bottom: 12px;">
+                <span style="font-size: 11px; font-weight: 700; color: #065f46; text-transform: uppercase; letter-spacing: 0.5px;">Embarcador Homologado</span>
                 <i class="ph-fill ph-seal-check" style="color: #10b981; font-size: 16px;"></i>
             </div>
 
             <!-- Dynamic Stats Subcard -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; margin-top: 16px; z-index: 2;">
-                <div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); padding: 14px 16px; border-radius: 18px; text-align: center; display: flex; flex-direction: column; align-items: center;">
-                    <span style="font-size: 24px; font-weight: 850; color: #fff; line-height: 1.2; display: flex; align-items: center; gap: 4px;" id="profileRating">5.0</span>
-                    <span style="font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; display: inline-flex; align-items: center; gap: 4px;">Avaliação <i class="ph-fill ph-star" style="color: #fbbf24; font-size: 12px;"></i></span>
+                <div style="background: #f8fafc; border: 1.5px solid var(--border); padding: 14px 16px; border-radius: 18px; text-align: center; display: flex; flex-direction: column; align-items: center;">
+                    <span style="font-size: 24px; font-weight: 850; color: var(--primary); line-height: 1.2; display: flex; align-items: center; gap: 4px;" id="profileRating">5.0</span>
+                    <span style="font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; display: inline-flex; align-items: center; gap: 4px;">Avaliação <i class="ph-fill ph-star" style="color: #fbbf24; font-size: 12px;"></i></span>
                 </div>
-                <div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); padding: 14px 16px; border-radius: 18px; text-align: center; display: flex; flex-direction: column; align-items: center;">
-                    <span style="font-size: 24px; font-weight: 850; color: #fff; line-height: 1.2;" id="profileDeliveries">0</span>
-                    <span style="font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px;" id="profileDeliveriesLabel">Enviadas</span>
+                <div style="background: #f8fafc; border: 1.5px solid var(--border); padding: 14px 16px; border-radius: 18px; text-align: center; display: flex; flex-direction: column; align-items: center;">
+                    <span style="font-size: 24px; font-weight: 850; color: var(--primary); line-height: 1.2;" id="profileDeliveries">0</span>
+                    <span style="font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px;" id="profileDeliveriesLabel">Enviadas</span>
                 </div>
             </div>
         </div>
