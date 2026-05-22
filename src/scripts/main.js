@@ -269,6 +269,15 @@ window.onload = () => {
         }
         if (user) {
             try {
+                // Sincroniza/Salva a entrada em public_emails para garantir que o fluxo de verificação funcione
+                if (user.email) {
+                    const emailKey = user.email.toLowerCase().trim();
+                    const providerId = user.providerData[0]?.providerId === 'google.com' ? 'google' : 'password';
+                    db.collection("public_emails").doc(emailKey).set({
+                        provider: providerId
+                    }, { merge: true }).catch(err => console.warn("Erro ao salvar public_emails:", err));
+                }
+
                 const docRef = await db.collection("users").doc(user.uid).get();
                 if (docRef.exists) {
                     userData = docRef.data();
@@ -277,18 +286,141 @@ window.onload = () => {
                     startFreightListener();
                 } else {
                     // Se logou com Google mas não tem perfil, vai escolher o papel
+                    preencherCamposCadastroGoogle(user);
                     navTo('choice');
                 }
             } catch (error) {
+                console.error("Erro ao verificar documento do usuário:", error);
                 navTo('auth_entry');
             }
         } else {
+            restaurarBotoesCadastroPadrao();
             navTo('auth_entry');
         }
     });
 };
 
 // ====== LÓGICA DE AUTENTICAÇÃO (NOVA) ======
+
+async function verificarEmailDisponivel(email) {
+    const emailKey = email.toLowerCase().trim();
+    
+    // Se o usuário logado no Firebase Auth tem o mesmo e-mail, está tudo bem (ele está apenas completando o perfil)
+    if (auth.currentUser && auth.currentUser.email && auth.currentUser.email.toLowerCase().trim() === emailKey) {
+        return { disponivel: true };
+    }
+    
+    try {
+        const doc = await db.collection('public_emails').doc(emailKey).get();
+        if (doc.exists) {
+            const data = doc.data();
+            return { disponivel: false, provider: data.provider };
+        }
+    } catch (e) {
+        console.warn("Erro ao verificar email em public_emails:", e);
+    }
+
+    // Fallback secundário para fetchSignInMethodsForEmail
+    try {
+        const methods = await auth.fetchSignInMethodsForEmail(emailKey);
+        if (methods && methods.length > 0) {
+            const provider = (methods.includes('google.com') || methods.includes('google')) ? 'google' : 'password';
+            return { disponivel: false, provider: provider };
+        }
+    } catch (authErr) {
+        console.warn("Erro no fetchSignInMethodsForEmail:", authErr);
+    }
+
+    return { disponivel: true };
+}
+
+function preencherCamposCadastroGoogle(user) {
+    if (!user) return;
+    
+    const regShipperNameEl = document.getElementById('regShipperName');
+    if (regShipperNameEl) regShipperNameEl.value = user.displayName || '';
+    
+    const regShipperEmailEl = document.getElementById('regShipperEmail');
+    if (regShipperEmailEl) {
+        regShipperEmailEl.value = user.email || '';
+        regShipperEmailEl.disabled = true;
+    }
+
+    const regDriverNameEl = document.getElementById('regDriverName');
+    if (regDriverNameEl) regDriverNameEl.value = user.displayName || '';
+    
+    const regDriverEmailEl = document.getElementById('regDriverEmail');
+    if (regDriverEmailEl) {
+        regDriverEmailEl.value = user.email || '';
+        regDriverEmailEl.disabled = true;
+    }
+
+    // Altera texto dos botões de cadastro para Google
+    const btnAvancarShipper = document.querySelector('#register_shipper button.btn-orange');
+    if (btnAvancarShipper) {
+        btnAvancarShipper.innerHTML = `Finalizar Cadastro <i class="ph ph-check-circle"></i>`;
+    }
+    const btnAvancarVehicle = document.querySelector('#register_vehicle button.btn-orange');
+    if (btnAvancarVehicle) {
+        btnAvancarVehicle.innerHTML = `Finalizar Cadastro <i class="ph ph-check-circle"></i>`;
+    }
+}
+
+function restaurarBotoesCadastroPadrao() {
+    const btnAvancarShipper = document.querySelector('#register_shipper button.btn-orange');
+    if (btnAvancarShipper) {
+        btnAvancarShipper.innerHTML = `Próxima Etapa <i class="ph ph-arrow-right"></i>`;
+    }
+    const btnAvancarVehicle = document.querySelector('#register_vehicle button.btn-orange');
+    if (btnAvancarVehicle) {
+        btnAvancarVehicle.innerHTML = `Avançar para Senha <i class="ph ph-arrow-right"></i>`;
+    }
+    
+    const regShipperEmailEl = document.getElementById('regShipperEmail');
+    if (regShipperEmailEl) regShipperEmailEl.disabled = false;
+    const regDriverEmailEl = document.getElementById('regDriverEmail');
+    if (regDriverEmailEl) regDriverEmailEl.disabled = false;
+}
+
+async function finalizarCadastroGoogle() {
+    const user = auth.currentUser;
+    if (!user) {
+        showToast('Usuário não autenticado.', 'error');
+        return;
+    }
+
+    const uid = user.uid;
+
+    const cleanUserData = {};
+    Object.keys(userData).forEach(key => {
+        if (userData[key] !== undefined && userData[key] !== null) {
+            cleanUserData[key] = userData[key];
+        }
+    });
+
+    cleanUserData.role = tempRole;
+    cleanUserData.rating = 5.0;
+    cleanUserData.entregas = 0;
+    
+    if (!cleanUserData.email) {
+        cleanUserData.email = user.email;
+    }
+
+    // 1. Salva o perfil do usuário no Firestore
+    await db.collection("users").doc(uid).set(cleanUserData);
+    userData = cleanUserData;
+
+    // 2. Salva em public_emails para controle de login manual
+    const emailKey = cleanUserData.email.toLowerCase().trim();
+    await db.collection("public_emails").doc(emailKey).set({
+        provider: 'google'
+    }, { merge: true }).catch(err => console.warn("Erro ao salvar public_emails:", err));
+
+    isRegisteringProcess = false;
+    preencherPerfil();
+    setRole(tempRole);
+    showToast('Cadastro realizado com sucesso! Bem-vindo ao PegaFrete.');
+}
 
 async function handleContinuar(btn) {
     const email = document.getElementById('authEmail').value.trim();
@@ -311,19 +443,26 @@ async function handleContinuar(btn) {
             document.getElementById('regDriverEmail').value = email;
         }
 
-        // Try to check if email is registered in Firebase Auth
-        const methods = await auth.fetchSignInMethodsForEmail(email);
+        // Verifica se o e-mail já possui conta vinculada
+        const check = await verificarEmailDisponivel(email);
         
         btn.innerHTML = original;
         btn.disabled = false;
 
-        if (methods && methods.length > 0) {
-            navTo('login');
+        if (!check.disponivel) {
+            if (check.provider === 'google') {
+                showToast('Esta conta utiliza o Login com Google. Redirecionando...', 'info');
+                // Chama o login com Google automaticamente
+                const googleBtn = document.querySelector('.btn-google');
+                loginComGoogle(googleBtn);
+            } else {
+                navTo('login');
+            }
         } else {
             navTo('choice');
         }
     } catch (error) {
-        console.warn("fetchSignInMethodsForEmail error/disabled:", error);
+        console.warn("Erro no handleContinuar, usando fallback seguro:", error);
         btn.innerHTML = original;
         btn.disabled = false;
         // Secure fallback
@@ -767,7 +906,7 @@ function iniciarCadastro(role) {
     else navTo('register_driver');
 }
 
-function irParaVeiculo() {
+async function irParaVeiculo(btn) {
     userData.nome = document.getElementById('regDriverName').value.trim();
     userData.email = document.getElementById('regDriverEmail').value.trim();
     userData.telefone = document.getElementById('regDriverPhone').value.trim();
@@ -786,10 +925,39 @@ function irParaVeiculo() {
         showToast('CPF inválido. Verifique os dígitos.', 'error');
         return;
     }
+
+    const originalText = btn ? btn.innerHTML : 'Próxima Etapa';
+    if (btn) {
+        btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Validando...`;
+        btn.disabled = true;
+    }
+
+    try {
+        const check = await verificarEmailDisponivel(userData.email);
+        if (!check.disponivel) {
+            if (check.provider === 'google') {
+                showToast('Este e-mail já está cadastrado via Google. Faça login com o Google.', 'error');
+            } else {
+                showToast('Este e-mail já está cadastrado. Faça login ou use outro e-mail.', 'error');
+            }
+            if (btn) {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+            return;
+        }
+    } catch (err) {
+        console.warn("Erro ao verificar disponibilidade do e-mail:", err);
+    }
+
+    if (btn) {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
     navTo('register_vehicle');
 }
 
-function irParaSenha() {
+async function irParaSenha(btn) {
     if (tempRole === 'shipper') {
         userData.nome = document.getElementById('regShipperName').value.trim();
         userData.email = document.getElementById('regShipperEmail').value.trim();
@@ -810,6 +978,35 @@ function irParaSenha() {
             showToast('CNPJ inválido. Verifique os dígitos.', 'error');
             return;
         }
+
+        const originalText = btn ? btn.innerHTML : 'Próxima Etapa';
+        if (btn) {
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Validando...`;
+            btn.disabled = true;
+        }
+
+        try {
+            const check = await verificarEmailDisponivel(userData.email);
+            if (!check.disponivel) {
+                if (check.provider === 'google') {
+                    showToast('Este e-mail já está cadastrado via Google. Faça login com o Google.', 'error');
+                } else {
+                    showToast('Este e-mail já está cadastrado. Faça login ou use outro e-mail.', 'error');
+                }
+                if (btn) {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+                return;
+            }
+        } catch (err) {
+            console.warn("Erro ao verificar disponibilidade do e-mail:", err);
+        }
+
+        if (btn) {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
     } else {
         const selObj = document.getElementById('regDriverVehicle');
         const opt = selObj.options[selObj.selectedIndex];
@@ -818,6 +1015,28 @@ function irParaSenha() {
             return;
         }
         userData.veiculo = opt.value;
+    }
+
+    // Se o usuário já está autenticado (ex: Google OAuth), não precisa criar senha!
+    // Salva os dados diretamente no Firestore.
+    if (auth.currentUser) {
+        const originalText = btn ? btn.innerHTML : 'Finalizar';
+        if (btn) {
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Finalizando...`;
+            btn.disabled = true;
+        }
+        try {
+            await finalizarCadastroGoogle();
+        } catch (err) {
+            console.error(err);
+            showToast('Erro ao concluir cadastro: ' + err.message, 'error');
+        } finally {
+            if (btn) {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+        return;
     }
 
     navTo('register_password');
@@ -862,6 +1081,12 @@ async function finalizarCadastro(btn) {
         // Salva no Firestore
         await db.collection("users").doc(uid).set(cleanUserData);
         userData = cleanUserData; // Atualiza a variável global
+
+        // Salva em public_emails para controle de login manual
+        const emailKey = cleanUserData.email.toLowerCase().trim();
+        await db.collection("public_emails").doc(emailKey).set({
+            provider: 'password'
+        }, { merge: true }).catch(err => console.warn("Erro ao salvar public_emails:", err));
 
         isRegisteringProcess = false; // Finaliza o cadastro com sucesso
         btn.innerHTML = original;
@@ -1691,6 +1916,10 @@ window.irParaVeiculo = irParaVeiculo;
 window.irParaSenha = irParaSenha;
 window.finalizarCadastro = finalizarCadastro;
 window.preencherPerfil = preencherPerfil;
+window.verificarEmailDisponivel = verificarEmailDisponivel;
+window.preencherCamposCadastroGoogle = preencherCamposCadastroGoogle;
+window.restaurarBotoesCadastroPadrao = restaurarBotoesCadastroPadrao;
+window.finalizarCadastroGoogle = finalizarCadastroGoogle;
 window.openPhotoActionSheet = openPhotoActionSheet;
 window.closePhotoActionSheet = closePhotoActionSheet;
 window.toggleEditProfile = toggleEditProfile;
