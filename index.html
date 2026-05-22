@@ -1337,27 +1337,40 @@
     </section>
 
     <!-- TELA: CHAT -->
-    <section id="chat" class="screen">
-        <div class="topbar">
-            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
-            <h1>Mensagens</h1>
-            <div style="width: 44px;"></div>
+    <section id="chat" class="screen chat-screen">
+        <header class="chat-header">
+            <div class="chat-header-info">
+                <button class="chat-header-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
+                <div class="chat-avatar-wrapper">
+                    <img class="chat-avatar" id="activeChatAvatar" src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=200&h=200&auto=format&fit=crop" />
+                    <div class="chat-status-dot" id="activeChatStatusDot"></div>
+                </div>
+                <div>
+                    <h3 class="chat-name" id="activeChatName">Transportadora TransLog</h3>
+                    <p class="chat-status-text" id="activeChatStatusText">Online</p>
+                </div>
+            </div>
+            <div class="chat-header-actions">
+                <button class="chat-header-btn"><i class="ph ph-phone"></i></button>
+                <button class="chat-header-btn"><i class="ph ph-video-camera"></i></button>
+                <button class="chat-header-btn"><i class="ph ph-dots-three-vertical"></i></button>
+            </div>
+        </header>
+
+        <div class="chat-messages scrollbar-hide" id="chatMessages">
+            <!-- As mensagens serão renderizadas dinamicamente aqui -->
         </div>
 
-        <div class="card" style="min-height: 60vh; display: flex; flex-direction: column; padding: 16px;">
-            <div id="chatMessages" style="flex: 1; overflow-y: auto; padding-bottom: 20px;">
-                <!-- Mensagens renderizadas aqui -->
-            </div>
-
-            <div class="chat-input-area">
-                <input type="text" id="newMessage" placeholder="Escreva sua mensagem..."
-                    style="flex: 1; margin-bottom: 0; border-radius: 999px;"
-                    onkeypress="if(event.key === 'Enter') enviarMensagem()" />
-                <button class="btn btn-primary btn-send" onclick="enviarMensagem()">
-                    <i class="ph-fill ph-paper-plane-right" style="margin:0;"></i>
+        <footer class="chat-footer">
+            <div class="chat-input-wrapper">
+                <button class="chat-action-btn"><i class="ph ph-plus-circle"></i></button>
+                <textarea id="newMessage" class="chat-textarea scrollbar-hide" placeholder="Escreva sua mensagem..." rows="1" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'" onkeypress="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); enviarMensagem(); }"></textarea>
+                <button class="chat-action-btn"><i class="ph ph-smiley"></i></button>
+                <button class="chat-send-btn" onclick="enviarMensagem()">
+                    <i class="ph-fill ph-paper-plane-right"></i>
                 </button>
             </div>
-        </div>
+        </footer>
     </section>
 
 

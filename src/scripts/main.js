@@ -1856,18 +1856,35 @@ async function publicarFrete(btn) {
 function renderChats() {
     const area = document.getElementById('chatMessages');
     if (!area) return;
-    area.innerHTML = '';
+    
+    area.innerHTML = `
+        <div class="chat-date-divider">
+            <span>Hoje</span>
+        </div>
+    `;
 
     mensagens.forEach(msg => {
+        const isMe = msg.isMe;
+        const wrapperClass = isMe ? 'msg-outgoing' : 'msg-incoming';
+        const statusIcon = isMe ? '<i class="ph-fill ph-check-circle msg-status"></i>' : '';
+        
         area.innerHTML += `
-                <div class="chat-bubble ${msg.isMe ? 'me' : ''}">
-                    <div class="chat-sender">${sanitizeHTML(msg.sender)}</div>
-                    <div class="chat-text">${sanitizeHTML(msg.text)}</div>
-                    <div class="chat-time">${sanitizeHTML(msg.time)}</div>
+            <div class="msg-wrapper ${wrapperClass}">
+                <div class="msg-bubble">
+                    ${sanitizeHTML(msg.text)}
+                    <div class="msg-meta">
+                        <span class="msg-time">${sanitizeHTML(msg.time)}</span>
+                        ${statusIcon}
+                    </div>
                 </div>
-            `;
+            </div>
+        `;
     });
-    area.scrollTop = area.scrollHeight;
+    
+    // Allow DOM to update before scrolling
+    setTimeout(() => {
+        area.scrollTop = area.scrollHeight;
+    }, 10);
 }
 
 function enviarMensagem() {
