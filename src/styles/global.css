@@ -1279,3 +1279,130 @@
 .chat-send-btn:active {
     transform: scale(0.9);
 }
+
+/* --- CHAT LIST PREMIUM --- */
+.chat-list-screen {
+    background: #fff !important;
+    padding: 0;
+    padding-bottom: 90px !important;
+}
+
+.chat-list-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-list-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    border-bottom: 1px solid rgba(0,0,0,0.03);
+    background: #fff;
+}
+
+.chat-list-item:hover {
+    background: rgba(0,0,0,0.02);
+}
+
+.chat-list-item:active {
+    background: rgba(0,0,0,0.04);
+}
+
+.chat-list-item.unread {
+    background: rgba(249, 115, 22, 0.05);
+    border-radius: 16px;
+    margin: 4px 8px;
+    border: 1px solid rgba(249, 115, 22, 0.1);
+}
+
+.chat-list-avatar-wrapper {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+}
+
+.chat-list-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid rgba(0,0,0,0.05);
+}
+
+.chat-list-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+}
+
+.chat-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-list-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.chat-list-time {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.chat-list-time.active {
+    color: var(--orange);
+    font-weight: 700;
+}
+
+.chat-list-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-list-preview {
+    font-size: 14px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+}
+
+.chat-list-preview.active {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+.chat-unread-badge {
+    background: var(--orange);
+    color: white;
+    font-size: 10px;
+    font-weight: 800;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 99px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+}

@@ -1900,7 +1900,22 @@ function enviarMensagem() {
     renderChats();
 }
 
+function openChatDetail(name, status, avatar) {
+    document.getElementById('activeChatName').textContent = name;
+    document.getElementById('activeChatStatusText').textContent = status;
+    document.getElementById('activeChatAvatar').src = avatar;
+    
+    if (status === 'Online') {
+        document.getElementById('activeChatStatusDot').style.display = 'block';
+    } else {
+        document.getElementById('activeChatStatusDot').style.display = 'none';
+    }
+    
+    navTo('chat_detail');
+}
+
 // Expondo globalmente para o HTML
+window.openChatDetail = openChatDetail;
 window.sanitizeInput = sanitizeInput;
 window.validateFile = validateFile;
 window.resetSessionTimer = resetSessionTimer;

@@ -1336,8 +1336,86 @@
         </div>
     </section>
 
-    <!-- TELA: CHAT -->
-    <section id="chat" class="screen chat-screen">
+    <!-- TELA: CHAT LIST (Lista de Conversas) -->
+    <section id="chat" class="screen chat-list-screen">
+        <div class="topbar" style="justify-content: flex-start; gap: 12px; padding: 24px 16px 16px 16px; border: none; background: transparent; height: auto;">
+            <h1 style="font-size: 28px; font-weight: 800; color: var(--text-main);">Mensagens</h1>
+        </div>
+
+        <div style="padding: 0 16px 16px 16px;">
+            <div class="input-group" style="margin: 0; position: relative;">
+                <i class="ph ph-magnifying-glass" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 20px; color: var(--text-muted); z-index: 2;"></i>
+                <input type="text" placeholder="Buscar conversas..." style="padding-left: 48px; border-radius: 99px; background: rgba(0,0,0,0.03); border: none; font-weight: 500; height: 50px;" />
+            </div>
+        </div>
+
+        <div class="chat-list-container">
+            <!-- Conversa 1: Nova mensagem -->
+            <div class="chat-list-item unread" onclick="openChatDetail('Transportadora TransLog', 'Online', 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=200&h=200&auto=format&fit=crop')">
+                <div class="chat-list-avatar-wrapper">
+                    <img class="chat-list-avatar" src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=200&h=200&auto=format&fit=crop" />
+                    <div class="chat-status-dot"></div>
+                </div>
+                <div class="chat-list-content">
+                    <div class="chat-list-header">
+                        <span class="chat-list-name">Transportadora TransLog <i class="ph-fill ph-seal-check" style="color: #3b82f6; font-size: 16px;"></i></span>
+                        <span class="chat-list-time active">14:32</span>
+                    </div>
+                    <div class="chat-list-body">
+                        <span class="chat-list-preview active">O caminhão já está no pátio aguar...</span>
+                        <span class="chat-unread-badge">3</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conversa 2: Lida -->
+            <div class="chat-list-item" onclick="openChatDetail('Expresso Norte BR', 'Ontem', 'https://images.unsplash.com/photo-1591768793355-74d04bb6608f?q=80&w=200&h=200&auto=format&fit=crop')">
+                <div class="chat-list-avatar-wrapper">
+                    <img class="chat-list-avatar" src="https://images.unsplash.com/photo-1591768793355-74d04bb6608f?q=80&w=200&h=200&auto=format&fit=crop" />
+                </div>
+                <div class="chat-list-content">
+                    <div class="chat-list-header">
+                        <span class="chat-list-name">Expresso Norte BR</span>
+                        <span class="chat-list-time">Ontem</span>
+                    </div>
+                    <div class="chat-list-body">
+                        <span class="chat-list-preview"><i class="ph-fill ph-check-circle" style="color: #3b82f6; margin-right: 4px; font-size: 16px;"></i> Pagamento do frete #4421 confirma...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conversa 3: Enviou Imagem -->
+            <div class="chat-list-item" onclick="openChatDetail('Swift Cargo Global', 'Segunda', 'https://lh3.googleusercontent.com/aida-public/AB6AXuB39mQginIkACN_U3M5LxOdmvUFqqu5NgX0EBY1PD5H6W-z1qosZX6WQtCT7wwRWpO55tvKwsWlaAtHw0GbkGo-sCakILdwSENJOVkLghUZ1BhFn5crqEwxEwMD5XBjJ6cOI5A0jAom8mRFMd_02KCQvJFcT0bc1zRz2CSaCnAoSWdraSCda__Oi15HOVjrtTiz77RX0NR9DODhbXdjmEu7jHDsHBmRrajBkWSEXQLJ8skdm5FGSL29kQfb-Z3bHJRyx5xJVIyR2wI-')">
+                <div class="chat-list-avatar-wrapper">
+                    <img class="chat-list-avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB39mQginIkACN_U3M5LxOdmvUFqqu5NgX0EBY1PD5H6W-z1qosZX6WQtCT7wwRWpO55tvKwsWlaAtHw0GbkGo-sCakILdwSENJOVkLghUZ1BhFn5crqEwxEwMD5XBjJ6cOI5A0jAom8mRFMd_02KCQvJFcT0bc1zRz2CSaCnAoSWdraSCda__Oi15HOVjrtTiz77RX0NR9DODhbXdjmEu7jHDsHBmRrajBkWSEXQLJ8skdm5FGSL29kQfb-Z3bHJRyx5xJVIyR2wI-" />
+                </div>
+                <div class="chat-list-content">
+                    <div class="chat-list-header">
+                        <span class="chat-list-name">Swift Cargo Global</span>
+                        <span class="chat-list-time">Segunda</span>
+                    </div>
+                    <div class="chat-list-body">
+                        <span class="chat-list-preview" style="font-style: italic;">Você enviou uma imagem</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Oferta Especial (Ads) -->
+            <div style="margin: 16px; padding: 20px; background: linear-gradient(135deg, rgba(249, 115, 22, 0.05), rgba(249, 115, 22, 0.15)); border-radius: 20px; border: 1.5px solid rgba(249, 115, 22, 0.2);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                    <div>
+                        <h4 style="font-size: 11px; font-weight: 800; color: var(--orange); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Oferta Especial</h4>
+                        <p style="font-size: 14px; font-weight: 600; color: var(--text-main); line-height: 1.4;">Antecipe seus recebíveis com as menores taxas do mercado.</p>
+                    </div>
+                    <i class="ph ph-trend-up" style="color: var(--orange); font-size: 24px;"></i>
+                </div>
+                <button class="btn btn-primary" style="margin: 0; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 700;">Saiba Mais</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- TELA: CHAT DETAIL (Conversa Interna) -->
+    <section id="chat_detail" class="screen chat-screen">
         <header class="chat-header">
             <div class="chat-header-info">
                 <button class="chat-header-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
