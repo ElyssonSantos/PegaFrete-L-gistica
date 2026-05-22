@@ -1008,7 +1008,7 @@
         }
 
 /* --- CHAT SCREEN PREMIUM REFACTOR --- */
-#chat {
+#chat_detail.active {
     padding: 0;
     background: #f8f9fa;
     display: flex;
