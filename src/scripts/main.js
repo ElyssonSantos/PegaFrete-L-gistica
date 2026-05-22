@@ -82,6 +82,8 @@ document.addEventListener('keydown', event => {
 const auth = firebase.auth();
 const db = firebase.firestore();
 const storage = firebase.storage();
+storage.setMaxUploadRetryTime(3000);
+
 
 
 let navHistory = ['splash'];
@@ -1321,7 +1323,7 @@ async function handleProfilePhoto(event) {
     
     try {
         // Tentativa 1: Firebase Storage
-        const storageRef = storage.ref(`users/${auth.currentUser.uid}/profile/photo_${Date.now()}`);
+        const storageRef = storage.ref(`profiles/${auth.currentUser.uid}/photo_${Date.now()}`);
         await storageRef.put(file);
         const url = await storageRef.getDownloadURL();
 
@@ -1560,42 +1562,31 @@ function solicitarSaque(btn) {
 function toggleStatus(btn) {
     const box = document.getElementById('driverStatusBox');
     const indicator = document.getElementById('driverStatusIndicator');
+    if (!box || !indicator) return;
 
     if (btn.innerText.trim() === 'Ficar Online') {
         btn.innerText = 'Pausar';
-        btn.className = 'bg-white/80 hover:bg-white text-[#1A1C1E] text-xs font-bold py-2 px-6 rounded-full transition-colors duration-200 border border-gray-200 shadow-sm';
-        btn.style.borderColor = '';
-        btn.style.color = '';
-
-        box.style.background = '#E9F8D6';
-        box.style.borderColor = '#D9ECC0';
+        box.classList.remove('offline');
+        box.classList.add('online');
 
         indicator.innerHTML = `
-            <span class="relative flex h-3 w-3" style="display: inline-flex; align-items: center; justify-content: center; width: 12px; height: 12px; position: relative;">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" style="position: absolute; width: 100%; height: 100%; border-radius: 50%; background-color: #4ade80;"></span>
-                <span class="relative inline-flex rounded-full h-3 w-3 bg-green-600" style="position: relative; width: 12px; height: 12px; border-radius: 50%; background-color: #16a34a;"></span>
-            </span>
-            <span class="text-[#3A5A1C] font-semibold text-sm">Disponível para cargas</span>
+            <span class="status-indicator-dot"></span>
+            <span class="status-indicator-text">Disponível para cargas</span>
         `;
         showToast('Você está online e visível para novas cargas!');
     } else {
         btn.innerText = 'Ficar Online';
-        btn.className = 'bg-white/80 hover:bg-white text-[#1A1C1E] text-xs font-bold py-2 px-6 rounded-full transition-colors duration-200 border border-gray-200 shadow-sm';
-        btn.style.borderColor = '';
-        btn.style.color = '';
-
-        box.style.background = '#fef2f2';
-        box.style.borderColor = '#fecaca';
+        box.classList.remove('online');
+        box.classList.add('offline');
 
         indicator.innerHTML = `
-            <span class="relative flex h-3 w-3" style="display: inline-flex; align-items: center; justify-content: center; width: 12px; height: 12px; position: relative;">
-                <span class="relative inline-flex rounded-full h-3 w-3 bg-[#ef4444]" style="position: relative; width: 12px; height: 12px; border-radius: 50%; background-color: #ef4444;"></span>
-            </span>
-            <span class="font-semibold text-sm text-[#991b1b]">Oculto no Radar</span>
+            <span class="status-indicator-dot"></span>
+            <span class="status-indicator-text">Oculto no Radar</span>
         `;
         showToast('Você agora está invisível no radar.', 'info');
     }
 }
+
 
 function aceitarFrete(btn) {
     const originalText = btn.innerHTML;
@@ -1635,41 +1626,47 @@ function renderFretes() {
     // Render Home Feed
     if (listFretesHome.length === 0) {
         htmlHome = `
-            <div class="text-center bg-white rounded-2xl p-8 border border-gray-100 shadow-sm flex flex-col items-center justify-center gap-3" style="width: 100%;">
-                <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center text-gray-400" style="margin: 0 auto;">
-                    <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>
+            <div class="empty-feed-card">
+                <div class="empty-icon-circle">
+                    <i class="ph ph-warning-circle"></i>
                 </div>
-                <h3 class="font-bold text-sm text-[#1A1C1E]" style="margin: 0;">Sem cargas compatíveis</h3>
-                <p class="text-xs text-gray-500 max-w-[240px]" style="margin: 0 auto;">Não encontramos nenhuma carga publicada compatível com seu veículo no momento.</p>
+                <h3>Sem cargas compatíveis</h3>
+                <p>Não encontramos nenhuma carga publicada compatível com seu veículo no momento.</p>
             </div>
         `;
     } else {
         listFretesHome.forEach((frete) => {
             const idParam = typeof frete.id === 'string' ? `'${frete.id}'` : frete.id;
             htmlHome += `
-              <div class="bg-white rounded-2xl p-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col gap-3" data-purpose="load-card" onclick="openFreight(${idParam})" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.06)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)';">
-                <div class="flex justify-between items-start">
-                  <div class="flex flex-col" style="text-align: left;">
-                    <span class="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">Rota</span>
-                    <div class="flex items-center gap-2">
-                      <span class="font-bold text-sm text-[#1A1C1E]">${sanitizeHTML(frete.origem)}</span>
-                      <span class="text-gray-400">→</span>
-                      <span class="font-bold text-sm text-[#1A1C1E]">${sanitizeHTML(frete.destino)}</span>
-                    </div>
+              <div class="premium-freight-card" onclick="openFreight(${idParam})">
+                  <div class="card-route-section">
+                      <div class="route-city-block">
+                          <span class="route-label">Origem</span>
+                          <span class="city-name">${sanitizeHTML(frete.origem)}</span>
+                      </div>
+                      <div class="route-connector">
+                          <i class="ph ph-arrow-right"></i>
+                      </div>
+                      <div class="route-city-block">
+                          <span class="route-label">Destino</span>
+                          <span class="city-name">${sanitizeHTML(frete.destino)}</span>
+                      </div>
                   </div>
-                  <div class="text-right">
-                    <span class="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1 block">Pagamento</span>
-                    <span class="text-green-600 font-bold text-lg">R$ ${sanitizeHTML(frete.valor)}</span>
+                  <div class="card-details-section">
+                      <div class="card-badges">
+                          <span class="badge badge-type"><i class="ph ph-package"></i> ${sanitizeHTML(frete.tipo)}</span>
+                          <span class="badge badge-vehicle"><i class="ph ph-truck"></i> ${sanitizeHTML(frete.veiculo)}</span>
+                      </div>
+                      <div class="card-price-block">
+                          <span class="price-label">Valor do Frete</span>
+                          <span class="price-value">R$ ${sanitizeHTML(frete.valor)}</span>
+                      </div>
                   </div>
-                </div>
-                <hr class="border-gray-50" style="margin: 0;"/>
-                <div class="flex justify-between items-center">
-                  <div class="flex gap-2">
-                    <span class="bg-gray-100 text-gray-600 text-[11px] px-3 py-1 rounded-full font-medium">${sanitizeHTML(frete.tipo)}</span>
-                    <span class="bg-gray-100 text-gray-600 text-[11px] px-3 py-1 rounded-full font-medium">${sanitizeHTML(frete.veiculo)}</span>
+                  <div class="card-action-bar">
+                      <button class="btn-apply" onclick="event.stopPropagation(); openFreight(${idParam})">
+                          Visualizar e Candidatar <i class="ph ph-arrow-right"></i>
+                      </button>
                   </div>
-                  <button class="bg-[#1A1C1E] hover:bg-black text-white text-xs px-4 py-2 rounded-lg font-semibold transition-colors border-none" style="cursor: pointer;" onclick="event.stopPropagation(); openFreight(${idParam})">Candidatar</button>
-                </div>
               </div>
             `;
         });
@@ -1678,41 +1675,47 @@ function renderFretes() {
     // Render Search Feed
     if (listFretesSearch.length === 0) {
         htmlSearch = `
-            <div class="text-center bg-white rounded-2xl p-8 border border-gray-100 shadow-sm flex flex-col items-center justify-center gap-3" style="width: 100%;">
-                <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center text-gray-400" style="margin: 0 auto;">
-                    <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>
+            <div class="empty-feed-card">
+                <div class="empty-icon-circle">
+                    <i class="ph ph-warning-circle"></i>
                 </div>
-                <h3 class="font-bold text-sm text-[#1A1C1E]" style="margin: 0;">Nenhuma carga disponível</h3>
-                <p class="text-xs text-gray-500" style="margin: 0 auto;">Não há nenhuma publicação de carga ativa no momento.</p>
+                <h3>Nenhuma carga disponível</h3>
+                <p>Não há nenhuma publicação de carga ativa no momento.</p>
             </div>
         `;
     } else {
         listFretesSearch.forEach((frete) => {
             const idParam = typeof frete.id === 'string' ? `'${frete.id}'` : frete.id;
             htmlSearch += `
-              <div class="bg-white rounded-2xl p-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col gap-3 mb-4 freight-card" onclick="openFreight(${idParam})" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.06)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)';">
-                <div class="flex justify-between items-start">
-                  <div class="flex flex-col" style="text-align: left;">
-                    <span class="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">Rota</span>
-                    <div class="flex items-center gap-2">
-                      <span class="font-bold text-sm text-[#1A1C1E]">${sanitizeHTML(frete.origem)}</span>
-                      <span class="text-gray-400">→</span>
-                      <span class="font-bold text-sm text-[#1A1C1E]">${sanitizeHTML(frete.destino)}</span>
-                    </div>
+              <div class="premium-freight-card" onclick="openFreight(${idParam})">
+                  <div class="card-route-section">
+                      <div class="route-city-block">
+                          <span class="route-label">Origem</span>
+                          <span class="city-name">${sanitizeHTML(frete.origem)}</span>
+                      </div>
+                      <div class="route-connector">
+                          <i class="ph ph-arrow-right"></i>
+                      </div>
+                      <div class="route-city-block">
+                          <span class="route-label">Destino</span>
+                          <span class="city-name">${sanitizeHTML(frete.destino)}</span>
+                      </div>
                   </div>
-                  <div class="text-right">
-                    <span class="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1 block">Pagamento</span>
-                    <span class="text-green-600 font-bold text-lg">R$ ${sanitizeHTML(frete.valor)}</span>
+                  <div class="card-details-section">
+                      <div class="card-badges">
+                          <span class="badge badge-type"><i class="ph ph-package"></i> ${sanitizeHTML(frete.tipo)}</span>
+                          <span class="badge badge-vehicle"><i class="ph ph-truck"></i> ${sanitizeHTML(frete.veiculo)}</span>
+                      </div>
+                      <div class="card-price-block">
+                          <span class="price-label">Valor do Frete</span>
+                          <span class="price-value">R$ ${sanitizeHTML(frete.valor)}</span>
+                      </div>
                   </div>
-                </div>
-                <hr class="border-gray-50" style="margin: 0;"/>
-                <div class="flex justify-between items-center">
-                  <div class="flex gap-2">
-                    <span class="bg-gray-100 text-gray-600 text-[11px] px-3 py-1 rounded-full font-medium">${sanitizeHTML(frete.tipo)}</span>
-                    <span class="bg-gray-100 text-gray-600 text-[11px] px-3 py-1 rounded-full font-medium">${sanitizeHTML(frete.veiculo)}</span>
+                  <div class="card-action-bar">
+                      <button class="btn-apply" onclick="event.stopPropagation(); openFreight(${idParam})">
+                          Visualizar e Candidatar <i class="ph ph-arrow-right"></i>
+                      </button>
                   </div>
-                  <button class="bg-[#1A1C1E] hover:bg-black text-white text-xs px-4 py-2 rounded-lg font-semibold transition-colors border-none" style="cursor: pointer;" onclick="event.stopPropagation(); openFreight(${idParam})">Candidatar</button>
-                </div>
               </div>
             `;
         });
@@ -1730,17 +1733,36 @@ function renderFretes() {
             const safeId = typeof f.id === 'string' ? `'${sanitizeHTML(f.id)}'` : f.id;
 
             shipperHtml += `
-                    <div class="freight-card">
-                      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                          <div class="status-badge ${statusClass}" style="margin:0;">${statusLabel}</div>
-                          <button class="icon-btn" style="color:var(--text-muted); background:#f1f5f9; padding:8px; border-radius:8px; display:flex; align-items:center;" onclick="abrirEdicaoFrete(${safeId})"><i class="ph ph-pencil-simple"></i></button>
+                    <div class="premium-freight-card shipper-card">
+                      <div class="card-header-shipper">
+                          <span class="status-badge ${statusClass}">${statusLabel}</span>
+                          <button class="btn-edit-freight" onclick="abrirEdicaoFrete(${safeId})">
+                              <i class="ph ph-pencil-simple"></i> Editar Carga
+                          </button>
                       </div>
-                      <div class="route">
-                        <span>${sanitizeHTML(f.origem)}</span>
-                        <i class="ph ph-arrow-right route-arrow"></i>
-                        <span>${sanitizeHTML(f.destino)}</span>
+                      <div class="card-route-section">
+                          <div class="route-city-block">
+                              <span class="route-label">Origem</span>
+                              <span class="city-name">${sanitizeHTML(f.origem)}</span>
+                          </div>
+                          <div class="route-connector">
+                              <i class="ph ph-arrow-right"></i>
+                          </div>
+                          <div class="route-city-block">
+                              <span class="route-label">Destino</span>
+                              <span class="city-name">${sanitizeHTML(f.destino)}</span>
+                          </div>
                       </div>
-                      <div class="value">R$ ${sanitizeHTML(f.valor)}</div>
+                      <div class="card-details-section">
+                          <div class="card-badges">
+                              <span class="badge badge-type"><i class="ph ph-package"></i> ${sanitizeHTML(f.tipo)}</span>
+                              <span class="badge badge-vehicle"><i class="ph ph-truck"></i> ${sanitizeHTML(f.veiculo)}</span>
+                          </div>
+                          <div class="card-price-block">
+                              <span class="price-label">Valor do Frete</span>
+                              <span class="price-value">R$ ${sanitizeHTML(f.valor)}</span>
+                          </div>
+                      </div>
                     </div>
                 `;
         });

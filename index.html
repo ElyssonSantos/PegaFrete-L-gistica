@@ -750,41 +750,38 @@
     </section>
 
     <!-- TELA: DASHBOARD MOTORISTA (HOME) -->
-    <section id="driver" class="screen" style="padding-bottom: 120px; background-color: #FAF9F6; min-height: 100vh;">
-        <header class="flex justify-between items-start" style="padding: 24px 0 16px 0;" data-purpose="app-header">
-            <div class="flex flex-col" style="text-align: left;">
-                <h1 id="driverHomeGreeting" style="font-size: 24px; font-weight: 800; color: #1A1C1E; margin: 0 0 4px 0; letter-spacing: -0.5px;">Olá</h1>
-                <p class="text-sm text-gray-500 font-medium" style="margin: 0;">Pronto para pegar a estrada?</p>
+    <section id="driver" class="screen driver-home-screen">
+        <header class="driver-home-header">
+            <div class="driver-greeting-info">
+                <h1 id="driverHomeGreeting">Olá</h1>
+                <p>Pronto para pegar a estrada?</p>
             </div>
-            <div class="profile-avatar w-12 h-12 rounded-full border-2 border-white shadow-sm cursor-pointer" id="driverHomeAvatar" onclick="navTo('profile')"
+            <div class="driver-home-avatar" id="driverHomeAvatar" onclick="navTo('profile')"
                 style="background: url('https://i.imgur.com/vnYcevV.png') center/cover;">
             </div>
         </header>
 
         <!-- Status Banner -->
-        <section style="margin-bottom: 24px;" data-purpose="availability-status">
-            <!-- Inicia como Oculto por padrão -->
-            <div id="driverStatusBox" class="rounded-2xl p-4 flex items-center justify-between shadow-sm border" style="background: #fef2f2; border-color: #fecaca; transition: all 0.3s ease;">
-                <div class="flex items-center gap-3" id="driverStatusIndicator">
-                    <span class="relative flex h-3 w-3">
-                        <span class="relative inline-flex rounded-full h-3 w-3 bg-[#ef4444]"></span>
-                    </span>
-                    <span class="font-semibold text-sm text-[#991b1b]">Oculto no Radar</span>
+        <section class="driver-status-section">
+            <div id="driverStatusBox" class="driver-status-card offline">
+                <div class="driver-status-indicator" id="driverStatusIndicator">
+                    <span class="status-indicator-dot"></span>
+                    <span class="status-indicator-text">Oculto no Radar</span>
                 </div>
-                <button id="driverStatusBtn" class="bg-white/80 hover:bg-white text-[#1A1C1E] text-xs font-bold py-2 px-6 rounded-full transition-colors duration-200 border border-gray-200 shadow-sm" onclick="toggleStatus(this)">
+                <button id="driverStatusBtn" class="btn-status-toggle" onclick="toggleStatus(this)">
                     Ficar Online
                 </button>
             </div>
         </section>
 
         <!-- Featured Feed Title -->
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-bold text-[#2D3142]" style="margin: 0;">Cargas em Destaque</h2>
-            <button class="text-blue-600 text-xs font-semibold" style="background: none; border: none; cursor: pointer;" onclick="navTo('freights_search')">Ver todas</button>
+        <div class="driver-feed-header">
+            <h2>Cargas em Destaque</h2>
+            <button class="btn-view-all" onclick="navTo('freights_search')">Ver todas</button>
         </div>
 
-        <!-- Feed List (Vertical cards stack) -->
-        <div class="space-y-4" id="dynamicFreights" style="display: flex; flex-direction: column; gap: 16px;">
+        <!-- Feed List -->
+        <div class="driver-freight-list" id="dynamicFreights">
             <!-- Cargas dinâmicas aparecem aqui -->
         </div>
     </section>
@@ -798,9 +795,9 @@
         </div>
 
         <div style="display: flex; gap: 8px; margin-bottom: 24px;">
-            <div class="input-group" style="flex: 1; margin-bottom: 0;">
-                <i class="ph ph-magnifying-glass"></i>
-                <input type="text" id="searchFrete" placeholder="Buscar por cidade..." onkeyup="buscarFretes()">
+            <div class="input-group" style="flex: 1; margin-bottom: 0; position: relative;">
+                <i class="ph ph-magnifying-glass" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 20px; color: var(--text-muted); z-index: 2;"></i>
+                <input type="text" id="searchFrete" placeholder="Buscar por cidade..." onkeyup="buscarFretes()" style="padding-left: 48px;">
             </div>
             <button class="btn btn-primary" style="width: 56px; margin: 0; padding: 0; border-radius: 16px;"
                 onclick="openFilters()">

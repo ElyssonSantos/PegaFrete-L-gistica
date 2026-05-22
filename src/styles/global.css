@@ -1406,3 +1406,433 @@
     justify-content: center;
     padding: 0 6px;
 }
+
+/* --- PREMIUM DRIVER HOMEPAGE & CARDS UI --- */
+.driver-home-screen {
+    padding: 24px 16px 120px 16px;
+    background-color: #f8fafc;
+    min-height: 100vh;
+}
+
+.driver-home-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.driver-greeting-info h1 {
+    font-size: 26px;
+    font-weight: 850;
+    color: var(--primary);
+    margin: 0 0 4px 0;
+    letter-spacing: -0.75px;
+}
+
+.driver-greeting-info p {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin: 0;
+}
+
+.driver-home-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    cursor: pointer;
+    background-size: cover;
+    background-position: center;
+}
+
+.driver-status-section {
+    margin-bottom: 28px;
+}
+
+.driver-status-card {
+    border-radius: 20px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    border: 1.5px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.driver-status-card.offline {
+    background: #fef2f2;
+    border-color: #fee2e2;
+}
+
+.driver-status-card.online {
+    background: #f0fdf4;
+    border-color: #dcfce7;
+}
+
+.driver-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-indicator-dot {
+    position: relative;
+    display: inline-flex;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.offline .status-indicator-dot {
+    background-color: #ef4444;
+}
+
+.online .status-indicator-dot {
+    background-color: #22c55e;
+}
+
+.online .status-indicator-dot::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background-color: #22c55e;
+    opacity: 0.4;
+    animation: statusPulse 1.6s infinite ease-in-out;
+}
+
+@keyframes statusPulse {
+    0% {
+        transform: scale(0.9);
+        opacity: 0.6;
+    }
+    100% {
+        transform: scale(2.2);
+        opacity: 0;
+    }
+}
+
+.status-indicator-text {
+    font-weight: 750;
+    font-size: 14px;
+}
+
+.offline .status-indicator-text {
+    color: #991b1b;
+}
+
+.online .status-indicator-text {
+    color: #166534;
+}
+
+.btn-status-toggle {
+    background: white;
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 800;
+    padding: 8px 18px;
+    border-radius: 100px;
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    transition: all 0.2s ease;
+}
+
+.btn-status-toggle:hover {
+    background: #f8fafc;
+    border-color: var(--text-muted);
+}
+
+.driver-feed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.driver-feed-header h2 {
+    font-size: 18px;
+    font-weight: 850;
+    color: var(--primary);
+    margin: 0;
+    letter-spacing: -0.3px;
+}
+
+.btn-view-all {
+    background: transparent;
+    border: none;
+    color: var(--orange);
+    font-size: 13px;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.driver-freight-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* --- PREMIUM FREIGHT CARD --- */
+.premium-freight-card {
+    background: white;
+    border-radius: 24px;
+    padding: 20px;
+    border: 1.5px solid var(--border);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.premium-freight-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--orange);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.premium-freight-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    border-color: rgba(249, 115, 22, 0.2);
+}
+
+.premium-freight-card:hover::before {
+    opacity: 1;
+}
+
+.card-route-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.route-city-block {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.route-label {
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.city-name {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+.route-connector {
+    color: var(--text-muted);
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 12px;
+}
+
+.card-details-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 12px 16px;
+}
+
+.card-badges {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.card-badges .badge {
+    font-size: 11px;
+    font-weight: 750;
+    color: #475569;
+    background: white;
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    border-radius: 100px;
+    width: fit-content;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.card-badges .badge i {
+    color: var(--orange);
+}
+
+.card-price-block {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+}
+
+.price-label {
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.price-value {
+    font-size: 20px;
+    font-weight: 900;
+    color: #10b981;
+}
+
+.card-action-bar {
+    width: 100%;
+}
+
+.btn-apply {
+    width: 100%;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    padding: 14px;
+    font-size: 13px;
+    font-weight: 750;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+    transition: all 0.2s ease;
+}
+
+.premium-freight-card:hover .btn-apply {
+    background: var(--orange);
+    box-shadow: 0 6px 16px rgba(249, 115, 22, 0.25);
+}
+
+/* Shipper Card Overrides */
+.premium-freight-card.shipper-card {
+    cursor: default;
+}
+
+.premium-freight-card.shipper-card::before {
+    background: var(--primary);
+}
+
+.premium-freight-card.shipper-card:hover {
+    transform: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    border-color: var(--border);
+}
+
+.card-header-shipper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-badge {
+    font-size: 11px;
+    font-weight: 750;
+    padding: 6px 14px;
+    border-radius: 100px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-badge.status-transito {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.status-badge.status-pendente {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.btn-edit-freight {
+    background: #f1f5f9;
+    color: #475569;
+    border: none;
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 750;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-edit-freight:hover {
+    background: var(--primary);
+    color: white;
+}
+
+/* --- EMPTY STATE CARD --- */
+.empty-feed-card {
+    text-align: center;
+    background: white;
+    border-radius: 24px;
+    padding: 40px 24px;
+    border: 1.5px solid var(--border);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.empty-icon-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: var(--text-muted);
+}
+
+.empty-feed-card h3 {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--primary);
+    margin: 0;
+}
+
+.empty-feed-card p {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin: 0;
+    max-width: 240px;
+    line-height: 1.45;
+}
+
