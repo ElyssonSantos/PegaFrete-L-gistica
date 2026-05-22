@@ -1724,7 +1724,7 @@ function renderFretes() {
     // Render para o painel do Embarcador (com botão editar)
     if (areaShipper) {
         let shipperHtml = '';
-        listFretes.forEach(f => {
+        listFretesHome.forEach(f => {
             const statusLabel = f.status === 'transito' ? '<i class="ph ph-navigation-arrow"></i> Em trânsito' : '<i class="ph ph-hourglass"></i> Aguardando motorista';
             const statusClass = f.status === 'transito' ? 'status-transito' : 'status-pendente';
             const safeId = typeof f.id === 'string' ? `'${sanitizeHTML(f.id)}'` : f.id;
@@ -1924,6 +1924,7 @@ window.openPhotoActionSheet = openPhotoActionSheet;
 window.closePhotoActionSheet = closePhotoActionSheet;
 window.toggleEditProfile = toggleEditProfile;
 window.handleUpload = handleUpload;
+window.handleProfilePhoto = handleProfilePhoto;
 window.salvarCadastroMotorista = salvarCadastroMotorista;
 window.solicitarSaque = solicitarSaque;
 window.toggleStatus = toggleStatus;

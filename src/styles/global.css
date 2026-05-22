@@ -300,6 +300,10 @@
             padding-left: 16px;
         }
 
+        .input-group:not(.no-icon) input {
+            padding-left: 48px;
+        }
+
         .btn {
             width: 100%;
             border: none;
