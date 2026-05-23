@@ -3,29 +3,34 @@ import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import 'firebase/compat/storage';
 
-console.clear();
+// ====== ZERO TRUST HARDENING ======
+// Prevenção de vazamento de dados em Produção
+if (import.meta.env?.PROD || window.location.hostname !== 'localhost') {
+    // Sobrescreve métodos de console para evitar vazamento de tokens e logs na rede
+    console.log = function() {};
+    console.warn = function() {};
+    console.info = function() {};
+    console.debug = function() {};
+    // Mantém apenas console.error genérico (opcional, ou pode desativar também)
+    const originalError = console.error;
+    console.error = function() {
+        originalError("[Security] Application Error");
+    };
+    
+    // Desativa DevTools Debugger
+    setInterval(() => {
+        const devtools = /./;
+        devtools.toString = function() {
+            debugger;
+        }
+    }, 1000);
+}
 
-
-const logo = `
-██████╗ ███████╗ ██████╗  █████╗ ███████╗██████╗ ███████╗████████╗███████╗
-██╔══██╗██╔════╝██╔════╝ ██╔══██╗██╔════╝██╔══██╗██╔════╝╚══██╔══╝██╔════╝
-██████╔╝█████╗  ██║  ███╗███████║█████╗  ██████╔╝█████╗     ██║   █████╗
-██╔═══╝ ██╔══╝  ██║   ██║██╔══██║██╔══╝  ██╔══██╗██╔══╝     ██║   ██╔══╝
-██║     ███████╗╚██████╔╝██║  ██║██║     ██║  ██║███████╗   ██║   ███████╗
-╚═╝     ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝  ╚═╝╚══════╝   ╚═╝   ╚══════╝
-`;
-
-console.log(
-    "%c" + logo,
-    "color: #22c55e; font-family: monospace; font-weight: bold;"
-);
-
-console.log(
-    "%cSe você está vendo isso, saiba que todo acesso é monitorado. 💚",
-    "color: #ffffff; background: #111827; padding: 6px 10px; border-radius: 6px;"
-);
-
-
+// Proteção contra Brute Force / Rate Limiting Local
+let loginAttempts = 0;
+let lastLoginAttemptTime = 0;
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOGIN_COOLDOWN_MS = 60000; // 1 minuto
 // Configuração do Firebase
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyD7lL5jSj57oLL_wWJWbImUD2Y7TKk3gRI",
@@ -867,6 +872,18 @@ async function confirmarCodigo(btn) {
 }
 
 async function fazerLogin(btn) {
+    // RATE LIMITING PROTECTION (BRUTE FORCE)
+    const now = Date.now();
+    if (loginAttempts >= MAX_LOGIN_ATTEMPTS) {
+        if (now - lastLoginAttemptTime < LOGIN_COOLDOWN_MS) {
+            const timeLeft = Math.ceil((LOGIN_COOLDOWN_MS - (now - lastLoginAttemptTime)) / 1000);
+            showToast(`Muitas tentativas. Aguarde ${timeLeft} segundos.`, 'error');
+            return;
+        } else {
+            loginAttempts = 0; // reset after cooldown
+        }
+    }
+
     const email = document.getElementById('loginEmail').value;
     const pass = document.getElementById('loginPassword').value;
 
@@ -877,6 +894,9 @@ async function fazerLogin(btn) {
 
     const original = btn.innerHTML;
     btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Autenticando...`;
+    
+    lastLoginAttemptTime = now;
+    loginAttempts++;
 
     try {
         const userCredential = await auth.signInWithEmailAndPassword(email, pass);

@@ -7,8 +7,13 @@ export default defineConfig({
     port: 3000,
     open: true
   },
+  esbuild: {
+    drop: ['console', 'debugger'],
+  },
   build: {
     outDir: 'dist',
+    sourcemap: false,
+    minify: 'esbuild',
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       input: {
