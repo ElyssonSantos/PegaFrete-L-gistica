@@ -1982,6 +1982,17 @@ function openChatDetail(name, status, avatar, phone = '') {
         }
     }
     
+    // Hide footer (input area) and menu button (three vertical dots) for administrative channel
+    const chatFooter = document.getElementById('chatFooter');
+    const chatMenuBtn = document.getElementById('chatMenuBtn');
+    if (name === 'Pega Frete') {
+        if (chatFooter) chatFooter.style.display = 'none';
+        if (chatMenuBtn) chatMenuBtn.style.display = 'none';
+    } else {
+        if (chatFooter) chatFooter.style.display = 'block';
+        if (chatMenuBtn) chatMenuBtn.style.display = 'flex';
+    }
+    
     document.getElementById('activeChatStatusText').textContent = status;
     
     const avatarImg = document.getElementById('activeChatAvatar');
