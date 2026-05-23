@@ -503,17 +503,20 @@ function startFreightListener() {
     if (freightListenerUnsubscribe) {
         freightListenerUnsubscribe(); // Previne múltiplos listeners
     }
+    let isInitialLoad = true;
+    
     freightListenerUnsubscribe = db.collection("freights").orderBy("createdAt", "desc").limit(20).onSnapshot((snapshot) => {
         const novosDados = [];
         snapshot.forEach(doc => novosDados.push({ id: doc.id, ...doc.data() }));
 
         // Verifica se há novas cargas para notificar (se não for a carga que eu acabei de postar)
-        if (fretes.length > 0 && novosDados.length > fretes.length) {
+        if (!isInitialLoad && fretes.length > 0 && novosDados.length > fretes.length) {
             const ultimaCarga = novosDados[0];
-            if (ultimaCarga.shipperUid !== auth.currentUser.uid) {
+            if (userData && userData.role === 'driver' && window.isDriverOnline && ultimaCarga.shipperUid !== auth.currentUser?.uid) {
                 showToast(`Nova carga disponível: ${ultimaCarga.origem} para ${ultimaCarga.destino}`, 'info');
             }
         }
+        isInitialLoad = false;
 
         fretes = novosDados;
         renderFretes();
@@ -1108,10 +1111,22 @@ async function finalizarCadastro(btn) {
 
 function preencherPerfil() {
     if (document.getElementById('profName')) document.getElementById('profName').value = userData.nome || '';
-    if (document.getElementById('profileDisplayName')) document.getElementById('profileDisplayName').innerText = userData.nome || 'Usuário';
+
+    if (userData.tipoDocumento === 'cnpj' || userData.cnpj) {
+        if (document.getElementById('profRazaoGroup')) document.getElementById('profRazaoGroup').style.display = 'flex';
+        if (document.getElementById('profDocLabel')) document.getElementById('profDocLabel').innerText = 'CNPJ';
+        if (document.getElementById('profRazao')) document.getElementById('profRazao').value = userData.razao || '';
+        if (document.getElementById('profDoc')) document.getElementById('profDoc').value = userData.cnpj || userData.documento || '';
+    } else {
+        if (document.getElementById('profRazaoGroup')) document.getElementById('profRazaoGroup').style.display = 'none';
+        if (document.getElementById('profDocLabel')) document.getElementById('profDocLabel').innerText = 'CPF';
+        if (document.getElementById('profDoc')) document.getElementById('profDoc').value = userData.cpf || userData.documento || '';
+    }
+
+    if (document.getElementById('profileDisplayName')) document.getElementById('profileDisplayName').innerText = userData.nome || userData.razao || 'Usuário';
     
     if (document.getElementById('driverHomeGreeting')) {
-        const firstName = userData.nome ? userData.nome.split(' ')[0] : 'Usuário';
+        const firstName = (userData.nome || userData.razao || 'Usuário').split(' ')[0];
         document.getElementById('driverHomeGreeting').innerText = `Olá, ${firstName}`;
     }
 
@@ -1388,9 +1403,15 @@ async function confirmarLogoutExec() {
         navHistory = [];
         currentUserRole = null;
         userData = {};
+        window.isDriverOnline = false;
+        
         showToast('Você saiu da conta com segurança.', 'info');
-        fecharModalLogout();
-        navTo('auth_entry');
+        
+        // Timeout to allow the toast to show briefly before reloading
+        setTimeout(() => {
+            window.location.reload();
+        }, 800);
+        
     } catch (error) {
         showToast('Erro ao sair.', 'error');
         if (btn) {
@@ -1405,7 +1426,7 @@ let profileEditMode = false;
 
 function toggleEditProfile() {
     profileEditMode = !profileEditMode;
-    const fields = ['profName', 'profPhone', 'profAddress'];
+    const fields = ['profName', 'profRazao', 'profPhone', 'profAddress'];
     const btnEdit = document.getElementById('btnEditProfile');
     const btnSave = document.getElementById('btnSaveProfile');
 
@@ -1469,6 +1490,11 @@ async function salvarPerfil(btn) {
             telefone: sanitizeInput(document.getElementById('profPhone').value.trim(), 20),
             endereco: sanitizeInput(document.getElementById('profAddress').value.trim(), 300)
         };
+        
+        const profRazao = document.getElementById('profRazao');
+        if (profRazao && profRazao.value) {
+            updatedData.razao = sanitizeInput(profRazao.value.trim(), 200);
+        }
 
         // Firestore protegido por Security Rules (só permite atualizar campos permitidos)
         updatedData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
@@ -1559,15 +1585,18 @@ function solicitarSaque(btn) {
     }, 2000);
 }
 
+window.isDriverOnline = false;
 function toggleStatus(btn) {
     const box = document.getElementById('driverStatusBox');
     const indicator = document.getElementById('driverStatusIndicator');
     if (!box || !indicator) return;
 
     if (btn.innerText.trim() === 'Ficar Online') {
+        window.isDriverOnline = true;
         btn.innerText = 'Pausar';
         box.classList.remove('offline');
         box.classList.add('online');
+        renderFretes();
 
         indicator.innerHTML = `
             <span class="status-indicator-dot"></span>
@@ -1575,9 +1604,11 @@ function toggleStatus(btn) {
         `;
         showToast('Você está online e visível para novas cargas!');
     } else {
+        window.isDriverOnline = false;
         btn.innerText = 'Ficar Online';
         box.classList.remove('online');
         box.classList.add('offline');
+        renderFretes();
 
         indicator.innerHTML = `
             <span class="status-indicator-dot"></span>
@@ -1610,12 +1641,18 @@ function renderFretes() {
 
     if (userData) {
         if (userData.role === 'shipper') {
-            listFretesHome = fretes.filter(f => f.shipperUid === auth.currentUser?.uid);
+            listFretesHome = fretes.filter(f => f.shipperUid === auth.currentUser?.uid && f.status !== 'entregue' && f.status !== 'cancelado');
             listFretesSearch = listFretesHome;
         } else if (userData.role === 'driver') {
-            // Se o motorista tem um veículo cadastrado, vincula a Home (Destaques) com o sistema de filtro
-            if (userData.veiculo) {
-                listFretesHome = fretes.filter(f => f.veiculo && f.veiculo.toLowerCase() === userData.veiculo.toLowerCase());
+            if (!window.isDriverOnline) {
+                listFretesHome = [];
+                listFretesSearch = [];
+            } else {
+                listFretesHome = fretes.filter(f => f.status !== 'entregue' && f.status !== 'cancelado');
+                if (userData.veiculo) {
+                    listFretesHome = listFretesHome.filter(f => f.veiculo && f.veiculo.toLowerCase() === userData.veiculo.toLowerCase());
+                }
+                listFretesSearch = listFretesHome;
             }
         }
     }
@@ -1637,6 +1674,19 @@ function renderFretes() {
     } else {
         listFretesHome.forEach((frete) => {
             const idParam = typeof frete.id === 'string' ? `'${frete.id}'` : frete.id;
+            let shipperActions = '';
+            if (userData && userData.role === 'shipper' && frete.status !== 'entregue' && frete.status !== 'cancelado') {
+                shipperActions = `
+                    <div style="display: flex; gap: 8px; margin-top: 12px; width: 100%;">
+                        <button class="btn btn-primary" style="flex: 1; padding: 10px; font-size: 13px; background: #22c55e;" onclick="event.stopPropagation(); concluirFrete(${idParam})">
+                            <i class="ph ph-check-circle"></i> Concluir
+                        </button>
+                        <button class="btn btn-outline" style="flex: 1; padding: 10px; font-size: 13px; color: #ef4444; border-color: #ef4444;" onclick="event.stopPropagation(); cancelarFrete(${idParam})">
+                            <i class="ph ph-x-circle"></i> Cancelar
+                        </button>
+                    </div>
+                `;
+            }
             htmlHome += `
               <div class="premium-freight-card" onclick="openFreight(${idParam})">
                   <div class="card-route-section">
@@ -1662,10 +1712,11 @@ function renderFretes() {
                           <span class="price-value">R$ ${sanitizeHTML(frete.valor)}</span>
                       </div>
                   </div>
-                  <div class="card-action-bar">
+                  <div class="card-action-bar" style="flex-direction: column;">
                       <button class="btn-apply" onclick="event.stopPropagation(); openFreight(${idParam})">
-                          Visualizar e Candidatar <i class="ph ph-arrow-right"></i>
+                          Visualizar <i class="ph ph-arrow-right"></i>
                       </button>
+                      ${shipperActions}
                   </div>
               </div>
             `;
@@ -1732,6 +1783,20 @@ function renderFretes() {
             const statusClass = f.status === 'transito' ? 'status-transito' : 'status-pendente';
             const safeId = typeof f.id === 'string' ? `'${sanitizeHTML(f.id)}'` : f.id;
 
+            let shipperActions = '';
+            if (f.status !== 'entregue' && f.status !== 'cancelado') {
+                shipperActions = `
+                    <div style="display: flex; gap: 8px; margin-top: 12px; width: 100%;">
+                        <button class="btn btn-primary" style="flex: 1; padding: 10px; font-size: 13px; background: #22c55e;" onclick="event.stopPropagation(); concluirFrete(${safeId})">
+                            <i class="ph ph-check-circle"></i> Concluir
+                        </button>
+                        <button class="btn btn-outline" style="flex: 1; padding: 10px; font-size: 13px; color: #ef4444; border-color: #ef4444;" onclick="event.stopPropagation(); cancelarFrete(${safeId})">
+                            <i class="ph ph-x-circle"></i> Cancelar
+                        </button>
+                    </div>
+                `;
+            }
+
             shipperHtml += `
                     <div class="premium-freight-card shipper-card">
                       <div class="card-header-shipper">
@@ -1763,11 +1828,14 @@ function renderFretes() {
                               <span class="price-value">R$ ${sanitizeHTML(f.valor)}</span>
                           </div>
                       </div>
+                      ${shipperActions}
                     </div>
                 `;
         });
         areaShipper.innerHTML = shipperHtml || htmlHome;
     }
+
+    buscarFretes();
 
     // Atualiza também o histórico do Embarcador
     renderShipperHistory();
@@ -1922,8 +1990,11 @@ function enviarMensagem() {
     renderChats();
 }
 
-function openChatDetail(name, status, avatar) {
+function openChatDetail(name, status, avatar, phone = '00000000') {
     document.getElementById('activeChatName').textContent = name;
+    if (document.getElementById('chatPhoneLink')) {
+        document.getElementById('chatPhoneLink').href = 'tel:' + phone;
+    }
     document.getElementById('activeChatStatusText').textContent = status;
     document.getElementById('activeChatAvatar').src = avatar;
     
@@ -1993,6 +2064,26 @@ window.handleContinuar = handleContinuar;
 window.fazerLogin = fazerLogin;
 window.publicarFrete = publicarFrete;
 window.salvarEdicaoFrete = salvarEdicaoFrete;
+window.concluirFrete = async function(id) {
+    if(!confirm('Tem certeza que deseja marcar esta carga como concluída?')) return;
+    try {
+        await db.collection("freights").doc(id).update({ status: 'entregue' });
+        showToast('Carga concluída com sucesso!');
+    } catch(err) {
+        console.error(err);
+        showToast('Erro ao concluir carga.', 'error');
+    }
+};
+window.cancelarFrete = async function(id) {
+    if(!confirm('Tem certeza que deseja cancelar esta carga?')) return;
+    try {
+        await db.collection("freights").doc(id).update({ status: 'cancelado' });
+        showToast('Carga cancelada!');
+    } catch(err) {
+        console.error(err);
+        showToast('Erro ao cancelar carga.', 'error');
+    }
+};
 window.logout = logout;
 window.fecharModalLogout = fecharModalLogout;
 window.confirmarLogoutExec = confirmarLogoutExec;
