@@ -1998,7 +1998,7 @@ function openChatDetail(name, status, avatar, phone = '') {
     const avatarImg = document.getElementById('activeChatAvatar');
     if (avatarImg) {
         if (name === 'Pega Frete') {
-            avatarImg.src = 'src/assets/images/orange_truck_avatar.png';
+            avatarImg.src = '/orange_truck_avatar.png';
         } else {
             avatarImg.src = avatar;
         }
