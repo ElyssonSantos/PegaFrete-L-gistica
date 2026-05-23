@@ -1987,7 +1987,7 @@ function openChatDetail(name, status, avatar, phone = '') {
     const avatarImg = document.getElementById('activeChatAvatar');
     if (avatarImg) {
         if (name === 'Pega Frete') {
-            avatarImg.src = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=200&h=200&auto=format&fit=crop';
+            avatarImg.src = 'src/assets/images/orange_truck_avatar.png';
         } else {
             avatarImg.src = avatar;
         }
