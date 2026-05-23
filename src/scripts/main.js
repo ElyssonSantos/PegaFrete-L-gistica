@@ -254,10 +254,9 @@ let fretes = [
     { id: 2, origem: 'Salvador', destino: 'Ilhéus', valor: '980,00', tipo: 'Fracionada', veiculo: 'Toco', status: 'pendente', obs: 'Carga urgente para hoje.' }
 ];
 
-let mensagens = [
-    { isMe: false, sender: 'Embarcador XPTO', text: 'Boa tarde! Qual a previsão de chegada para a coleta?', time: '14:30' },
-    { isMe: true, sender: 'Você', text: 'Estou a cerca de 15 minutos do local, o trânsito ajudou. Já estou próximo da entrada principal.', time: '14:35' }
-];
+let mensagens = [];
+let systemMessages = [];
+let systemMessagesListener = null;
 
 window.onload = () => {
     renderChats();
@@ -286,6 +285,7 @@ window.onload = () => {
                     preencherPerfil();
                     setRole(userData.role || 'driver');
                     startFreightListener();
+                    startSystemMessagesListener();
                 } else {
                     // Se logou com Google mas não tem perfil, vai escolher o papel
                     preencherCamposCadastroGoogle(user);
@@ -296,6 +296,10 @@ window.onload = () => {
                 navTo('auth_entry');
             }
         } else {
+            if (systemMessagesListener) {
+                systemMessagesListener();
+                systemMessagesListener = null;
+            }
             restaurarBotoesCadastroPadrao();
             navTo('auth_entry');
         }
@@ -1928,37 +1932,7 @@ async function publicarFrete(btn) {
 }
 
 function renderChats() {
-    const area = document.getElementById('chatMessages');
-    if (!area) return;
-    
-    area.innerHTML = `
-        <div class="chat-date-divider">
-            <span>Hoje</span>
-        </div>
-    `;
-
-    mensagens.forEach(msg => {
-        const isMe = msg.isMe;
-        const wrapperClass = isMe ? 'msg-outgoing' : 'msg-incoming';
-        const statusIcon = isMe ? '<i class="ph-fill ph-check-circle msg-status"></i>' : '';
-        
-        area.innerHTML += `
-            <div class="msg-wrapper ${wrapperClass}">
-                <div class="msg-bubble">
-                    ${sanitizeHTML(msg.text)}
-                    <div class="msg-meta">
-                        <span class="msg-time">${sanitizeHTML(msg.time)}</span>
-                        ${statusIcon}
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-    
-    // Allow DOM to update before scrolling
-    setTimeout(() => {
-        area.scrollTop = area.scrollHeight;
-    }, 10);
+    renderSystemMessages();
 }
 
 function enviarMensagem() {
@@ -1966,21 +1940,58 @@ function enviarMensagem() {
     const text = input.value.trim();
     if (!text) return;
 
-    const now = new Date();
-    const time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-
-    mensagens.push({ isMe: true, sender: 'Você', text: text, time: time });
-    input.value = '';
-    renderChats();
+    if (window.activeChatName === 'Pega Frete') {
+        const uid = auth.currentUser?.uid;
+        if (!uid) return;
+        
+        input.value = '';
+        input.style.height = 'auto';
+        
+        db.collection("system_messages").add({
+            userUid: uid,
+            text: text,
+            sender: 'Você',
+            isMe: true,
+            read: true,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(err => {
+            console.error("Erro ao enviar mensagem:", err);
+            showToast("Erro ao enviar mensagem.", "error");
+        });
+    } else {
+        const now = new Date();
+        const time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        mensagens.push({ isMe: true, sender: 'Você', text: text, time: time });
+        input.value = '';
+        input.style.height = 'auto';
+        renderChats();
+    }
 }
 
-function openChatDetail(name, status, avatar, phone = '00000000') {
+function openChatDetail(name, status, avatar, phone = '') {
+    window.activeChatName = name;
     document.getElementById('activeChatName').textContent = name;
-    if (document.getElementById('chatPhoneLink')) {
-        document.getElementById('chatPhoneLink').href = 'tel:' + phone;
+    
+    const phoneLink = document.getElementById('chatPhoneLink');
+    if (phoneLink) {
+        if (phone) {
+            phoneLink.href = 'tel:' + phone;
+            phoneLink.style.display = 'flex';
+        } else {
+            phoneLink.style.display = 'none';
+        }
     }
+    
     document.getElementById('activeChatStatusText').textContent = status;
-    document.getElementById('activeChatAvatar').src = avatar;
+    
+    const avatarImg = document.getElementById('activeChatAvatar');
+    if (avatarImg) {
+        if (name === 'Pega Frete') {
+            avatarImg.src = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=200&h=200&auto=format&fit=crop';
+        } else {
+            avatarImg.src = avatar;
+        }
+    }
     
     if (status === 'Online') {
         document.getElementById('activeChatStatusDot').style.display = 'block';
@@ -1988,7 +1999,163 @@ function openChatDetail(name, status, avatar, phone = '00000000') {
         document.getElementById('activeChatStatusDot').style.display = 'none';
     }
     
+    if (name === 'Pega Frete') {
+        renderSystemMessages();
+        marcarMensagensComoLidas();
+    } else {
+        renderChats();
+    }
+    
     navTo('chat_detail');
+}
+
+function startSystemMessagesListener() {
+    if (systemMessagesListener) {
+        systemMessagesListener();
+    }
+    
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+    
+    const ref = db.collection("system_messages")
+        .where("userUid", "==", uid)
+        .orderBy("createdAt", "asc");
+        
+    systemMessagesListener = ref.onSnapshot(snapshot => {
+        systemMessages = [];
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            systemMessages.push({
+                id: doc.id,
+                ...data
+            });
+        });
+        
+        if (systemMessages.length === 0) {
+            db.collection("system_messages").add({
+                userUid: uid,
+                text: "Bem-vindo ao canal oficial do Pega Frete! Aqui você receberá avisos importantes, atualizações do aplicativo e notificações sobre suas cargas.",
+                sender: "Pega Frete",
+                isMe: false,
+                read: false,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            return;
+        }
+        
+        updateChatListUI();
+        
+        const chatDetailScreen = document.getElementById('chat_detail');
+        if (chatDetailScreen && chatDetailScreen.classList.contains('active') && window.activeChatName === 'Pega Frete') {
+            renderSystemMessages();
+            marcarMensagensComoLidas();
+        }
+    }, err => {
+        console.error("Erro no listener de mensagens do sistema:", err);
+    });
+}
+
+function updateChatListUI() {
+    if (systemMessages.length === 0) return;
+    
+    const lastMsg = systemMessages[systemMessages.length - 1];
+    
+    const previewEl = document.getElementById('systemChatPreview');
+    if (previewEl) {
+        previewEl.innerHTML = (lastMsg.isMe ? '<i class="ph-fill ph-check-circle" style="color: #3b82f6; margin-right: 4px; font-size: 16px;"></i>' : '') + sanitizeHTML(lastMsg.text);
+    }
+    
+    const timeEl = document.getElementById('systemChatTime');
+    if (timeEl) {
+        let timeStr = '--:--';
+        if (lastMsg.createdAt) {
+            const date = lastMsg.createdAt.toDate ? lastMsg.createdAt.toDate() : new Date();
+            timeStr = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+        }
+        timeEl.textContent = timeStr;
+    }
+    
+    const unreadCount = systemMessages.filter(m => !m.isMe && !m.read).length;
+    const badgeEl = document.getElementById('systemChatUnreadBadge');
+    const itemEl = document.getElementById('systemChatItem');
+    
+    if (badgeEl) {
+        if (unreadCount > 0) {
+            badgeEl.textContent = unreadCount;
+            badgeEl.style.display = 'flex';
+            if (itemEl) itemEl.classList.add('unread');
+        } else {
+            badgeEl.style.display = 'none';
+            if (itemEl) itemEl.classList.remove('unread');
+        }
+    }
+}
+
+function marcarMensagensComoLidas() {
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+    
+    db.collection("system_messages")
+        .where("userUid", "==", uid)
+        .where("read", "==", false)
+        .get()
+        .then(snapshot => {
+            if (snapshot.empty) return;
+            const batch = db.batch();
+            snapshot.forEach(doc => {
+                batch.update(doc.ref, { read: true });
+            });
+            return batch.commit();
+        })
+        .catch(err => console.error("Erro ao marcar mensagens como lidas:", err));
+}
+
+function renderSystemMessages() {
+    const area = document.getElementById('chatMessages');
+    if (!area) return;
+    
+    area.innerHTML = '';
+    
+    let lastDateStr = '';
+    
+    systemMessages.forEach(msg => {
+        let timeStr = '12:00';
+        let dateStr = 'Hoje';
+        if (msg.createdAt) {
+            const date = msg.createdAt.toDate ? msg.createdAt.toDate() : new Date();
+            timeStr = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+            dateStr = date.toLocaleDateString('pt-BR');
+        }
+        
+        if (dateStr !== lastDateStr) {
+            area.innerHTML += `
+                <div class="chat-date-divider">
+                    <span>${dateStr === new Date().toLocaleDateString('pt-BR') ? 'Hoje' : dateStr}</span>
+                </div>
+            `;
+            lastDateStr = dateStr;
+        }
+        
+        const isMe = msg.isMe;
+        const wrapperClass = isMe ? 'msg-outgoing' : 'msg-incoming';
+        const statusIcon = isMe ? '<i class="ph-fill ph-check-circle msg-status" style="color: #3b82f6;"></i>' : '';
+        
+        area.innerHTML += `
+            <div class="msg-wrapper ${wrapperClass}">
+                <div class="msg-bubble">
+                    ${sanitizeHTML(msg.text)}
+                    <div class="msg-meta">
+                        <span class="msg-time">${sanitizeHTML(timeStr)}</span>
+                        ${statusIcon}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    setTimeout(() => {
+        area.scrollTop = area.scrollHeight;
+    }, 50);
 }
 
 // Expondo globalmente para o HTML

@@ -1365,52 +1365,22 @@
         </div>
 
         <div class="chat-list-container">
-            <!-- Conversa 1: Nova mensagem -->
-            <div class="chat-list-item unread" onclick="openChatDetail('Transportadora TransLog', 'Online', 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=200&h=200&auto=format&fit=crop')">
-                <div class="chat-list-avatar-wrapper">
-                    <img class="chat-list-avatar" src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=200&h=200&auto=format&fit=crop" />
-                    <div class="chat-status-dot"></div>
+            <!-- Conversa Única: Pega Frete -->
+            <div class="chat-list-item" id="systemChatItem" onclick="openChatDetail('Pega Frete', 'Online', 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=200&h=200&auto=format&fit=crop')">
+                <div class="chat-list-avatar-wrapper" style="position: relative; display: flex; align-items: center; justify-content: center;">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-light)); display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15);">
+                        <i class="ph-fill ph-navigation-arrow" style="font-size: 22px;"></i>
+                    </div>
+                    <div class="chat-status-dot" style="background: #10b981; border: 2px solid white; display: block; position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; border-radius: 50%;"></div>
                 </div>
                 <div class="chat-list-content">
                     <div class="chat-list-header">
-                        <span class="chat-list-name">Transportadora TransLog <i class="ph-fill ph-seal-check" style="color: #3b82f6; font-size: 16px;"></i></span>
-                        <span class="chat-list-time active">14:32</span>
+                        <span class="chat-list-name" style="font-weight: 800; color: var(--primary);">Pega Frete <i class="ph-fill ph-seal-check" style="color: #3b82f6; font-size: 16px;"></i></span>
+                        <span class="chat-list-time" id="systemChatTime">--:--</span>
                     </div>
                     <div class="chat-list-body">
-                        <span class="chat-list-preview active">O caminhão já está no pátio aguar...</span>
-                        <span class="chat-unread-badge">3</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Conversa 2: Lida -->
-            <div class="chat-list-item" onclick="openChatDetail('Expresso Norte BR', 'Ontem', 'https://images.unsplash.com/photo-1591768793355-74d04bb6608f?q=80&w=200&h=200&auto=format&fit=crop')">
-                <div class="chat-list-avatar-wrapper">
-                    <img class="chat-list-avatar" src="https://images.unsplash.com/photo-1591768793355-74d04bb6608f?q=80&w=200&h=200&auto=format&fit=crop" />
-                </div>
-                <div class="chat-list-content">
-                    <div class="chat-list-header">
-                        <span class="chat-list-name">Expresso Norte BR</span>
-                        <span class="chat-list-time">Ontem</span>
-                    </div>
-                    <div class="chat-list-body">
-                        <span class="chat-list-preview"><i class="ph-fill ph-check-circle" style="color: #3b82f6; margin-right: 4px; font-size: 16px;"></i> Pagamento do frete #4421 confirma...</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Conversa 3: Enviou Imagem -->
-            <div class="chat-list-item" onclick="openChatDetail('Swift Cargo Global', 'Segunda', 'https://lh3.googleusercontent.com/aida-public/AB6AXuB39mQginIkACN_U3M5LxOdmvUFqqu5NgX0EBY1PD5H6W-z1qosZX6WQtCT7wwRWpO55tvKwsWlaAtHw0GbkGo-sCakILdwSENJOVkLghUZ1BhFn5crqEwxEwMD5XBjJ6cOI5A0jAom8mRFMd_02KCQvJFcT0bc1zRz2CSaCnAoSWdraSCda__Oi15HOVjrtTiz77RX0NR9DODhbXdjmEu7jHDsHBmRrajBkWSEXQLJ8skdm5FGSL29kQfb-Z3bHJRyx5xJVIyR2wI-')">
-                <div class="chat-list-avatar-wrapper">
-                    <img class="chat-list-avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB39mQginIkACN_U3M5LxOdmvUFqqu5NgX0EBY1PD5H6W-z1qosZX6WQtCT7wwRWpO55tvKwsWlaAtHw0GbkGo-sCakILdwSENJOVkLghUZ1BhFn5crqEwxEwMD5XBjJ6cOI5A0jAom8mRFMd_02KCQvJFcT0bc1zRz2CSaCnAoSWdraSCda__Oi15HOVjrtTiz77RX0NR9DODhbXdjmEu7jHDsHBmRrajBkWSEXQLJ8skdm5FGSL29kQfb-Z3bHJRyx5xJVIyR2wI-" />
-                </div>
-                <div class="chat-list-content">
-                    <div class="chat-list-header">
-                        <span class="chat-list-name">Swift Cargo Global</span>
-                        <span class="chat-list-time">Segunda</span>
-                    </div>
-                    <div class="chat-list-body">
-                        <span class="chat-list-preview" style="font-style: italic;">Você enviou uma imagem</span>
+                        <span class="chat-list-preview" id="systemChatPreview">Carregando mensagens...</span>
+                        <span class="chat-unread-badge" id="systemChatUnreadBadge" style="display: none; background: var(--orange); color: white; font-weight: 800; font-size: 11px; border-radius: 12px; height: 20px; min-width: 20px; align-items: center; justify-content: center; padding: 0 6px;">0</span>
                     </div>
                 </div>
             </div>
