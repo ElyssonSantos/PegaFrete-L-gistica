@@ -36,6 +36,10 @@ service cloud.firestore {
       allow delete: if isAdmin() || (isAuthenticated() && resource.data.shipperUid == request.auth.uid);
     }
 
+    match /public_emails/{email} {
+      allow read, write: if true;
+    }
+
     match /security_logs/{logId} {
       // Logs são append-only e gravados com a identidade confirmada do usuário
       allow read: if isAdmin();

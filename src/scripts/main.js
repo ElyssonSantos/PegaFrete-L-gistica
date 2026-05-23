@@ -1337,35 +1337,19 @@ async function handleProfilePhoto(event) {
     showToast('Processando foto de perfil...', 'info');
     
     try {
-        // Tentativa 1: Firebase Storage
-        const storageRef = storage.ref(`profiles/${auth.currentUser.uid}/photo_${Date.now()}`);
-        await storageRef.put(file);
-        const url = await storageRef.getDownloadURL();
-
+        // Otimização: Para evitar erros de CORS e requisições falhas de Storage no console do navegador,
+        // salvamos a imagem comprimida em Base64 diretamente no Firestore do usuário.
+        const base64Url = await compressImageToBase64(file);
         await db.collection("users").doc(auth.currentUser.uid).update({ 
-            foto: url, 
+            foto: base64Url, 
             updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
         });
-        userData.foto = url;
+        userData.foto = base64Url;
         preencherPerfil();
         showToast('Foto de perfil atualizada com sucesso!');
-    } catch (storageError) {
-        console.warn('Firebase Storage upload failed, trying local canvas compression fallback...', storageError);
-        
-        // Tentativa 2: Fallback Firestore + Base64
-        try {
-            const base64Url = await compressImageToBase64(file);
-            await db.collection("users").doc(auth.currentUser.uid).update({ 
-                foto: base64Url, 
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
-            });
-            userData.foto = base64Url;
-            preencherPerfil();
-            showToast('Foto de perfil atualizada com sucesso!');
-        } catch (fallbackError) {
-            console.error('Profile photo update failed completely:', fallbackError);
-            showToast('Erro ao atualizar foto.', 'error');
-        }
+    } catch (fallbackError) {
+        console.error('Profile photo update failed:', fallbackError);
+        showToast('Erro ao atualizar foto.', 'error');
     }
 }
 
