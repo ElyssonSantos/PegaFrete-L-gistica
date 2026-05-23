@@ -2018,8 +2018,7 @@ function startSystemMessagesListener() {
     if (!uid) return;
     
     const ref = db.collection("system_messages")
-        .where("userUid", "==", uid)
-        .orderBy("createdAt", "asc");
+        .where("userUid", "==", uid);
         
     systemMessagesListener = ref.onSnapshot(snapshot => {
         systemMessages = [];
@@ -2029,6 +2028,13 @@ function startSystemMessagesListener() {
                 id: doc.id,
                 ...data
             });
+        });
+        
+        // Client-side sort to avoid composite index requirement
+        systemMessages.sort((a, b) => {
+            const timeA = a.createdAt ? (typeof a.createdAt.toMillis === 'function' ? a.createdAt.toMillis() : 0) : 0;
+            const timeB = b.createdAt ? (typeof b.createdAt.toMillis === 'function' ? b.createdAt.toMillis() : 0) : 0;
+            return timeA - timeB;
         });
         
         if (systemMessages.length === 0) {
