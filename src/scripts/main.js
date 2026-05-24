@@ -1642,6 +1642,31 @@ function aceitarFrete(btn) {
     }, 1500);
 }
 
+function formatTimeAgo(timestamp) {
+    if (!timestamp) return 'Agora';
+    let date;
+    if (timestamp.toDate) {
+        date = timestamp.toDate();
+    } else {
+        date = new Date(timestamp);
+    }
+    
+    const now = new Date();
+    const diffMs = now - date;
+    if (isNaN(diffMs) || diffMs < 0) return 'Agora';
+
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+    const diffWeeks = Math.floor(diffDays / 7);
+
+    if (diffMins < 60) return 'Publicada agora';
+    if (diffHours < 24) return 'Hoje';
+    if (diffDays < 7) return `a ${diffDays}D`;
+    if (diffWeeks < 52) return `a ${diffWeeks} S`;
+    return `a 1 a`;
+}
+
 function renderFretes() {
     const areaHome = document.getElementById('dynamicFreights');
     const areaSearch = document.getElementById('dynamicFreightsSearch');
@@ -1701,6 +1726,15 @@ function renderFretes() {
             }
             htmlHome += `
               <div class="premium-freight-card" onclick="openFreight(${idParam})">
+                  <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                      <span class="time-ago-badge" style="font-size: 11px; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                          <i class="ph ph-clock"></i> ${formatTimeAgo(frete.createdAt)}
+                      </span>
+                      <div style="display: flex; gap: 8px; font-size: 11px; color: var(--text-muted); font-weight: 600;">
+                          ${frete.distanciaKm ? `<span style="display: flex; align-items: center; gap: 4px;"><i class="ph ph-map-pin"></i> ~${sanitizeHTML(String(frete.distanciaKm))} km</span>` : ''}
+                          ${frete.duracaoDias ? `<span style="display: flex; align-items: center; gap: 4px;"><i class="ph ph-calendar"></i> ~${sanitizeHTML(String(frete.duracaoDias))} dia(s)</span>` : ''}
+                      </div>
+                  </div>
                   <div class="card-route-section">
                       <div class="route-city-block">
                           <span class="route-label">Origem</span>
@@ -1751,6 +1785,15 @@ function renderFretes() {
             const idParam = typeof frete.id === 'string' ? `'${frete.id}'` : frete.id;
             htmlSearch += `
               <div class="premium-freight-card" onclick="openFreight(${idParam})">
+                  <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                      <span class="time-ago-badge" style="font-size: 11px; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                          <i class="ph ph-clock"></i> ${formatTimeAgo(frete.createdAt)}
+                      </span>
+                      <div style="display: flex; gap: 8px; font-size: 11px; color: var(--text-muted); font-weight: 600;">
+                          ${frete.distanciaKm ? `<span style="display: flex; align-items: center; gap: 4px;"><i class="ph ph-map-pin"></i> ~${sanitizeHTML(String(frete.distanciaKm))} km</span>` : ''}
+                          ${frete.duracaoDias ? `<span style="display: flex; align-items: center; gap: 4px;"><i class="ph ph-calendar"></i> ~${sanitizeHTML(String(frete.duracaoDias))} dia(s)</span>` : ''}
+                      </div>
+                  </div>
                   <div class="card-route-section">
                       <div class="route-city-block">
                           <span class="route-label">Origem</span>
@@ -1923,6 +1966,29 @@ async function publicarFrete(btn) {
             return;
         }
 
+        // Obter coordenadas para calcular distância
+        let distanciaKm = 0;
+        let duracaoDias = 0;
+
+        if (typeof obterCoordenadasNominatim === 'function') {
+            const p1 = await obterCoordenadasNominatim(origem);
+            const p2 = await obterCoordenadasNominatim(destino);
+            if (p1 && p2) {
+                // Formula de Haversine
+                const R = 6371;
+                const dLat = (p2.lat - p1.lat) * Math.PI / 180;
+                const dLon = (p2.lon - p1.lon) * Math.PI / 180;
+                const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                        Math.cos(p1.lat * Math.PI / 180) * Math.cos(p2.lat * Math.PI / 180) *
+                        Math.sin(dLon/2) * Math.sin(dLon/2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                const straightDist = R * c;
+                
+                distanciaKm = Math.round(straightDist * 1.3); // 30% a mais para vias reais
+                duracaoDias = Math.max(1, Math.ceil(distanciaKm / 500)); // ~500 km/dia
+            }
+        }
+
         // Firestore protegido por Security Rules (valida role, ownership e campos)
         const novoFrete = {
             origem: sanitizeInput(origem, 200),
@@ -1935,7 +2001,9 @@ async function publicarFrete(btn) {
             status: 'pendente',
             obs: sanitizeInput(obs, 500) || 'Carga publicada via radar.',
             shipperUid: auth.currentUser.uid,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            distanciaKm,
+            duracaoDias
         };
 
         await db.collection('freights').add(novoFrete);
