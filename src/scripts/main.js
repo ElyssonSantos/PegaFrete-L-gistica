@@ -1919,6 +1919,49 @@ function openFreight(idOrIndex) {
         `;
 
     navTo('freightDetails');
+
+    // Inicializa ou atualiza o Mapa de Detalhes da Carga
+    setTimeout(async () => {
+        const mapContainer = document.getElementById('detailLeafletMap');
+        if (!mapContainer) return;
+
+        if (window.detailMap) {
+            window.detailMap.remove();
+        }
+
+        window.detailMap = L.map('detailLeafletMap', {
+            zoomControl: false,
+            dragging: false,
+            touchZoom: false,
+            scrollWheelZoom: false,
+            doubleClickZoom: false
+        }).setView([-14.235, -51.925], 4);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(window.detailMap);
+
+        if (typeof obterCoordenadasNominatim === 'function') {
+            const p1 = await obterCoordenadasNominatim(frete.origem);
+            const p2 = await obterCoordenadasNominatim(frete.destino);
+
+            if (p1 && p2) {
+                const originMarker = L.marker([p1.lat, p1.lon]).addTo(window.detailMap);
+                const destinationMarker = L.marker([p2.lat, p2.lon]).addTo(window.detailMap);
+
+                L.polyline([[p1.lat, p1.lon], [p2.lat, p2.lon]], {
+                    color: '#f97316',
+                    weight: 4,
+                    opacity: 0.8,
+                    dashArray: '5, 10'
+                }).addTo(window.detailMap);
+
+                const group = new L.featureGroup([originMarker, destinationMarker]);
+                window.detailMap.fitBounds(group.getBounds().pad(0.2));
+            }
+        }
+    }, 300);
 }
 
 function buscarFretes() {
