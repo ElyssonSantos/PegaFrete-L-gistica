@@ -266,6 +266,10 @@ let systemMessagesListener = null;
 window.onload = () => {
     renderChats();
     navTo('splash');
+    
+    // Inicializa Mapa Leaflet e Autocomplete do IBGE (100% Gratuito)
+    if (typeof window.initLeafletMap === 'function') window.initLeafletMap();
+    if (typeof window.setupIBGEAutocomplete === 'function') window.setupIBGEAutocomplete();
 
     // Monitora o estado de autenticação via Firebase
     auth.onAuthStateChanged(async (user) => {
@@ -2523,5 +2527,164 @@ function updatePublishStep() {
 
 // Exporta para escopo global
 window.prevPublishStep = prevPublishStep;
-window.nextPublishStep = nextPublishStep;
-window.resetPublishStep = resetPublishStep;
+    window.nextPublishStep = nextPublishStep;
+    window.resetPublishStep = resetPublishStep;
+
+    // ====== LEAFLET MAPS & IBGE AUTOCOMPLETE (100% GRATUITO) ======
+
+    let activeMap = null;
+    let routeLine = null;
+    let originMarker = null;
+    let destinationMarker = null;
+
+    window.initLeafletMap = function() {
+        const mapElement = document.getElementById('publishMapPreview');
+        if (!mapElement) return;
+
+        if (activeMap) {
+            activeMap.remove();
+            activeMap = null;
+        }
+
+        // Inicializa o mapa com o Leaflet focado no Brasil por padrão
+        activeMap = L.map(mapElement, {
+            zoomControl: true,
+            attributionControl: false
+        }).setView([-14.2350, -51.9253], 4);
+
+        // Adiciona camada de mapa gratuita do OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
+        }).addTo(activeMap);
+
+        // Tenta obter a geolocalização do usuário via GPS
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    activeMap.setView([lat, lon], 12);
+
+                    L.circleMarker([lat, lon], {
+                        radius: 8,
+                        fillColor: "#f97316",
+                        color: "white",
+                        weight: 2,
+                        fillOpacity: 1
+                    }).addTo(activeMap).bindPopup("Você está aqui");
+                },
+                () => {
+                    console.warn("Geolocalização não permitida ou indisponível.");
+                }
+            );
+        }
+    };
+
+    let cachedCidades = [];
+
+    async function carregarCidadesIBGE() {
+        if (cachedCidades.length > 0) return cachedCidades;
+        try {
+            const response = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/municipios');
+            const data = await response.json();
+            cachedCidades = data.map(item => {
+                const uf = item.microrregiao?.mesorregiao?.UF?.sigla || '';
+                return `${item.nome}, ${uf}`;
+            }).sort();
+            return cachedCidades;
+        } catch (e) {
+            console.error("Erro ao carregar cidades do IBGE:", e);
+            return [];
+        }
+    }
+
+    window.setupIBGEAutocomplete = function() {
+        const inputs = ['origem', 'destino'];
+        inputs.forEach(id => {
+            const input = document.getElementById(id);
+            if (!input) return;
+            
+            let datalist = document.getElementById(`${id}List`);
+            if (!datalist) {
+                datalist = document.createElement('datalist');
+                datalist.id = `${id}List`;
+                document.body.appendChild(datalist);
+                input.setAttribute('list', datalist.id);
+            }
+
+            input.addEventListener('focus', async () => {
+                await carregarCidadesIBGE();
+            });
+
+            input.addEventListener('input', () => {
+                const query = input.value.toLowerCase().trim();
+                if (query.length < 2) {
+                    datalist.innerHTML = '';
+                    return;
+                }
+                
+                const matches = cachedCidades.filter(c => c.toLowerCase().includes(query)).slice(0, 10);
+                datalist.innerHTML = matches.map(c => `<option value="${c}"></option>`).join('');
+                
+                if (cachedCidades.includes(input.value)) {
+                    atualizarRotaNoMapa();
+                }
+            });
+
+            input.addEventListener('blur', () => {
+                atualizarRotaNoMapa();
+            });
+        });
+    };
+
+    async function obterCoordenadasNominatim(cidadeEstado) {
+        try {
+            const query = encodeURIComponent(`${cidadeEstado}, Brasil`);
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`, {
+                headers: {
+                    'User-Agent': 'PegaFreteApp/1.0'
+                }
+            });
+            const data = await response.json();
+            if (data && data.length > 0) {
+                return {
+                    lat: parseFloat(data[0].lat),
+                    lon: parseFloat(data[0].lon)
+                };
+            }
+        } catch (e) {
+            console.error("Erro no geocoding Nominatim:", e);
+        }
+        return null;
+    }
+
+    async function atualizarRotaNoMapa() {
+        if (!activeMap) return;
+
+        const origem = document.getElementById('origem').value.trim();
+        const destino = document.getElementById('destino').value.trim();
+
+        if (!origem || !destino) return;
+
+        const p1 = await obterCoordenadasNominatim(origem);
+        const p2 = await obterCoordenadasNominatim(destino);
+
+        if (p1 && p2) {
+            if (originMarker) activeMap.removeLayer(originMarker);
+            if (destinationMarker) activeMap.removeLayer(destinationMarker);
+            if (routeLine) activeMap.removeLayer(routeLine);
+
+            originMarker = L.marker([p1.lat, p1.lon]).addTo(activeMap).bindPopup(`Origem: ${origem}`);
+            destinationMarker = L.marker([p2.lat, p2.lon]).addTo(activeMap).bindPopup(`Destino: ${destino}`);
+
+            routeLine = L.polyline([[p1.lat, p1.lon], [p2.lat, p2.lon]], {
+                color: '#f97316',
+                weight: 4,
+                opacity: 0.8,
+                dashArray: '5, 10'
+            }).addTo(activeMap);
+
+            const group = new L.featureGroup([originMarker, destinationMarker]);
+            activeMap.fitBounds(group.getBounds().pad(0.2));
+        }
+    }
