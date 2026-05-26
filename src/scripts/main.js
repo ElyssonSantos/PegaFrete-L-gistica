@@ -291,6 +291,10 @@ window.onload = () => {
                 const docRef = await db.collection("users").doc(user.uid).get();
                 if (docRef.exists) {
                     userData = docRef.data();
+                    // SE O USUÁRIO FOR ADMIN, ELE É TRATADO COMO EMBARCADOR (SHIPPER) NO APP PRINCIPAL
+                    if (userData.role === 'admin') {
+                        userData.role = 'shipper';
+                    }
                     preencherPerfil();
                     setRole(userData.role || 'driver');
                     startFreightListener();
@@ -909,6 +913,10 @@ async function fazerLogin(btn) {
 
         if (docRef.exists) {
             userData = docRef.data();
+            // SE O USUÁRIO FOR ADMIN, ELE É TRATADO COMO EMBARCADOR (SHIPPER) NO APP PRINCIPAL
+            if (userData.role === 'admin') {
+                userData.role = 'shipper';
+            }
             preencherPerfil();
             setRole(userData.role || 'driver');
             showToast('Bem-vindo de volta!');
