@@ -1997,6 +1997,15 @@ async function publicarFrete(btn) {
     const obs = document.getElementById('obsCarga').value.trim();
     const telefoneContato = document.getElementById('telefoneContato').value.trim();
     const whatsappContato = document.getElementById('whatsappContato').value.trim();
+    
+    // Novas variaveis
+    const peso = document.getElementById('pesoCarga')?.value.trim() || '';
+    const volume = document.getElementById('volumeCarga')?.value.trim() || '';
+    const coleta = document.getElementById('coletaCarga')?.value.trim() || '';
+    const previsao = document.getElementById('previsaoCarga')?.value.trim() || '';
+    const urgencia = document.getElementById('urgenciaCarga')?.value || 'Normal';
+    const distancia = document.getElementById('distanciaCarga')?.value.trim() || '';
+
 
     // Client-side validation (also validated server-side)
     if (!origem || !destino || !valor || !tipo || !veiculo || !telefoneContato || !whatsappContato) {
@@ -2051,6 +2060,12 @@ async function publicarFrete(btn) {
             whatsappContato: sanitizeInput(whatsappContato, 20),
             status: 'pendente',
             obs: sanitizeInput(obs, 500) || 'Carga publicada via radar.',
+            peso: sanitizeInput(peso, 50),
+            volume: sanitizeInput(volume, 50),
+            coleta: sanitizeInput(coleta, 50),
+            previsao: sanitizeInput(previsao, 50),
+            urgencia: sanitizeInput(urgencia, 50),
+            distancia: distanciaKm ? distanciaKm : sanitizeInput(distancia, 50),
             shipperUid: auth.currentUser.uid,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             distanciaKm,
@@ -2063,6 +2078,12 @@ async function publicarFrete(btn) {
 
         // Limpa campos e reseta steps
         resetPublishStep();
+        if(document.getElementById('pesoCarga')) document.getElementById('pesoCarga').value = '';
+        if(document.getElementById('volumeCarga')) document.getElementById('volumeCarga').value = '';
+        if(document.getElementById('coletaCarga')) document.getElementById('coletaCarga').value = '';
+        if(document.getElementById('previsaoCarga')) document.getElementById('previsaoCarga').value = '';
+        if(document.getElementById('distanciaCarga')) document.getElementById('distanciaCarga').value = '';
+        if(document.getElementById('urgenciaCarga')) document.getElementById('urgenciaCarga').value = 'Normal';
 
         btn.innerHTML = originalContent;
         btn.disabled = false;

@@ -994,6 +994,59 @@
                     </div>
                 </div>
 
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="input-group-premium">
+                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Peso Estimado (kg)</label>
+                        <div class="input-wrapper">
+                            <input id="pesoCarga" type="text" placeholder="Ex: 1500" style="border: none; background: transparent; padding: 14px 16px; margin: 0; box-shadow: none;" />
+                        </div>
+                    </div>
+                    
+                    <div class="input-group-premium">
+                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Volume (m³)</label>
+                        <div class="input-wrapper">
+                            <input id="volumeCarga" type="text" placeholder="Ex: 4.5" style="border: none; background: transparent; padding: 14px 16px; margin: 0; box-shadow: none;" />
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="input-group-premium">
+                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Data de Coleta</label>
+                        <div class="input-wrapper">
+                            <input id="coletaCarga" type="date" style="border: none; background: transparent; padding: 14px 16px; margin: 0; box-shadow: none;" />
+                        </div>
+                    </div>
+                    
+                    <div class="input-group-premium">
+                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Previsão de Entrega</label>
+                        <div class="input-wrapper">
+                            <input id="previsaoCarga" type="date" style="border: none; background: transparent; padding: 14px 16px; margin: 0; box-shadow: none;" />
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="input-group-premium">
+                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Urgência</label>
+                        <div class="input-wrapper">
+                            <select id="urgenciaCarga" style="border: none; background: transparent; padding: 14px 16px; margin: 0; box-shadow: none; padding-left: 16px; height: 50px;">
+                                <option value="Baixa">Baixa</option>
+                                <option value="Normal" selected>Normal</option>
+                                <option value="Média">Média</option>
+                                <option value="Alta">Alta</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group-premium">
+                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Distância (km)</label>
+                        <div class="input-wrapper">
+                            <input id="distanciaCarga" type="text" placeholder="Ex: 450" style="border: none; background: transparent; padding: 14px 16px; margin: 0; box-shadow: none;" />
+                        </div>
+                    </div>
+                </div>
+
                 <div class="input-group-premium" style="background: #f0fdf4; border: 1.5px solid rgba(34, 197, 94, 0.2); border-radius: 18px; padding: 12px 16px;">
                     <label style="display: block; font-size: 12px; font-weight: 800; color: #166534; text-transform: uppercase; margin-bottom: 6px;">
                         <i class="ph-fill ph-currency-circle-dollar" style="vertical-align: middle; margin-right: 4px; font-size: 16px;"></i> Valor Ofertado (PIX Seguro)
