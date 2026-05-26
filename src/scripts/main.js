@@ -2216,6 +2216,19 @@ function startSystemMessagesListener() {
 }
 
 function updateChatListUI() {
+    const unreadCount = systemMessages.filter(m => !m.isMe && !m.read).length;
+    
+    // Atualiza o badge da barra de navegação inferior
+    const bottomNavBadge = document.querySelector('#bottomNav .notification-badge');
+    if (bottomNavBadge) {
+        if (unreadCount > 0) {
+            bottomNavBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+            bottomNavBadge.style.display = 'flex';
+        } else {
+            bottomNavBadge.style.display = 'none';
+        }
+    }
+
     if (systemMessages.length === 0) return;
     
     const lastMsg = systemMessages[systemMessages.length - 1];
@@ -2236,7 +2249,6 @@ function updateChatListUI() {
         timeEl.textContent = timeStr;
     }
     
-    const unreadCount = systemMessages.filter(m => !m.isMe && !m.read).length;
     const badgeEl = document.getElementById('systemChatUnreadBadge');
     const itemEl = document.getElementById('systemChatItem');
     
