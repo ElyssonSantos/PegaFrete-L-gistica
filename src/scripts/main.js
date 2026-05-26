@@ -2222,7 +2222,8 @@ function updateChatListUI() {
     
     const previewEl = document.getElementById('systemChatPreview');
     if (previewEl) {
-        previewEl.innerHTML = (lastMsg.isMe ? '<i class="ph-fill ph-check-circle" style="color: #3b82f6; margin-right: 4px; font-size: 16px;"></i>' : '') + sanitizeHTML(lastMsg.text);
+        const textToPreview = lastMsg.text || lastMsg.message || lastMsg.title || '';
+        previewEl.innerHTML = (lastMsg.isMe ? '<i class="ph-fill ph-check-circle" style="color: #3b82f6; margin-right: 4px; font-size: 16px;"></i>' : '') + sanitizeHTML(textToPreview);
     }
     
     const timeEl = document.getElementById('systemChatTime');
@@ -2300,10 +2301,11 @@ function renderSystemMessages() {
         const wrapperClass = isMe ? 'msg-outgoing' : 'msg-incoming';
         const statusIcon = isMe ? '<i class="ph-fill ph-check-circle msg-status" style="color: #3b82f6;"></i>' : '';
         
+        const msgText = msg.text || (msg.title ? `<strong>${sanitizeHTML(msg.title)}</strong><br>${sanitizeHTML(msg.message)}` : sanitizeHTML(msg.message || ''));
         area.innerHTML += `
             <div class="msg-wrapper ${wrapperClass}">
                 <div class="msg-bubble">
-                    ${sanitizeHTML(msg.text)}
+                    ${msg.text ? sanitizeHTML(msg.text) : msgText}
                     <div class="msg-meta">
                         <span class="msg-time">${sanitizeHTML(timeStr)}</span>
                         ${statusIcon}
