@@ -1408,6 +1408,64 @@ function fecharModalLogout() {
     }
 }
 
+function abrirModalDeleteAccount() {
+    const modal = document.getElementById('deleteAccountConfirmModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.offsetHeight; // force reflow
+        modal.style.opacity = '1';
+    }
+}
+
+function fecharModalDeleteAccount() {
+    const modal = document.getElementById('deleteAccountConfirmModal');
+    if (modal) {
+        modal.style.opacity = '0';
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+    }
+}
+
+async function confirmDeleteAccount() {
+    const btn = document.getElementById('btnConfirmDeleteAccount');
+    if (btn) {
+        btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Excluindo...`;
+        btn.disabled = true;
+    }
+    try {
+        const user = auth.currentUser;
+        if (!user) throw new Error("Usuário não autenticado");
+
+        // Attempt to delete user doc in Firestore
+        await db.collection('users').doc(user.uid).delete();
+        
+        // Delete auth user
+        await user.delete();
+
+        showToast('Sua conta foi excluída permanentemente.', 'success');
+        
+        setTimeout(() => {
+            window.location.reload();
+        }, 1500);
+
+    } catch (error) {
+        console.error("Erro ao excluir conta:", error);
+        if (btn) {
+            btn.innerHTML = `Sim, excluir permanentemente`;
+            btn.disabled = false;
+        }
+        if (error.code === 'auth/requires-recent-login') {
+            showToast('Para segurança, você precisa fazer login novamente antes de excluir a conta.', 'error');
+            setTimeout(() => {
+                auth.signOut().then(() => window.location.reload());
+            }, 2500);
+        } else {
+            showToast('Erro ao excluir conta. Tente novamente mais tarde.', 'error');
+        }
+    }
+}
+
 async function confirmarLogoutExec() {
     const btn = document.getElementById('btnConfirmarLogout');
     if (btn) {
@@ -2433,6 +2491,9 @@ window.cancelarFrete = async function(id) {
 window.logout = logout;
 window.fecharModalLogout = fecharModalLogout;
 window.confirmarLogoutExec = confirmarLogoutExec;
+window.abrirModalDeleteAccount = abrirModalDeleteAccount;
+window.fecharModalDeleteAccount = fecharModalDeleteAccount;
+window.confirmDeleteAccount = confirmDeleteAccount;
 window.setShipperHistoryTab = setShipperHistoryTab;
 window.renderShipperHistory = renderShipperHistory;
 
