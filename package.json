@@ -1,7 +1,7 @@
 {
   "name": "pegafrete-2",
   "version": "1.0.0",
-  "main": "refactor.js",
+  "main": "src/scripts/main.js",
   "directories": {
     "test": "tests"
   },
