@@ -469,14 +469,7 @@ async function handleContinuar(btn) {
         btn.disabled = false;
 
         if (!check.disponivel) {
-            if (check.provider === 'google') {
-                showToast('Esta conta utiliza o Login com Google. Redirecionando...', 'info');
-                // Chama o login com Google automaticamente
-                const googleBtn = document.querySelector('.btn-google');
-                loginComGoogle(googleBtn);
-            } else {
-                navTo('login');
-            }
+            navTo('login');
         } else {
             navTo('choice');
         }
@@ -1058,28 +1051,6 @@ async function irParaSenha(btn) {
         userData.veiculo = opt.value;
     }
 
-    // Se o usuário já está autenticado (ex: Google OAuth), não precisa criar senha!
-    // Salva os dados diretamente no Firestore.
-    if (auth.currentUser) {
-        const originalText = btn ? btn.innerHTML : 'Finalizar';
-        if (btn) {
-            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Finalizando...`;
-            btn.disabled = true;
-        }
-        try {
-            await finalizarCadastroGoogle();
-        } catch (err) {
-            console.error(err);
-            showToast('Erro ao concluir cadastro: ' + err.message, 'error');
-        } finally {
-            if (btn) {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        }
-        return;
-    }
-
     navTo('register_password');
 }
 
@@ -1103,9 +1074,17 @@ async function finalizarCadastro(btn) {
     btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Criando conta...`;
 
     try {
-        // Cria o usuário na Auth do Firebase
-        const userCredential = await auth.createUserWithEmailAndPassword(userData.email, pass1);
-        const uid = userCredential.user.uid;
+        let uid;
+        if (auth.currentUser) {
+            // Se logou com Google, a conta já existe no Firebase Auth.
+            // Apenas adicionamos a senha para garantir o acesso também via E-mail/Senha.
+            await auth.currentUser.updatePassword(pass1);
+            uid = auth.currentUser.uid;
+        } else {
+            // Fluxo normal: Cria o usuário na Auth do Firebase
+            const userCredential = await auth.createUserWithEmailAndPassword(userData.email, pass1);
+            uid = userCredential.user.uid;
+        }
 
         // Sanitiza o objeto para remover campos undefined ou null para evitar erros do Firestore
         const cleanUserData = {};
