@@ -2675,19 +2675,13 @@ function updatePublishStep() {
         }
     }
 
-    // Atualiza Stepper progress line and bar
+    // Atualiza Stepper progress line
     const stepperLine = document.getElementById('stepperProgressLine');
-    const stepperBar = document.getElementById('stepperProgressBar');
 
     if (stepperLine) {
         // Step 1: 0%, Step 2: 40%, Step 3: 80%
         const lineWidth = publishStep === 1 ? '0%' : publishStep === 2 ? '40%' : '80%';
         stepperLine.style.width = lineWidth;
-    }
-
-    if (stepperBar) {
-        const barWidth = publishStep === 1 ? '33%' : publishStep === 2 ? '66%' : '100%';
-        stepperBar.style.width = barWidth;
     }
 
     // Atualiza Stepper indicators
