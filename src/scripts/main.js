@@ -1707,9 +1707,13 @@ function formatTimeAgo(timestamp) {
 
     if (diffMins < 60) return 'Publicada agora';
     if (diffHours < 24) return 'Hoje';
-    if (diffDays < 7) return `a ${diffDays}D`;
-    if (diffWeeks < 52) return `a ${diffWeeks} S`;
-    return `a 1 a`;
+    if (diffDays < 7) {
+        return diffDays === 1 ? 'a 1 dia' : `a ${diffDays} dias`;
+    }
+    if (diffWeeks < 52) {
+        return diffWeeks === 1 ? 'a 1 semana' : `a ${diffWeeks} semanas`;
+    }
+    return 'a mais de 1 ano';
 }
 
 function renderFretes() {
@@ -1956,12 +1960,51 @@ function openFreight(idOrIndex) {
     document.getElementById('detailPaymentText').innerText = `R$ ${frete.valor}`;
     document.getElementById('detailObsText').innerText = frete.obs || 'Nenhuma observação informada.';
 
+    // Formatar datas no formato brasileiro (DD/MM/AAAA)
+    const formatDateBR = (dateStr) => {
+        if (!dateStr) return '--';
+        const parts = dateStr.split('-');
+        if (parts.length === 3) {
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+        return dateStr;
+    };
+
+    // Preenche as novas informações de detalhes da carga
+    document.getElementById('detailColetaText').innerText = formatDateBR(frete.coleta);
+    document.getElementById('detailPrevisaoText').innerText = formatDateBR(frete.previsao);
+    document.getElementById('detailPesoText').innerText = frete.peso ? `${frete.peso} kg` : '--';
+    
+    if (frete.volume) {
+        document.getElementById('detailVolumeRow').style.display = 'flex';
+        document.getElementById('detailVolumeText').innerText = `${frete.volume} m³`;
+    } else {
+        document.getElementById('detailVolumeRow').style.display = 'none';
+    }
+
+    const distKm = frete.distanciaKm || frete.distancia || 0;
+    document.getElementById('detailDistanciaText').innerText = distKm ? `~${distKm} km` : 'Calculando...';
+    document.getElementById('detailUrgenciaText').innerText = frete.urgencia || 'Normal';
+
+    // Badge de urgência dinâmica com cores
     const badges = document.getElementById('detailBadges');
+    let urgencyBadgeColor = '#64748b';
+    let urgencyBadgeBg = '#f1f5f9';
+    if (frete.urgencia === 'Alta') {
+        urgencyBadgeColor = '#ef4444';
+        urgencyBadgeBg = '#fef2f2';
+    } else if (frete.urgencia === 'Média') {
+        urgencyBadgeColor = '#f97316';
+        urgencyBadgeBg = '#fff7ed';
+    }
+
     badges.innerHTML = `
-            <div class="tag blue"><i class="ph ph-package"></i> ${sanitizeHTML(frete.tipo)}</div>
-            <div class="tag orange"><i class="ph ph-truck"></i> ${sanitizeHTML(frete.veiculo)}</div>
-            <div class="tag" style="background: #fef2f2; color: #ef4444;"><i class="ph ph-clock"></i> Carga Imediata</div>
-        `;
+        <div class="tag blue"><i class="ph ph-package"></i> ${sanitizeHTML(frete.tipo)}</div>
+        <div class="tag orange"><i class="ph ph-truck"></i> ${sanitizeHTML(frete.veiculo)}</div>
+        <div class="tag" style="background: ${urgencyBadgeBg}; color: ${urgencyBadgeColor};">
+            <i class="ph ph-clock"></i> ${sanitizeHTML(frete.urgencia || 'Normal')}
+        </div>
+    `;
 
     navTo('freightDetails');
 
@@ -2034,19 +2077,17 @@ async function publicarFrete(btn) {
     const obs = document.getElementById('obsCarga').value.trim();
     const telefoneContato = document.getElementById('telefoneContato').value.trim();
     const whatsappContato = document.getElementById('whatsappContato').value.trim();
-    
     // Novas variaveis
     const peso = document.getElementById('pesoCarga')?.value.trim() || '';
     const volume = document.getElementById('volumeCarga')?.value.trim() || '';
     const coleta = document.getElementById('coletaCarga')?.value.trim() || '';
     const previsao = document.getElementById('previsaoCarga')?.value.trim() || '';
     const urgencia = document.getElementById('urgenciaCarga')?.value || 'Normal';
-    const distancia = document.getElementById('distanciaCarga')?.value.trim() || '';
 
 
     // Client-side validation (also validated server-side)
-    if (!origem || !destino || !valor || !tipo || !veiculo || !telefoneContato || !whatsappContato) {
-        showToast('Preencha todas as informações (incluindo contatos) para publicar.', 'error');
+    if (!origem || !destino || !valor || !tipo || !veiculo || !telefoneContato || !whatsappContato || !peso) {
+        showToast('Preencha todas as informações obrigatórias (incluindo o peso estimado e contatos) para publicar.', 'error');
         return;
     }
 
@@ -2102,7 +2143,7 @@ async function publicarFrete(btn) {
             coleta: sanitizeInput(coleta, 50),
             previsao: sanitizeInput(previsao, 50),
             urgencia: sanitizeInput(urgencia, 50),
-            distancia: distanciaKm ? distanciaKm : sanitizeInput(distancia, 50),
+            distancia: distanciaKm ? distanciaKm : 0,
             shipperUid: auth.currentUser.uid,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             distanciaKm,
@@ -2119,7 +2160,6 @@ async function publicarFrete(btn) {
         if(document.getElementById('volumeCarga')) document.getElementById('volumeCarga').value = '';
         if(document.getElementById('coletaCarga')) document.getElementById('coletaCarga').value = '';
         if(document.getElementById('previsaoCarga')) document.getElementById('previsaoCarga').value = '';
-        if(document.getElementById('distanciaCarga')) document.getElementById('distanciaCarga').value = '';
         if(document.getElementById('urgenciaCarga')) document.getElementById('urgenciaCarga').value = 'Normal';
 
         btn.innerHTML = originalContent;
