@@ -394,7 +394,7 @@
                 </div>
 
                 <div class="auth-footer" style="margin-top: 40px;">
-                    Criando uma conta, você concorda com nossos <a href="terms.html" target="_blank">Termos e Condições</a>.
+                    Criando uma conta, você concorda com nossos <a href="#" onclick="event.preventDefault(); navTo('terms_screen')">Termos e Condições</a>.
                 </div>
             </div>
         </div>
@@ -1322,10 +1322,10 @@
                     <i class="ph ph-caret-right" style="font-size: 16px; color: var(--text-muted);"></i>
                 </div>
 
-                <div onclick="showToast('Sem solicitações pendentes no momento.', 'info')" style="padding: 16px 8px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;">
+                <div onclick="navTo('faq')" style="padding: 16px 8px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;">
                     <div style="display: flex; align-items: center; gap: 14px;">
-                        <i class="ph ph-info" style="font-size: 22px; color: var(--text-main);"></i>
-                        <span style="font-weight: 600; font-size: 14.5px; color: var(--primary);">Solicitações de ajuda</span>
+                        <i class="ph ph-question" style="font-size: 22px; color: var(--text-main);"></i>
+                        <span style="font-weight: 600; font-size: 14.5px; color: var(--primary);">Perguntas Frequentes (FAQ)</span>
                     </div>
                     <i class="ph ph-caret-right" style="font-size: 16px; color: var(--text-muted);"></i>
                 </div>
@@ -1542,6 +1542,16 @@
     </section>
 
 
+    <style>
+        details[open] .ph-caret-down {
+            transform: rotate(180deg);
+            color: var(--orange) !important;
+        }
+        details summary::-webkit-details-marker {
+            display: none;
+        }
+    </style>
+
     <!-- TELA: ATENDIMENTO -->
     <section id="support" class="screen">
         <div class="topbar">
@@ -1554,26 +1564,12 @@
             <div class="glass-card" style="padding: 16px; border-radius: 24px; border: 1px solid var(--border); background: white;">
                 <div style="display: flex; flex-direction: column;">
                     
-                    <div onclick="window.open('https://ajuda.pegafrete.com.br', '_blank')" style="padding: 16px 8px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                    <div onclick="navTo('faq')" style="padding: 16px 8px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
                         <div style="display: flex; align-items: center; gap: 16px;">
-                            <i class="ph ph-headset" style="font-size: 24px; color: var(--text-main);"></i>
+                            <i class="ph ph-question" style="font-size: 24px; color: var(--text-main);"></i>
                             <div>
-                                <span style="font-weight: 700; font-size: 15px; color: var(--primary); display: block; margin-bottom: 2px;">Central de ajuda</span>
+                                <span style="font-weight: 700; font-size: 15px; color: var(--primary); display: block; margin-bottom: 2px;">Perguntas Frequentes</span>
                                 <span style="font-size: 12px; color: var(--text-muted); font-weight: 500;">Encontre respostas rápidas sem sair do aplicativo</span>
-                            </div>
-                        </div>
-                        <i class="ph ph-caret-right" style="font-size: 16px; color: var(--text-muted);"></i>
-                    </div>
-
-                    <div onclick="window.open('https://wa.me/5511999999999?text=Atendimento%20VIP', '_blank')" style="padding: 16px 8px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <i class="ph ph-chat-circle-dots" style="font-size: 24px; color: var(--text-main);"></i>
-                            <div>
-                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
-                                    <span style="font-weight: 700; font-size: 15px; color: var(--primary);">Atendimento VIP</span>
-                                    <span style="font-size: 10px; font-weight: 800; background: #3b82f6; color: white; padding: 2px 6px; border-radius: 4px;">VIP</span>
-                                </div>
-                                <span style="font-size: 12px; color: var(--text-muted); font-weight: 500;">Atendimento exclusivo para Embarcador VIP</span>
                             </div>
                         </div>
                         <i class="ph ph-caret-right" style="font-size: 16px; color: var(--text-muted);"></i>
@@ -1583,8 +1579,8 @@
                         <div style="display: flex; align-items: center; gap: 16px;">
                             <i class="ph ph-whatsapp-logo" style="font-size: 24px; color: var(--text-main);"></i>
                             <div>
-                                <span style="font-weight: 700; font-size: 15px; color: var(--primary); display: block; margin-bottom: 2px;">Atendimento comum</span>
-                                <span style="font-size: 12px; color: var(--text-muted); font-weight: 500;">Atendimento geral por WhatsApp para todos os embarcadores</span>
+                                <span style="font-weight: 700; font-size: 15px; color: var(--primary); display: block; margin-bottom: 2px;">Fale com o Suporte (WhatsApp)</span>
+                                <span style="font-size: 12px; color: var(--text-muted); font-weight: 500;">Atendimento geral por WhatsApp para tirar suas dúvidas</span>
                             </div>
                         </div>
                         <i class="ph ph-caret-right" style="font-size: 16px; color: var(--text-muted);"></i>
@@ -1608,7 +1604,7 @@
             <div class="glass-card" style="padding: 8px 16px; border-radius: 24px; border: 1px solid var(--border); background: white;">
                 <div style="display: flex; flex-direction: column;">
                     
-                    <div onclick="window.open('https://pegafrete.com.br/termos', '_blank')" style="padding: 16px 8px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                    <div onclick="navTo('terms_screen')" style="padding: 16px 8px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
                         <div style="display: flex; align-items: center; gap: 14px;">
                             <i class="ph ph-file-text" style="font-size: 22px; color: var(--text-main);"></i>
                             <span style="font-weight: 600; font-size: 15px; color: var(--primary);">Termos de Uso</span>
@@ -1616,7 +1612,7 @@
                         <i class="ph ph-caret-right" style="font-size: 16px; color: var(--text-muted);"></i>
                     </div>
 
-                    <div onclick="window.open('https://pegafrete.com.br/privacidade', '_blank')" style="padding: 16px 8px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                    <div onclick="navTo('privacy_screen')" style="padding: 16px 8px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
                         <div style="display: flex; align-items: center; gap: 14px;">
                             <i class="ph ph-shield-check" style="font-size: 22px; color: var(--text-main);"></i>
                             <span style="font-weight: 600; font-size: 15px; color: var(--primary);">Política de Privacidade</span>
@@ -1624,7 +1620,7 @@
                         <i class="ph ph-caret-right" style="font-size: 16px; color: var(--text-muted);"></i>
                     </div>
 
-                    <div onclick="window.open('https://pegafrete.com.br/cookies', '_blank')" style="padding: 16px 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                    <div onclick="navTo('cookies_screen')" style="padding: 16px 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
                         <div style="display: flex; align-items: center; gap: 14px;">
                             <i class="ph ph-cookie" style="font-size: 22px; color: var(--text-main);"></i>
                             <span style="font-weight: 600; font-size: 15px; color: var(--primary);">Política de Cookies</span>
@@ -1632,6 +1628,186 @@
                         <i class="ph ph-caret-right" style="font-size: 16px; color: var(--text-muted);"></i>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TELA: PERGUNTAS FREQUENTES (FAQ) -->
+    <section id="faq" class="screen">
+        <div class="topbar">
+            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
+            <h1 style="font-size: 20px; font-weight: 800;">Perguntas Frequentes</h1>
+            <div style="width: 44px;"></div>
+        </div>
+        
+        <div style="padding: 16px;">
+            <div class="glass-card" style="padding: 24px; border-radius: 24px; border: 1px solid var(--border); background: white;">
+                <h3 style="font-size: 16px; color: var(--primary); font-weight: 800; margin-bottom: 20px;">Dúvidas Comuns</h3>
+                
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <details class="group py-4 border-b border-gray-100 cursor-pointer">
+                        <summary class="flex justify-between items-center font-semibold text-gray-800 list-none" style="display: flex; justify-content: space-between; align-items: center; list-style: none;">
+                            <span style="font-size: 14.5px; color: var(--primary); font-weight: 700; line-height: 1.4;">O que é o PegaFrete?</span>
+                            <i class="ph ph-caret-down transition-transform duration-200" style="color: var(--text-muted); font-size: 16px;"></i>
+                        </summary>
+                        <p style="margin-top: 12px; font-size: 13.5px; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
+                            O PegaFrete é uma plataforma digital que conecta diretamente motoristas autônomos (transportadores) e empresas ou pessoas físicas que precisam enviar mercadorias (embarcadores). Nosso objetivo é facilitar a logística, reduzindo a burocracia e agilizando a negociação do frete.
+                        </p>
+                    </details>
+
+                    <details class="group py-4 border-b border-gray-100 cursor-pointer">
+                        <summary class="flex justify-between items-center font-semibold text-gray-800 list-none" style="display: flex; justify-content: space-between; align-items: center; list-style: none;">
+                            <span style="font-size: 14.5px; color: var(--primary); font-weight: 700; line-height: 1.4;">Como publicar um frete?</span>
+                            <i class="ph ph-caret-down transition-transform duration-200" style="color: var(--text-muted); font-size: 16px;"></i>
+                        </summary>
+                        <p style="margin-top: 12px; font-size: 13.5px; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
+                            Sendo um Embarcador cadastrado, acesse a aba principal e toque em "Publicar Frete". Preencha os campos obrigatórios como origem, destino, tipo de veículo, peso da carga e valor proposto. Após salvar, o frete ficará visível instantaneamente para todos os transportadores parceiros.
+                        </p>
+                    </details>
+
+                    <details class="group py-4 border-b border-gray-100 cursor-pointer">
+                        <summary class="flex justify-between items-center font-semibold text-gray-800 list-none" style="display: flex; justify-content: space-between; align-items: center; list-style: none;">
+                            <span style="font-size: 14.5px; color: var(--primary); font-weight: 700; line-height: 1.4;">Como aceitar uma carga?</span>
+                            <i class="ph ph-caret-down transition-transform duration-200" style="color: var(--text-muted); font-size: 16px;"></i>
+                        </summary>
+                        <p style="margin-top: 12px; font-size: 13.5px; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
+                            Como Transportador, acesse a aba de cargas disponíveis, filtre por veículo ou região e clique na carga de interesse. Você verá a rota estimada no mapa e as informações detalhadas. Para fechar o frete, basta tocar no botão de contato direto pelo WhatsApp ou ligar para o embarcador.
+                        </p>
+                    </details>
+
+                    <details class="group py-4 border-b border-gray-100 cursor-pointer">
+                        <summary class="flex justify-between items-center font-semibold text-gray-800 list-none" style="display: flex; justify-content: space-between; align-items: center; list-style: none;">
+                            <span style="font-size: 14.5px; color: var(--primary); font-weight: 700; line-height: 1.4;">O uso do aplicativo é gratuito?</span>
+                            <i class="ph ph-caret-down transition-transform duration-200" style="color: var(--text-muted); font-size: 16px;"></i>
+                        </summary>
+                        <p style="margin-top: 12px; font-size: 13.5px; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
+                            Sim! O PegaFrete é 100% gratuito para motoristas e empresas se conectarem. Não cobramos mensalidades, assinaturas ou qualquer comissão sobre o valor do frete fechado. Toda a negociação financeira ocorre diretamente entre você e a contraparte.
+                        </p>
+                    </details>
+
+                    <details class="group py-4 border-b border-gray-100 cursor-pointer">
+                        <summary class="flex justify-between items-center font-semibold text-gray-800 list-none" style="display: flex; justify-content: space-between; align-items: center; list-style: none;">
+                            <span style="font-size: 14.5px; color: var(--primary); font-weight: 700; line-height: 1.4;">Como alterar meus dados ou de veículo?</span>
+                            <i class="ph ph-caret-down transition-transform duration-200" style="color: var(--text-muted); font-size: 16px;"></i>
+                        </summary>
+                        <p style="margin-top: 12px; font-size: 13.5px; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
+                            Basta ir à aba de "Perfil" (ícone de usuário na barra inferior) e editar as informações. Caso seja transportador, lá também é possível editar os dados do seu veículo cadastrado para que os filtros de novas cargas sejam compatíveis com a sua capacidade.
+                        </p>
+                    </details>
+
+                    <details class="group py-4 border-b border-gray-100 cursor-pointer">
+                        <summary class="flex justify-between items-center font-semibold text-gray-800 list-none" style="display: flex; justify-content: space-between; align-items: center; list-style: none;">
+                            <span style="font-size: 14.5px; color: var(--primary); font-weight: 700; line-height: 1.4;">O PegaFrete se responsabiliza pela carga ou pelo transporte?</span>
+                            <i class="ph ph-caret-down transition-transform duration-200" style="color: var(--text-muted); font-size: 16px;"></i>
+                        </summary>
+                        <p style="margin-top: 12px; font-size: 13.5px; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
+                            Não. O PegaFrete é exclusivamente um facilitador de conexões logísticas. Toda a negociação de preços, condições, seguro da carga e execução do frete é acordada diretamente e sob inteira responsabilidade das partes (embarcador e transportador).
+                        </p>
+                    </details>
+
+                    <details class="group py-4 cursor-pointer">
+                        <summary class="flex justify-between items-center font-semibold text-gray-800 list-none" style="display: flex; justify-content: space-between; align-items: center; list-style: none;">
+                            <span style="font-size: 14.5px; color: var(--primary); font-weight: 700; line-height: 1.4;">Como faço para excluir a minha conta?</span>
+                            <i class="ph ph-caret-down transition-transform duration-200" style="color: var(--text-muted); font-size: 16px;"></i>
+                        </summary>
+                        <p style="margin-top: 12px; font-size: 13.5px; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
+                            A exclusão pode ser feita diretamente no aplicativo. Vá na aba de "Perfil", toque na seção "Conta" e selecione "Excluir Conta". Após confirmar a ação, todos os seus dados cadastrais serão removidos definitivamente dos nossos servidores, em respeito à LGPD.
+                        </p>
+                    </details>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TELA: TERMOS DE USO -->
+    <section id="terms_screen" class="screen">
+        <div class="topbar">
+            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
+            <h1 style="font-size: 20px; font-weight: 800;">Termos de Uso</h1>
+            <div style="width: 44px;"></div>
+        </div>
+        
+        <div style="padding: 16px; max-width: 600px; margin: 0 auto; padding-bottom: 40px;">
+            <div class="glass-card" style="padding: 24px; border-radius: 24px; border: 1px solid var(--border); background: white; font-size: 14px; line-height: 1.6; color: var(--text-muted);">
+                <h2 style="font-size: 18px; color: var(--primary); font-weight: 800; margin-bottom: 12px;">Termos e Condições de Uso</h2>
+                <p style="margin-bottom: 12px; font-size: 12px; color: var(--text-muted);">Última atualização: 26 de Maio de 2026</p>
+                <p style="margin-bottom: 16px; font-weight: 500;">Ao utilizar a plataforma <strong>PegaFrete</strong>, você concorda de maneira livre, expressa e informada com todos os termos, obrigações e diretrizes descritos a seguir. Por favor, leia atentamente antes de prosseguir com seu cadastro.</p>
+                
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">1. Aceitação e Objeto</h3>
+                <p style="margin-bottom: 16px;">Estes termos regem o uso do aplicativo PegaFrete. A plataforma atua exclusivamente como facilitadora de conexões logísticas entre prestadores de serviço de transporte (Transportadores) e solicitantes de envio de cargas (Embarcadores).</p>
+                
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">2. Requisitos de Acesso e Cadastro</h3>
+                <p style="margin-bottom: 16px;">Para utilizar a plataforma, os usuários declaram ter capacidade legal e estar com toda a documentação em conformidade com as legislações brasileiras e a ANTT. O usuário assume total responsabilidade pela veracidade dos dados informados e pela segurança da sua senha de acesso.</p>
+                
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">3. Deveres e Obrigações do Transportador</h3>
+                <p style="margin-bottom: 16px;">O Transportador deve garantir a conformidade e integridade física de seu veículo, possuir habilitação regular compatível e realizar o transporte de forma segura, cumprindo os prazos combinados diretamente com o Embarcador.</p>
+                
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">4. Deveres e Obrigações do Embarcador</h3>
+                <p style="margin-bottom: 16px;">O Embarcador deve descrever fielmente a natureza da carga, peso, cubagem e riscos envolvidos. É expressamente proibida a publicação de cargas de cunho ilícito, inflamável, perigoso ou proibido por leis vigentes.</p>
+                
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">5. Isenção de Responsabilidade do PegaFrete</h3>
+                <p style="margin-bottom: 16px;">O PegaFrete não assume nenhuma responsabilidade pela qualidade do transporte, extravios, sinistros, avarias ou pelo pagamento acordado entre as partes. A plataforma não participa das negociações financeiras e operacionais.</p>
+
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">6. Segurança e Conduta</h3>
+                <p style="margin-bottom: 16px;">Os usuários devem zelar pela ética e respeito no chat da plataforma. Qualquer tentativa de fraude, difamação ou violação de segurança do aplicativo acarretará na suspensão imediata e irrevogável da conta do infrator.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- TELA: POLÍTICA DE PRIVACIDADE -->
+    <section id="privacy_screen" class="screen">
+        <div class="topbar">
+            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
+            <h1 style="font-size: 20px; font-weight: 800;">Política de Privacidade</h1>
+            <div style="width: 44px;"></div>
+        </div>
+        
+        <div style="padding: 16px; max-width: 600px; margin: 0 auto; padding-bottom: 40px;">
+            <div class="glass-card" style="padding: 24px; border-radius: 24px; border: 1px solid var(--border); background: white; font-size: 14px; line-height: 1.6; color: var(--text-muted);">
+                <h2 style="font-size: 18px; color: var(--primary); font-weight: 800; margin-bottom: 12px;">Política de Privacidade</h2>
+                <p style="margin-bottom: 12px; font-size: 12px; color: var(--text-muted);">Última atualização: 26 de Maio de 2026</p>
+                <p style="margin-bottom: 16px; font-weight: 500;">A sua privacidade é de extrema importância para nós. Esta política explica como coletamos, usamos e protegemos as suas informações pessoais de acordo com a Lei Geral de Proteção de Dados (LGPD).</p>
+                
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">1. Coleta de Informações</h3>
+                <p style="margin-bottom: 16px;">Coletamos dados necessários para a prestação dos nossos serviços, incluindo nome completo, endereço de e-mail, telefone para contato, documentos do veículo (no caso de transportadores) e informações sobre as cargas publicadas (no caso de embarcadores).</p>
+                
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">2. Utilização de Dados</h3>
+                <p style="margin-bottom: 16px;">Os dados coletados servem exclusivamente para permitir a conexão logística entre os usuários, calcular distâncias de rotas e contatos comerciais diretos. Nossos serviços não repassam ou comercializam informações pessoais com terceiros.</p>
+                
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">3. Compartilhamento Estrito</h3>
+                <p style="margin-bottom: 16px;">Informações como nome, telefone e dados de veículo serão compartilhados apenas com a contraparte direta da negociação de uma carga aceita na plataforma para viabilizar a entrega e comunicação.</p>
+
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">4. Segurança e Armazenamento</h3>
+                <p style="margin-bottom: 16px;">Todas as suas informações são armazenadas em infraestrutura de nuvem segura fornecida pelo Firebase (Google Cloud), utilizando criptografia em trânsito e em repouso. O acesso aos dados é restrito por regras estritas do banco de dados.</p>
+                
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">5. Seus Direitos (LGPD)</h3>
+                <p style="margin-bottom: 16px;">Em total respeito à LGPD, o usuário tem a liberdade de acessar, corrigir e excluir permanentemente sua conta e dados. Isso pode ser feito a qualquer momento através do painel de controle do perfil dentro do aplicativo.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- TELA: POLÍTICA DE COOKIES -->
+    <section id="cookies_screen" class="screen">
+        <div class="topbar">
+            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
+            <h1 style="font-size: 20px; font-weight: 800;">Política de Cookies</h1>
+            <div style="width: 44px;"></div>
+        </div>
+        
+        <div style="padding: 16px; max-width: 600px; margin: 0 auto; padding-bottom: 40px;">
+            <div class="glass-card" style="padding: 24px; border-radius: 24px; border: 1px solid var(--border); background: white; font-size: 14px; line-height: 1.6; color: var(--text-muted);">
+                <h2 style="font-size: 18px; color: var(--primary); font-weight: 800; margin-bottom: 12px;">Política de Cookies</h2>
+                <p style="margin-bottom: 12px; font-size: 12px; color: var(--text-muted);">Última atualização: 26 de Maio de 2026</p>
+                <p style="margin-bottom: 16px; font-weight: 500;">Para proporcionar uma experiência de acesso mais ágil e segura, utilizamos cookies e identificadores de sessão em nosso aplicativo.</p>
+                
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">1. O que são Cookies?</h3>
+                <p style="margin-bottom: 16px;">Cookies são pequenos arquivos de texto armazenados no navegador do seu dispositivo. Eles ajudam a reconhecer a sua sessão de forma segura e a carregar as suas configurações personalizadas ao abrir a plataforma.</p>
+                
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">2. Cookies Necessários</h3>
+                <p style="margin-bottom: 16px;">Utilizamos cookies de autenticação do Firebase. Eles são indispensáveis para comprovar que você está logado em sua conta, permitindo carregar o seu perfil e as funções de frete de forma segura.</p>
+                
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">3. Desativação de Cookies</h3>
+                <p style="margin-bottom: 16px;">Você pode configurar o seu navegador ou dispositivo móvel para bloquear ou alertar sobre cookies, mas lembre-se que, ao fazer isso, o aplicativo não conseguirá autenticar a sua conta ou manter a sua sessão de login ativa.</p>
             </div>
         </div>
     </section>

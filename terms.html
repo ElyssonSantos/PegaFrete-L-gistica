@@ -3,64 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Termos e Condições | PegaFrete</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="src/styles/global.css">
+    <title>Termos e Condições de Uso | PegaFrete</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #0f172a;
+            --orange: #f97316;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --background: #f8fafc;
+        }
         body {
-            background-color: #f8fafc;
-            color: #1e293b;
-            line-height: 1.6;
-            padding: 20px;
+            background-color: var(--background);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
+            padding: 40px 20px;
             max-width: 800px;
             margin: 0 auto;
         }
         .container {
             background: #ffffff;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            padding: 48px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+            border: 1px solid var(--border);
         }
         h1 {
-            color: #0f172a;
-            font-size: 2rem;
-            margin-bottom: 24px;
-            border-bottom: 2px solid #f1f5f9;
-            padding-bottom: 12px;
+            color: var(--primary);
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 16px;
         }
         h2 {
-            color: #0f172a;
-            font-size: 1.25rem;
-            margin-top: 32px;
-            margin-bottom: 16px;
+            color: var(--primary);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 36px;
+            margin-bottom: 12px;
         }
         p {
             margin-bottom: 16px;
-            color: #475569;
+            font-weight: 450;
         }
         ul {
-            margin-bottom: 16px;
-            padding-left: 20px;
+            margin-bottom: 20px;
+            padding-left: 24px;
         }
         li {
             margin-bottom: 8px;
-            color: #475569;
+            font-weight: 450;
         }
         .back-link {
-            display: inline-block;
-            margin-bottom: 20px;
-            color: #f97316;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+            color: var(--orange);
             text-decoration: none;
             font-weight: 600;
+            font-size: 0.95rem;
+            transition: 0.2s;
         }
         .back-link:hover {
-            text-decoration: underline;
+            opacity: 0.8;
+            transform: translateX(-4px);
         }
         footer {
-            margin-top: 40px;
+            margin-top: 48px;
             text-align: center;
-            font-size: 0.875rem;
-            color: #94a3b8;
+            font-size: 0.85rem;
+            color: var(--text-muted);
         }
     </style>
 </head>
@@ -69,33 +91,35 @@
     
     <div class="container">
         <h1>Termos e Condições de Uso</h1>
+        <div class="subtitle">Última atualização: 26 de Maio de 2026</div>
         
-        <p>Bem-vindo ao <strong>PegaFrete</strong>. Ao utilizar nosso aplicativo, você concorda com os seguintes termos. Por favor, leia-os atentamente.</p>
+        <p>Bem-vindo ao <strong>PegaFrete</strong>. Ao utilizar nosso aplicativo ou qualquer de nossos serviços, você concorda de forma livre, expressa e informada com todos os termos, obrigações e diretrizes descritos abaixo. Por favor, leia-os com atenção.</p>
         
-        <h2>1. Aceitação dos Termos</h2>
-        <p>Ao acessar ou usar o PegaFrete, você concorda em cumprir e estar vinculado a estes Termos e Condições. Se você não concordar com qualquer parte destes termos, não deverá utilizar o aplicativo.</p>
+        <h2>1. Aceitação e Objeto</h2>
+        <p>Estes termos regem o uso do aplicativo PegaFrete. A plataforma atua exclusivamente como facilitadora de conexões logísticas entre prestadores de serviço de transporte (Transportadores) e solicitantes de envio de cargas (Embarcadores).</p>
         
-        <h2>2. Cadastro e Segurança</h2>
+        <h2>2. Requisitos de Acesso e Cadastro</h2>
         <ul>
-            <li>O usuário é responsável por fornecer informações precisas e completas durante o cadastro.</li>
-            <li>A segurança da senha é de inteira responsabilidade do usuário.</li>
-            <li>Apenas maiores de 18 anos ou empresas legalmente constituídas podem utilizar a plataforma.</li>
+            <li>O usuário é responsável por fornecer informações precisas, completas e atualizadas durante o cadastro.</li>
+            <li>A segurança da senha é de inteira responsabilidade do usuário, devendo esta ser pessoal e intransmissível.</li>
+            <li>Apenas maiores de 18 anos ou empresas legalmente constituídas e com registros válidos podem utilizar a plataforma.</li>
+            <li>Os transportadores cadastrados declaram estar com todos os registros exigidos pela ANTT (Agência Nacional de Transportes Terrestres) ativos e regulares.</li>
         </ul>
         
-        <h2>3. Responsabilidades do Transportador</h2>
-        <p>O transportador compromete-se a manter sua documentação e a do veículo em dia, cumprindo todas as normas de trânsito e segurança vigentes.</p>
+        <h2>3. Deveres e Obrigações do Transportador</h2>
+        <p>O Transportador deve garantir a conformidade e integridade física de seu veículo, possuir habilitação regular compatível e realizar o transporte de forma segura, cumprindo os prazos combinados diretamente com o Embarcador.</p>
         
-        <h2>4. Responsabilidades do Embarcador</h2>
-        <p>O embarcador garante a veracidade das informações da carga publicada, bem como a legalidade dos produtos transportados.</p>
+        <h2>4. Deveres e Obrigações do Embarcador</h2>
+        <p>O Embarcador deve descrever fielmente a natureza da carga, peso, cubagem e riscos envolvidos. É expressamente proibida a publicação de cargas de cunho ilícito, inflamável, perigoso ou proibido por leis vigentes.</p>
         
-        <h2>5. Privacidade e Dados</h2>
-        <p>O PegaFrete coleta e utiliza dados conforme descrito em nossa Política de Privacidade. O acesso é monitorado para garantir a segurança de todos os usuários.</p>
-        
-        <h2>6. Limitação de Responsabilidade</h2>
-        <p>O PegaFrete atua como uma plataforma de intermediação e não se responsabiliza por perdas, danos ou atrasos decorrentes das negociações entre usuários.</p>
-        
+        <h2>5. Isenção de Responsabilidade do PegaFrete</h2>
+        <p>O PegaFrete não assume nenhuma responsabilidade pela qualidade do transporte, extravios, sinistros, avarias ou pelo pagamento acordado entre as partes. A plataforma não participa das negociações financeiras e operacionais.</p>
+
+        <h2>6. Segurança, Conduta e Moderação</h2>
+        <p>Os usuários devem zelar pela ética e respeito no chat da plataforma. Qualquer tentativa de fraude, difamação, roubo de dados ou violação de segurança do aplicativo acarretará na suspensão imediata e irrevogável da conta do infrator, sem prejuízo das sanções legais cabíveis.</p>
+
         <h2>7. Alterações nos Termos</h2>
-        <p>Reservamo-nos o direito de alterar estes termos a qualquer momento. O uso continuado do app após alterações constitui aceitação dos novos termos.</p>
+        <p>O PegaFrete reserva-se o direito de alterar estes termos a qualquer momento. A continuação da utilização do aplicativo após a publicação de novos termos constitui aceitação tácita das alterações.</p>
     </div>
 
     <footer>
