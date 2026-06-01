@@ -139,8 +139,8 @@ async function logSecurityEvent(event, details) {
     }
 }
 
-// ====== SEGURANÇA: VALIDAÇÃO DE ARQUIVOS ======
-function validateFile(file, isProfilePhoto = false) {
+// ====== SEGURANÇA: VALIDAÇÃO DE ARQUIVOS (MAGIC BYTES) ======
+async function validateFile(file, isProfilePhoto = false) {
     if (!file) return { valid: false, error: 'Nenhum arquivo selecionado.' };
 
     // 1. Validar tamanho
@@ -149,7 +149,7 @@ function validateFile(file, isProfilePhoto = false) {
         return { valid: false, error: `Arquivo muito grande. O limite é ${maxSize / (1024 * 1024)}MB.` };
     }
 
-    // 2. Validar MIME Type (extensões)
+    // 2. Validar MIME Type básico
     const allowedTypes = isProfilePhoto
         ? ['image/jpeg', 'image/png', 'image/webp']
         : ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
@@ -158,12 +158,64 @@ function validateFile(file, isProfilePhoto = false) {
         return { valid: false, error: 'Formato de arquivo não permitido. Use JPG, PNG, WEBP ou PDF.' };
     }
 
-    // 3. Validar nome do arquivo (evitar path traversal)
-    if (file.name.includes('..') || file.name.endsWith('.exe') || file.name.endsWith('.sh') || file.name.endsWith('.svg')) {
-        return { valid: false, error: 'Nome ou tipo de arquivo suspeito.' };
+    // 3. Validar nome do arquivo (Path traversal e XSS extensions)
+    if (file.name.includes('..') || /\.(exe|sh|bat|cmd|js|vbs|php|phtml|html|htm|svg)$/i.test(file.name)) {
+        logSecurityEvent('SUSPICIOUS_FILE_NAME', `Tentativa de upload de arquivo com nome perigoso: ${file.name}`);
+        return { valid: false, error: 'Nome ou tipo de arquivo suspeito e foi bloqueado por segurança.' };
+    }
+
+    // 4. Verificação de Magic Bytes (Assinatura Hexadecimal) - Zero Trust Upload
+    try {
+        const magic = await readMagicBytes(file);
+        let isValidMagic = false;
+        
+        // Assinaturas Hexadecimais Conhecidas
+        if (magic.startsWith('ffd8ffe0') || magic.startsWith('ffd8ffe1') || magic.startsWith('ffd8ffe2')) isValidMagic = true; // JPEG/JPG
+        if (magic.startsWith('89504e47')) isValidMagic = true; // PNG
+        if (magic.startsWith('52494646') && magic.substring(16, 24) === '57454250') isValidMagic = true; // WEBP
+        if (!isProfilePhoto && magic.startsWith('25504446')) isValidMagic = true; // PDF
+        
+        if (!isValidMagic) {
+            logSecurityEvent('MAGIC_BYTES_MISMATCH', `MIME falsificado detectado. Arquivo: ${file.name}, Assinatura: ${magic}`);
+            return { valid: false, error: 'Assinatura de arquivo inválida. Possível falsificação de formato detectada.' };
+        }
+    } catch (err) {
+        console.error("Erro na leitura de magic bytes:", err);
+        return { valid: false, error: 'Falha na validação de integridade do arquivo.' };
     }
 
     return { valid: true };
+}
+
+// Função auxiliar para extrair os primeiros 4 bytes do arquivo (Hex)
+function readMagicBytes(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = function(e) {
+            if (e.target.readyState === FileReader.DONE) {
+                const arr = (new Uint8Array(e.target.result)).subarray(0, 4);
+                let hex = '';
+                for (let i = 0; i < arr.length; i++) {
+                    hex += arr[i].toString(16).padStart(2, '0');
+                }
+                // Adicionalmente para WEBP, precisamos ler até o byte 12 (4+4+4)
+                if (hex === '52494646' && file.size > 12) {
+                    const reader2 = new FileReader();
+                    reader2.onloadend = function(e2) {
+                        const arr2 = new Uint8Array(e2.target.result);
+                        let hex2 = hex;
+                        for(let j = 4; j < 12; j++) hex2 += arr2[j].toString(16).padStart(2, '0');
+                        resolve(hex2);
+                    };
+                    reader2.readAsArrayBuffer(file.slice(0, 12));
+                    return;
+                }
+                resolve(hex);
+            }
+        };
+        reader.onerror = reject;
+        reader.readAsArrayBuffer(file.slice(0, 4));
+    });
 }
 
 // Valores permitidos (validação por whitelist)
