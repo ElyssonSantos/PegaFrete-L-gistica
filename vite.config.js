@@ -42,12 +42,12 @@ export default defineConfig({
         display: 'standalone',
         icons: [
           {
-            src: 'google_icon.png',
+            src: 'orange_truck_avatar.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'google_icon.png',
+            src: 'orange_truck_avatar.png',
             sizes: '512x512',
             type: 'image/png'
           }
