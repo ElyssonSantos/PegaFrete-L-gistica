@@ -1043,6 +1043,18 @@ async function irParaVeiculo(btn) {
     navTo('register_vehicle');
 }
 
+window.irParaDocs = irParaDocs;
+async function irParaDocs(btn) {
+    const selObj = document.getElementById('regDriverVehicle');
+    const opt = selObj.options[selObj.selectedIndex];
+    if (opt.disabled || opt.value === "") {
+        showToast('Por favor, selecione o seu veículo.', 'error');
+        return;
+    }
+    userData.veiculo = opt.value;
+    navTo('register_driver_docs');
+}
+
 async function irParaSenha(btn) {
     if (tempRole === 'shipper') {
         userData.nome = document.getElementById('regShipperName').value.trim();
@@ -1094,15 +1106,52 @@ async function irParaSenha(btn) {
             btn.disabled = false;
         }
     } else {
-        const selObj = document.getElementById('regDriverVehicle');
-        const opt = selObj.options[selObj.selectedIndex];
-        if (opt.disabled || opt.value === "") {
-            showToast('Por favor, selecione o seu veículo.', 'error');
+        const antt = document.getElementById('regDriverAntt').value.trim();
+        const cnh = document.getElementById('regDriverCnh').value.trim();
+        const placa = document.getElementById('regDriverPlaca').value.trim();
+        const fileCnh = document.getElementById('regDriverCnhPhoto').files[0];
+        const fileId = document.getElementById('regDriverIdPhoto').files[0];
+
+        if (!antt || !cnh || !placa || !fileCnh || !fileId) {
+            showToast('Preencha todos os campos e envie as fotos para prosseguir.', 'error');
             return;
         }
-        userData.veiculo = opt.value;
+
+        const originalText = btn ? btn.innerHTML : 'Avançar para Senha';
+        if (btn) {
+            btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Validando...`;
+            btn.disabled = true;
+        }
+
+        const validCnh = await validateFile(fileCnh);
+        const validId = await validateFile(fileId);
+
+        if (btn) {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+
+        if (!validCnh.valid || !validId.valid) {
+            showToast('Erro na validação das fotos. Verifique o formato e o tamanho.', 'error');
+            return;
+        }
+
+        userData.antt = antt;
+        userData.cnh = cnh;
+        userData.placa = placa;
+        userData.docStatus = 'Pendente';
+        userData.filesToUpload = {
+            cnh: fileCnh,
+            id: fileId
+        };
     }
 
+    navTo('register_password');
+}
+
+window.concluirDepoisDocs = concluirDepoisDocs;
+function concluirDepoisDocs() {
+    userData.docStatus = 'Documentação Incompleta';
     navTo('register_password');
 }
 
@@ -1149,6 +1198,36 @@ async function finalizarCadastro(btn) {
         cleanUserData.role = tempRole;
         cleanUserData.rating = 5.0;
         cleanUserData.entregas = 0;
+        if (userData.docStatus) {
+            cleanUserData.docStatus = userData.docStatus;
+        }
+
+        // Upload files if pending
+        if (cleanUserData.role === 'driver' && cleanUserData.docStatus === 'Pendente' && userData.filesToUpload) {
+            showToast('Enviando documentos, aguarde...');
+            try {
+                const cnhRef = storage.ref().child(`documents/${uid}/cnh_${Date.now()}`);
+                const idRef = storage.ref().child(`documents/${uid}/id_${Date.now()}`);
+                
+                await cnhRef.put(userData.filesToUpload.cnh);
+                const cnhUrl = await cnhRef.getDownloadURL();
+                
+                await idRef.put(userData.filesToUpload.id);
+                const idUrl = await idRef.getDownloadURL();
+                
+                cleanUserData.documentUrls = {
+                    cnh: cnhUrl,
+                    id: idUrl
+                };
+            } catch (err) {
+                console.error("Erro no upload", err);
+                showToast('Aviso: Erro ao enviar fotos. Status ficará incompleto.', 'error');
+                cleanUserData.docStatus = 'Documentação Incompleta';
+            }
+            delete userData.filesToUpload; // cleanup
+        } else if (cleanUserData.role === 'driver') {
+            cleanUserData.docStatus = 'Documentação Incompleta'; // fallback if no docs provided
+        }
 
         // Salva no Firestore
         await db.collection("users").doc(uid).set(cleanUserData);
@@ -1247,6 +1326,45 @@ function preencherPerfil() {
     }
     if (document.getElementById('driverHomeAvatar')) {
         document.getElementById('driverHomeAvatar').style.backgroundImage = `url('${avatarUrl}')`;
+    }
+
+    const driverHomologationCard = document.getElementById('driverHomologationCard');
+    const shipperHomologationCard = document.querySelector('.glass-card h3:contains("Homologação de Segurança")')?.parentElement; // just conceptually
+    
+    if (driverHomologationCard) {
+        if (userData.role === 'driver') {
+            driverHomologationCard.style.display = 'block';
+            
+            const badge = document.getElementById('homologationStatusBadge');
+            const msg = document.getElementById('homologationStatusMessage');
+            const status = userData.docStatus || 'Documentação Incompleta';
+            
+            badge.innerText = status;
+            
+            if (status === 'Aprovado') {
+                badge.style.background = '#dcfce7';
+                badge.style.color = '#16a34a';
+                msg.innerText = 'Seus documentos foram validados com sucesso! Você tem acesso total à plataforma.';
+            } else if (status === 'Reprovado') {
+                badge.style.background = '#fee2e2';
+                badge.style.color = '#ef4444';
+                msg.innerText = userData.rejectionReason || 'Seus documentos foram reprovados. Acesse o suporte para mais informações.';
+            } else if (status === 'Bloqueado') {
+                badge.style.background = '#f1f5f9';
+                badge.style.color = '#64748b';
+                msg.innerText = userData.rejectionReason || 'O seu perfil foi temporariamente bloqueado pela administração.';
+            } else if (status === 'Pendente' || status === 'Em Análise') {
+                badge.style.background = '#fef3c7';
+                badge.style.color = '#d97706';
+                msg.innerText = 'A sua documentação foi recebida e está em análise (prazo de até 24 horas).';
+            } else {
+                badge.style.background = '#ffedd5';
+                badge.style.color = '#ea580c';
+                msg.innerText = 'Para aceitar fretes e entrar no radar, precisamos que envie sua documentação.';
+            }
+        } else {
+            driverHomologationCard.style.display = 'none';
+        }
     }
 
     const uploadList = document.getElementById('profileUploadList');
@@ -1696,6 +1814,11 @@ function solicitarSaque(btn) {
 
 window.isDriverOnline = false;
 function toggleStatus(btn) {
+    if (userData && userData.role === 'driver' && userData.docStatus !== 'Aprovado') {
+        showToast('Sua documentação precisa ser aprovada para você ficar online.', 'error');
+        return;
+    }
+
     const box = document.getElementById('driverStatusBox');
     const indicator = document.getElementById('driverStatusIndicator');
     if (!box || !indicator) return;
@@ -2057,6 +2180,22 @@ function openFreight(idOrIndex) {
             <i class="ph ph-clock"></i> ${sanitizeHTML(frete.urgencia || 'Normal')}
         </div>
     `;
+
+    const btnCall = document.getElementById('btnCall');
+    const btnWhatsApp = document.getElementById('btnWhatsApp');
+    
+    if (userData && userData.role === 'driver' && userData.docStatus !== 'Aprovado') {
+        const blockMsg = "showToast('Sua documentação precisa ser aprovada para negociar cargas.', 'error');";
+        btnCall.setAttribute('onclick', blockMsg);
+        btnCall.style.opacity = '0.5';
+        btnWhatsApp.setAttribute('onclick', blockMsg);
+        btnWhatsApp.style.opacity = '0.5';
+    } else {
+        btnCall.setAttribute('onclick', `window.open('tel:${frete.telefoneContato}', '_blank')`);
+        btnCall.style.opacity = '1';
+        btnWhatsApp.setAttribute('onclick', `window.open('https://wa.me/55${frete.whatsappContato.replace(/\\D/g, '')}?text=${encodeURIComponent('Olá, vim pelo PegaFrete. Tenho interesse na carga de ' + frete.origem + ' para ' + frete.destino + '.')}', '_blank')`);
+        btnWhatsApp.style.opacity = '1';
+    }
 
     navTo('freightDetails');
 
