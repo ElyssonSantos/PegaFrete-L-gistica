@@ -541,11 +541,9 @@ async function loginComGoogle(btn) {
     btn.disabled = true;
 
     try {
-        const result = await auth.signInWithPopup(provider);
-        const user = result.user;
-
-        // O onAuthStateChanged cuidará do redirecionamento
-        showToast('Login com Google realizado!', 'success');
+        // Usa redirect ao invés de popup para evitar bloqueios de Cross-Origin-Opener-Policy (COOP) na Vercel e Mobile
+        await auth.signInWithRedirect(provider);
+        // O onAuthStateChanged cuidará do redirecionamento após o retorno do Google
     } catch (error) {
         console.error("Erro no Google Sign-in:", error);
         btn.innerHTML = original;

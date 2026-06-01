@@ -418,28 +418,28 @@
             <div class="auth-card-title">Que bom ver você!</div>
             <div class="auth-card-subtitle">Insira sua senha para acessar sua conta no Pega Frete.</div>
 
-            <div class="glass-card">
+            <form class="glass-card" onsubmit="event.preventDefault(); fazerLogin(this.querySelector('.btn-orange'))">
                 <div class="input-group">
                     <label>E-mail</label>
-                    <input type="email" id="loginEmail" placeholder="exemplo@email.com" />
+                    <input type="email" id="loginEmail" placeholder="exemplo@email.com" autocomplete="username" />
                 </div>
                 <div class="input-group" style="position: relative;">
                     <label>Senha</label>
-                    <input type="password" id="loginPassword" placeholder="••••••••" style="padding-right: 52px;" />
+                    <input type="password" id="loginPassword" placeholder="••••••••" style="padding-right: 52px;" autocomplete="current-password" />
                     <button type="button" onclick="togglePassVisibility('loginPassword', 'togglePasswordLogin')"
                         style="position: absolute; right: 4px; bottom: 4px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2;">
                         <i class="ph ph-eye" id="togglePasswordLogin"
                             style="color: var(--orange); font-size: 20px; pointer-events: none;"></i>
                     </button>
                 </div>
-                <button class="btn btn-orange mt-4" onclick="fazerLogin(this)">
+                <button type="submit" class="btn btn-orange mt-4">
                     Acessar Plataforma <i class="ph ph-sign-in"></i>
                 </button>
                 <div class="text-center mt-4" style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
-                    <button class="text-btn" style="color: var(--orange); font-weight: 700;"
+                    <button type="button" class="text-btn" style="color: var(--orange); font-weight: 700;"
                         onclick="showToast('Recuperação de senha em manutenção')">Esqueci minha senha</button>
                 </div>
-            </div>
+            </form>
         </div>
     </section>
 
@@ -673,8 +673,55 @@
                     </select>
                 </div>
 
-                <button class="btn btn-orange mt-4" onclick="irParaSenha(this)" style="border-radius: 18px; padding: 18px;">
+                <button class="btn btn-orange mt-4" onclick="irParaDocs(this)" style="border-radius: 18px; padding: 18px;">
+                    Avançar para Documentos <i class="ph ph-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- TELA: CADASTRO DOCUMENTOS (TRANSPORTADOR) -->
+    <section id="register_driver_docs" class="screen">
+        <div class="topbar">
+            <button class="back-btn" onclick="navTo('register_vehicle')"><i class="ph ph-arrow-left"></i></button>
+            <h1 style="font-size: 22px;">Documentação</h1>
+            <div style="width: 44px;"></div>
+        </div>
+
+        <div style="max-width: 480px; margin: 0 auto; margin-top: 20px;">
+            <div class="auth-card-title">Validação e Homologação</div>
+            <div class="auth-card-subtitle">Precisamos dos seus documentos para liberar seu perfil. A análise leva até 24 horas.</div>
+
+            <div class="glass-card">
+                <div class="input-group">
+                    <label>RNTRC (ANTT)</label>
+                    <input type="text" id="regDriverAntt" placeholder="Número ANTT" />
+                </div>
+                <div class="input-group">
+                    <label>Número da CNH</label>
+                    <input type="text" id="regDriverCnh" placeholder="Número da CNH" />
+                </div>
+                <div class="input-group">
+                    <label>Placa do Veículo Principal</label>
+                    <input type="text" id="regDriverPlaca" placeholder="ABC-1234" />
+                </div>
+                
+                <div class="input-group">
+                    <label>Foto da CNH (Frente e Verso)</label>
+                    <input type="file" id="regDriverCnhPhoto" accept="image/*,application/pdf" style="padding: 10px; border: 1px dashed var(--border); border-radius: 12px; width: 100%;" />
+                </div>
+                
+                <div class="input-group">
+                    <label>Foto do Veículo / Identificação</label>
+                    <input type="file" id="regDriverIdPhoto" accept="image/*,application/pdf" style="padding: 10px; border: 1px dashed var(--border); border-radius: 12px; width: 100%;" />
+                </div>
+
+                <button class="btn btn-orange mt-4" onclick="irParaSenha(this)" style="border-radius: 18px; padding: 18px; width: 100%;">
                     Avançar para Senha <i class="ph ph-arrow-right"></i>
+                </button>
+                
+                <button class="btn btn-secondary mt-3" onclick="concluirDepoisDocs()" style="border-radius: 18px; padding: 18px; background: transparent; color: var(--text-muted); border: 1px solid var(--border); width: 100%; font-weight: 600; cursor: pointer;">
+                    Concluir Depois (Acesso Limitado)
                 </button>
             </div>
         </div>
@@ -691,11 +738,11 @@
         <div style="max-width: 480px; margin: 0 auto; margin-top: 20px;">
             <div class="auth-card-subtitle">Sua senha é a chave para seus ganhos. Escolha uma bem forte.</div>
 
-            <div class="glass-card">
+            <form class="glass-card" onsubmit="event.preventDefault(); finalizarCadastro(this.querySelector('.btn-orange'))">
                 <div class="input-group" style="position: relative;">
                     <label>Sua Senha</label>
                     <input type="password" id="regPassword" placeholder="Crie uma senha forte"
-                        style="padding-right: 52px;" oninput="checkPasswordRequirements(this.value)" />
+                        style="padding-right: 52px;" oninput="checkPasswordRequirements(this.value)" autocomplete="new-password" />
                     <button type="button" onclick="togglePassVisibility('regPassword', 'toggleRegPass')"
                         style="position: absolute; right: 4px; bottom: 4px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2;">
                         <i class="ph ph-eye" id="toggleRegPass"
@@ -729,7 +776,7 @@
                 <div class="input-group" style="position: relative;">
                     <label>Confirme a Senha</label>
                     <input type="password" id="regPasswordConfirm" placeholder="Repita a senha"
-                        style="padding-right: 52px;" />
+                        style="padding-right: 52px;" autocomplete="new-password" />
                     <button type="button" onclick="togglePassVisibility('regPasswordConfirm', 'toggleRegPassConfirm')"
                         style="position: absolute; right: 4px; bottom: 4px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2;">
                         <i class="ph ph-eye" id="toggleRegPassConfirm"
@@ -737,11 +784,11 @@
                     </button>
                 </div>
 
-                <button class="btn btn-orange mt-4" onclick="finalizarCadastro(this)"
+                <button type="submit" class="btn btn-orange mt-4"
                     style="border-radius: 18px; padding: 18px;">
                     Finalizar Cadastro <i class="ph ph-check-circle"></i>
                 </button>
-            </div>
+            </form>
         </div>
     </section>
 
@@ -1285,6 +1332,23 @@
                 onclick="salvarPerfil(this)">
                 Salvar Alterações <i class="ph ph-check-circle"></i>
             </button>
+        </div>
+
+        <!-- Homologação de Transportador Card -->
+        <div id="driverHomologationCard" class="glass-card" style="padding: 24px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 24px; background: white; display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                <div>
+                    <h3 style="font-size: 16px; margin: 0 0 4px 0; color: var(--primary); font-weight: 800;">Homologação</h3>
+                    <p style="font-size: 12px; color: var(--text-muted); margin: 0; font-weight: 500;">Obrigatório para transportar cargas</p>
+                </div>
+                <div id="homologationStatusBadge" style="padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase;">
+                    <!-- Badge -->
+                </div>
+            </div>
+            
+            <p id="homologationStatusMessage" style="font-size: 13px; color: var(--text-muted); margin-bottom: 0; line-height: 1.45; font-weight: 500; background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                <!-- Mensagem dinâmica -->
+            </p>
         </div>
 
         <!-- Homologação da Empresa Card -->
