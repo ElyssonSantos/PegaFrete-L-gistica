@@ -44,6 +44,11 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     match /system_messages/{messageId} {
       allow read: if isAuthenticated() && resource.data.userUid == request.auth.uid;
       allow create: if isAuthenticated() && request.resource.data.userUid == request.auth.uid;

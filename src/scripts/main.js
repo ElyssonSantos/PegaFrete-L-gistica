@@ -1229,6 +1229,18 @@ async function finalizarCadastro(btn) {
             cleanUserData.docStatus = 'Documentação Incompleta'; // fallback if no docs provided
         }
 
+        // Verifica Configuração Global de Aprovação Automática (Modo Testes/Homologação)
+        if (cleanUserData.role === 'driver') {
+            try {
+                const configDoc = await db.collection("settings").doc("system_config").get();
+                if (configDoc.exists && configDoc.data().autoApproveDrivers === true) {
+                    cleanUserData.docStatus = 'Aprovado';
+                }
+            } catch (err) {
+                console.warn("Erro ao ler configurações globais de aprovação:", err);
+            }
+        }
+
         // Salva no Firestore
         await db.collection("users").doc(uid).set(cleanUserData);
         userData = cleanUserData; // Atualiza a variável global
