@@ -323,6 +323,17 @@ window.onload = () => {
     if (typeof window.initLeafletMap === 'function') window.initLeafletMap();
     if (typeof window.setupIBGEAutocomplete === 'function') window.setupIBGEAutocomplete();
 
+    // Catch possible redirect errors
+    auth.getRedirectResult().then((result) => {
+        if (result && result.user) {
+            console.log("Redirect login successful");
+            showToast('Login com Google realizado!', 'success');
+        }
+    }).catch((error) => {
+        console.error("Erro no Redirect Sign-in:", error);
+        showToast(`Falha na autenticação: ${error.message}`, 'error');
+    });
+
     // Monitora o estado de autenticação via Firebase
     auth.onAuthStateChanged(async (user) => {
         if (isRegisteringProcess) {
