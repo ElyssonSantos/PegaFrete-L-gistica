@@ -739,6 +739,7 @@
             <div class="auth-card-subtitle">Sua senha é a chave para seus ganhos. Escolha uma bem forte.</div>
 
             <form class="glass-card" onsubmit="event.preventDefault(); finalizarCadastro(this.querySelector('.btn-orange'))">
+                <input type="text" name="username" autocomplete="username" style="display:none;" />
                 <div class="input-group" style="position: relative;">
                     <label>Sua Senha</label>
                     <input type="password" id="regPassword" placeholder="Crie uma senha forte"
