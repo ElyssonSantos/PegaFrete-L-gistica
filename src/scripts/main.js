@@ -1374,7 +1374,12 @@ function preencherPerfil() {
     }
 
     const driverHomologationCard = document.getElementById('driverHomologationCard');
-    const shipperHomologationCard = document.querySelector('.glass-card h3:contains("Homologação de Segurança")')?.parentElement; // just conceptually
+    let shipperHomologationCard = null;
+    document.querySelectorAll('.glass-card h3').forEach(h3 => {
+        if (h3.textContent.includes("Homologação de Segurança")) {
+            shipperHomologationCard = h3.parentElement;
+        }
+    });
     
     if (driverHomologationCard) {
         if (userData.role === 'driver') {
