@@ -1512,6 +1512,12 @@ function preencherPerfil() {
 
     // Atualizar status dos documentos anexados
     const checkUploadStatus = (id, baseKey) => {
+            `;
+        }
+    }
+
+    // Atualizar status dos documentos anexados
+    const checkUploadStatus = (id, baseKey) => {
         const el = document.getElementById(id);
         if (!el) return;
         
@@ -1563,95 +1569,15 @@ function preencherPerfil() {
             }
         }
     };
-    
-    checkUploadStatus('upCRLV', 'crlv');
-    checkUploadStatus('upResidencia', 'residencia');
-    checkUploadStatus('upCPF', 'cpf');
-    checkUploadStatus('upCNH', 'cnh');
 
-    // As mensagens globais e badges foram removidos do topo do card a pedido do usuário.
-    // O status é exibido apenas individualmente em cada documento.
-
-    const uploadList = document.getElementById('profileUploadList');
-    if (uploadList) {
-        if (userData.role === 'shipper') {
-            uploadList.innerHTML = `
-                <!-- Cartão CNPJ -->
-                <div class="upload-item" id="upCNPJ" onclick="handleUpload('upCNPJ', 'Cartão CNPJ')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
-                    <div style="display: flex; align-items: center; gap: 14px;">
-                        <i class="ph-fill ph-file-text" style="font-size: 24px; color: var(--orange);"></i>
-                        <div style="text-align: left;">
-                            <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">Cartão CNPJ</p>
-                            <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;">Toque para enviar</p>
-                        </div>
-                    </div>
-                    <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
-                </div>
-
-                <!-- Comprovante de Endereço da Empresa -->
-                <div class="upload-item" id="upEnderecoEmpresa" onclick="handleUpload('upEnderecoEmpresa', 'Comprovante de Endereço da Empresa')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
-                    <div style="display: flex; align-items: center; gap: 14px;">
-                        <i class="ph-fill ph-house-line" style="font-size: 24px; color: var(--orange);"></i>
-                        <div style="text-align: left;">
-                            <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">Comprovante de Endereço da Empresa</p>
-                            <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;">Toque para enviar</p>
-                        </div>
-                    </div>
-                    <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
-                </div>
-            `;
-        } else {
-            // Transportador (driver)
-            uploadList.innerHTML = `
-                <!-- CRLV -->
-                <div class="upload-item" id="upCRLV" onclick="handleUpload('upCRLV', 'CRLV')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
-                    <div style="display: flex; align-items: center; gap: 14px;">
-                        <i class="ph-fill ph-file-text" style="font-size: 24px; color: var(--orange);"></i>
-                        <div style="text-align: left;">
-                            <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">CRLV</p>
-                            <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;">Toque para enviar</p>
-                        </div>
-                    </div>
-                    <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
-                </div>
-
-                <!-- Comprovante de Residência -->
-                <div class="upload-item" id="upResidencia" onclick="handleUpload('upResidencia', 'Comprovante de Residência')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
-                    <div style="display: flex; align-items: center; gap: 14px;">
-                        <i class="ph-fill ph-house-line" style="font-size: 24px; color: var(--orange);"></i>
-                        <div style="text-align: left;">
-                            <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">Comprovante de Residência</p>
-                            <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;">Toque para enviar</p>
-                        </div>
-                    </div>
-                    <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
-                </div>
-
-                <!-- CPF -->
-                <div class="upload-item" id="upCPF" onclick="handleUpload('upCPF', 'CPF')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
-                    <div style="display: flex; align-items: center; gap: 14px;">
-                        <i class="ph-fill ph-identification-card" style="font-size: 24px; color: var(--orange);"></i>
-                        <div style="text-align: left;">
-                            <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">CPF</p>
-                            <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;">Toque para enviar</p>
-                        </div>
-                    </div>
-                    <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
-                </div>
-
-                <!-- CNH -->
-                <div class="upload-item" id="upCNH" onclick="handleUpload('upCNH', 'CNH')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
-                    <div style="display: flex; align-items: center; gap: 14px;">
-                        <i class="ph-fill ph-identification-badge" style="font-size: 24px; color: var(--orange);"></i>
-                        <div style="text-align: left;">
-                            <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">CNH</p>
-                            <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;">Toque para enviar</p>
-                        </div>
-                    </div>
-                    <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
-                </div>
-            `;
-        }
+    if (userData.role === 'shipper') {
+        checkUploadStatus('upCNPJ', 'cnpj');
+        checkUploadStatus('upEnderecoEmpresa', 'enderecoEmpresa');
+    } else {
+        checkUploadStatus('upCRLV', 'crlv');
+        checkUploadStatus('upResidencia', 'residencia');
+        checkUploadStatus('upCPF', 'cpf');
+        checkUploadStatus('upCNH', 'cnh');
     }
 }
 
