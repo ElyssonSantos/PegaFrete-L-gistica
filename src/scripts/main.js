@@ -1142,11 +1142,13 @@ async function irParaSenha(btn) {
         const antt = document.getElementById('regDriverAntt').value.trim();
         const cnh = document.getElementById('regDriverCnh').value.trim();
         const placa = document.getElementById('regDriverPlaca').value.trim();
-        const fileCnh = document.getElementById('regDriverCnhPhoto').files[0];
-        const fileId = document.getElementById('regDriverIdPhoto').files[0];
+        const fileCnhFrente = document.getElementById('regDriverCnhFrente').files[0];
+        const fileCnhVerso = document.getElementById('regDriverCnhVerso').files[0];
+        const fileCpfFrente = document.getElementById('regDriverCpfFrente').files[0];
+        const fileCpfVerso = document.getElementById('regDriverCpfVerso').files[0];
 
-        if (!antt || !cnh || !placa || !fileCnh || !fileId) {
-            showToast('Preencha todos os campos e envie as fotos para prosseguir.', 'error');
+        if (!antt || !cnh || !placa || !fileCnhFrente || !fileCnhVerso || !fileCpfFrente || !fileCpfVerso) {
+            showToast('Preencha todos os campos e envie as fotos frente e verso para prosseguir.', 'error');
             return;
         }
 
@@ -1156,15 +1158,17 @@ async function irParaSenha(btn) {
             btn.disabled = true;
         }
 
-        const validCnh = await validateFile(fileCnh);
-        const validId = await validateFile(fileId);
+        const valid1 = await validateFile(fileCnhFrente);
+        const valid2 = await validateFile(fileCnhVerso);
+        const valid3 = await validateFile(fileCpfFrente);
+        const valid4 = await validateFile(fileCpfVerso);
 
         if (btn) {
             btn.innerHTML = originalText;
             btn.disabled = false;
         }
 
-        if (!validCnh.valid || !validId.valid) {
+        if (!valid1.valid || !valid2.valid || !valid3.valid || !valid4.valid) {
             showToast('Erro na validação das fotos. Verifique o formato e o tamanho.', 'error');
             return;
         }
@@ -1174,8 +1178,10 @@ async function irParaSenha(btn) {
         userData.placa = placa;
         userData.docStatus = 'Pendente';
         userData.filesToUpload = {
-            cnh: fileCnh,
-            id: fileId
+            cnhFrente: fileCnhFrente,
+            cnhVerso: fileCnhVerso,
+            cpfFrente: fileCpfFrente,
+            cpfVerso: fileCpfVerso
         };
     }
 
@@ -1239,18 +1245,29 @@ async function finalizarCadastro(btn) {
         if (cleanUserData.role === 'driver' && cleanUserData.docStatus === 'Pendente' && userData.filesToUpload) {
             showToast('Enviando documentos, aguarde...');
             try {
-                const cnhRef = storage.ref().child(`documents/${uid}/cnh_${Date.now()}`);
-                const idRef = storage.ref().child(`documents/${uid}/id_${Date.now()}`);
+                const uploads = userData.filesToUpload;
+                const cnhFrenteRef = storage.ref().child(`documents/${uid}/cnhFrente_${Date.now()}`);
+                const cnhVersoRef = storage.ref().child(`documents/${uid}/cnhVerso_${Date.now()}`);
+                const cpfFrenteRef = storage.ref().child(`documents/${uid}/cpfFrente_${Date.now()}`);
+                const cpfVersoRef = storage.ref().child(`documents/${uid}/cpfVerso_${Date.now()}`);
                 
-                await cnhRef.put(userData.filesToUpload.cnh);
-                const cnhUrl = await cnhRef.getDownloadURL();
+                await cnhFrenteRef.put(uploads.cnhFrente);
+                const cnhFrenteUrl = await cnhFrenteRef.getDownloadURL();
                 
-                await idRef.put(userData.filesToUpload.id);
-                const idUrl = await idRef.getDownloadURL();
+                await cnhVersoRef.put(uploads.cnhVerso);
+                const cnhVersoUrl = await cnhVersoRef.getDownloadURL();
+
+                await cpfFrenteRef.put(uploads.cpfFrente);
+                const cpfFrenteUrl = await cpfFrenteRef.getDownloadURL();
+
+                await cpfVersoRef.put(uploads.cpfVerso);
+                const cpfVersoUrl = await cpfVersoRef.getDownloadURL();
                 
                 cleanUserData.documentUrls = {
-                    cnh: cnhUrl,
-                    id: idUrl
+                    cnhFrente: cnhFrenteUrl,
+                    cnhVerso: cnhVersoUrl,
+                    cpfFrente: cpfFrenteUrl,
+                    cpfVerso: cpfVersoUrl
                 };
             } catch (err) {
                 console.error("Erro no upload", err);
@@ -1316,6 +1333,52 @@ function preencherPerfil() {
 
     if (document.getElementById('profileDisplayName')) document.getElementById('profileDisplayName').innerText = userData.nome || userData.razao || 'Usuário';
     
+    const profileTagContainer = document.getElementById('profileStatusTagContainer');
+    const profileTagText = document.getElementById('profileStatusTagText');
+    const profileTagIcon = document.getElementById('profileStatusTagIcon');
+    if (profileTagContainer && profileTagText && profileTagIcon) {
+        let tagTitle = "";
+        let colorMain = "#10b981";
+        let colorBg = "#ecfdf5";
+        let colorBorder = "#d1fae5";
+        let iconClass = "ph-fill ph-seal-check";
+        
+        let docStat = userData.docStatus || 'Documentação Incompleta';
+        
+        if (docStat === 'Aprovado') {
+            tagTitle = userData.role === 'shipper' ? "Embarcador Homologado" : "Transportador Homologado";
+            colorMain = "#10b981";
+            colorBg = "#ecfdf5";
+            colorBorder = "#d1fae5";
+            iconClass = "ph-fill ph-seal-check";
+        } else if (docStat === 'Documentação Incompleta' || docStat === 'Pendente' || docStat === 'Em Análise') {
+            tagTitle = "Documentação Pendente";
+            colorMain = "#d97706";
+            colorBg = "#fef3c7";
+            colorBorder = "#fde68a";
+            iconClass = "ph-fill ph-warning-circle";
+        } else if (docStat === 'Reprovado' || docStat === 'Bloqueado') {
+            tagTitle = "Cadastro Bloqueado";
+            colorMain = "#ef4444";
+            colorBg = "#fee2e2";
+            colorBorder = "#fecaca";
+            iconClass = "ph-fill ph-x-circle";
+        } else {
+            tagTitle = "Não Validado";
+            colorMain = "#64748b";
+            colorBg = "#f1f5f9";
+            colorBorder = "#e2e8f0";
+            iconClass = "ph-fill ph-info";
+        }
+
+        profileTagText.innerText = tagTitle;
+        profileTagText.style.color = colorMain;
+        profileTagIcon.className = iconClass;
+        profileTagIcon.style.color = colorMain;
+        profileTagContainer.style.background = colorBg;
+        profileTagContainer.style.borderColor = colorBorder;
+    }
+    
     if (document.getElementById('driverHomeGreeting')) {
         const firstName = (userData.nome || userData.razao || 'Usuário').split(' ')[0];
         document.getElementById('driverHomeGreeting').innerText = `Olá, ${firstName}`;
@@ -1358,11 +1421,41 @@ function preencherPerfil() {
         }
     }
 
-    if (userData.role === 'driver' && userData.veiculo) {
-        if (document.getElementById('profVehicleGroup')) document.getElementById('profVehicleGroup').style.display = 'block';
-        if (document.getElementById('profVehicle')) document.getElementById('profVehicle').value = userData.veiculo;
+    if (userData.role === 'driver') {
+        if (userData.veiculo) {
+            if (document.getElementById('profVehicleGroup')) document.getElementById('profVehicleGroup').style.display = 'flex';
+            if (document.getElementById('profVehicle')) document.getElementById('profVehicle').value = userData.veiculo;
+        } else {
+            if (document.getElementById('profVehicleGroup')) document.getElementById('profVehicleGroup').style.display = 'none';
+        }
+        
+        if (document.getElementById('profAnttGroup')) document.getElementById('profAnttGroup').style.display = 'flex';
+        if (document.getElementById('profAntt')) document.getElementById('profAntt').value = userData.antt || '';
+        
+        if (document.getElementById('profCnhNumGroup')) document.getElementById('profCnhNumGroup').style.display = 'flex';
+        if (document.getElementById('profCnhNum')) document.getElementById('profCnhNum').value = userData.cnh || '';
+        
+        if (document.getElementById('profPlacaGroup')) document.getElementById('profPlacaGroup').style.display = 'flex';
+        if (document.getElementById('profPlaca')) document.getElementById('profPlaca').value = userData.placa || '';
+        
+        // Show driver upload options
+        if (document.getElementById('upCRLV')) document.getElementById('upCRLV').style.display = 'flex';
+        if (document.getElementById('upCPF')) document.getElementById('upCPF').style.display = 'flex';
+        if (document.getElementById('upCNH')) document.getElementById('upCNH').style.display = 'flex';
     } else {
         if (document.getElementById('profVehicleGroup')) document.getElementById('profVehicleGroup').style.display = 'none';
+        if (document.getElementById('profAnttGroup')) document.getElementById('profAnttGroup').style.display = 'none';
+        if (document.getElementById('profCnhNumGroup')) document.getElementById('profCnhNumGroup').style.display = 'none';
+        if (document.getElementById('profPlacaGroup')) document.getElementById('profPlacaGroup').style.display = 'none';
+        
+        // Hide driver upload options (Shippers only need Comprovante Residencia and CNPJ/CPF which is handled below)
+        if (document.getElementById('upCRLV')) document.getElementById('upCRLV').style.display = 'none';
+        if (document.getElementById('upCNH')) document.getElementById('upCNH').style.display = 'none';
+        // upCPF is used as Cartão CNPJ for shippers (see previous implementation or modify text)
+        if (userData.tipoDocumento === 'cnpj') {
+            const upCpfTitle = document.querySelector('#upCPF p:first-child');
+            if (upCpfTitle) upCpfTitle.innerText = "Cartão CNPJ";
+        }
     }
 
     const avatarUrl = userData.foto || 'https://i.imgur.com/vnYcevV.png';
@@ -1372,6 +1465,37 @@ function preencherPerfil() {
     if (document.getElementById('driverHomeAvatar')) {
         document.getElementById('driverHomeAvatar').style.backgroundImage = `url('${avatarUrl}')`;
     }
+
+    // Atualizar status dos documentos anexados
+    const checkUploadStatus = (id, key) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const hasDoc = userData.documentUrls && (userData.documentUrls[key] || userData.documentUrls[key + 'Frente']);
+        
+        const subtitle = el.querySelector('p:last-child');
+        const iconRight = el.querySelector('i.ph-upload-simple') || el.querySelector('i.ph-check-circle');
+        
+        if (hasDoc) {
+            el.classList.add('uploaded');
+            if (subtitle) subtitle.innerText = "Enviado e aguardando validação";
+            if (iconRight) {
+                iconRight.className = 'ph-fill ph-check-circle';
+                iconRight.style.color = '#10b981';
+            }
+        } else {
+            el.classList.remove('uploaded');
+            if (subtitle) subtitle.innerText = "Toque para enviar";
+            if (iconRight) {
+                iconRight.className = 'ph ph-upload-simple';
+                iconRight.style.color = 'var(--text-muted)';
+            }
+        }
+    };
+    
+    checkUploadStatus('upCRLV', 'upCRLV');
+    checkUploadStatus('upResidencia', 'upResidencia');
+    checkUploadStatus('upCPF', 'upCPF');
+    checkUploadStatus('upCNH', 'upCNH');
 
     const driverHomologationCard = document.getElementById('driverHomologationCard');
     let shipperHomologationCard = null;
@@ -1703,7 +1827,7 @@ let profileEditMode = false;
 
 function toggleEditProfile() {
     profileEditMode = !profileEditMode;
-    const fields = ['profName', 'profRazao', 'profPhone', 'profAddress'];
+    const fields = ['profName', 'profRazao', 'profPhone', 'profAddress', 'profAntt', 'profCnhNum', 'profPlaca'];
     const btnEdit = document.getElementById('btnEditProfile');
     const btnSave = document.getElementById('btnSaveProfile');
 
@@ -1711,11 +1835,13 @@ function toggleEditProfile() {
         // Ativar edição
         fields.forEach(id => {
             const el = document.getElementById(id);
-            el.disabled = false;
-            el.style.background = '#fff';
-            el.style.color = 'var(--text-main)';
-            el.style.cursor = 'text';
-            el.style.borderColor = 'var(--orange)';
+            if (el) {
+                el.disabled = false;
+                el.style.background = '#fff';
+                el.style.color = 'var(--text-main)';
+                el.style.cursor = 'text';
+                el.style.borderColor = 'var(--orange)';
+            }
         });
         btnEdit.innerHTML = '<i class="ph ph-x" style="margin-right: 6px;"></i> Cancelar';
         btnEdit.style.borderColor = '#ef4444';
@@ -1727,11 +1853,13 @@ function toggleEditProfile() {
         // Desativar edição (cancelar)
         fields.forEach(id => {
             const el = document.getElementById(id);
-            el.disabled = true;
-            el.style.background = '#f1f5f9';
-            el.style.color = '#64748b';
-            el.style.cursor = 'not-allowed';
-            el.style.borderColor = 'var(--border)';
+            if (el) {
+                el.disabled = true;
+                el.style.background = '#f1f5f9';
+                el.style.color = '#64748b';
+                el.style.cursor = 'not-allowed';
+                el.style.borderColor = 'var(--border)';
+            }
         });
         btnEdit.innerHTML = '<i class="ph ph-pencil-simple" style="margin-right: 6px;"></i> Editar';
         btnEdit.style.borderColor = '';
@@ -1739,9 +1867,13 @@ function toggleEditProfile() {
         btnSave.style.display = 'none';
         // Restaurar dados originais
         if (userData) {
-            document.getElementById('profName').value = userData.nome || '';
-            document.getElementById('profPhone').value = userData.telefone || '';
-            document.getElementById('profAddress').value = userData.endereco || '';
+            if(document.getElementById('profName')) document.getElementById('profName').value = userData.nome || '';
+            if(document.getElementById('profRazao')) document.getElementById('profRazao').value = userData.razao || '';
+            if(document.getElementById('profPhone')) document.getElementById('profPhone').value = userData.telefone || '';
+            if(document.getElementById('profAddress')) document.getElementById('profAddress').value = userData.endereco || '';
+            if(document.getElementById('profAntt')) document.getElementById('profAntt').value = userData.antt || '';
+            if(document.getElementById('profCnhNum')) document.getElementById('profCnhNum').value = userData.cnh || '';
+            if(document.getElementById('profPlaca')) document.getElementById('profPlaca').value = userData.placa || '';
         }
     }
 }
@@ -1773,6 +1905,17 @@ async function salvarPerfil(btn) {
             updatedData.razao = sanitizeInput(profRazao.value.trim(), 200);
         }
 
+        if (userData.role === 'driver') {
+            const profAntt = document.getElementById('profAntt');
+            if (profAntt) updatedData.antt = sanitizeInput(profAntt.value.trim(), 50);
+            
+            const profCnhNum = document.getElementById('profCnhNum');
+            if (profCnhNum) updatedData.cnh = sanitizeInput(profCnhNum.value.trim(), 50);
+            
+            const profPlaca = document.getElementById('profPlaca');
+            if (profPlaca) updatedData.placa = sanitizeInput(profPlaca.value.trim(), 20);
+        }
+
         // Firestore protegido por Security Rules (só permite atualizar campos permitidos)
         updatedData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
         await db.collection('users').doc(user.uid).update(updatedData);
@@ -1792,55 +1935,160 @@ async function salvarPerfil(btn) {
         showToast(error.message || 'Erro ao salvar perfil.', 'error');
     }
 }
-
-function handleUpload(elementId, type, isButton = false) {
-    // OBS: Esta função atualmente simula o upload para o UI.
-    // Quando implementada com input type="file" real, chame validateFile(file) antes:
-    // const validation = validateFile(file, type === 'Foto');
-    // if (!validation.valid) {
-    //     showToast(validation.error, 'error');
-    //     logSecurityEvent('INVALID_UPLOAD', validation.error);
-    //     return;
-    // }
-
-    showToast(`Iniciando upload: ${type}...`, 'info');
-
-    const el = document.getElementById(elementId);
-    if (isButton && el) {
-        el.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Aguarde...`;
+// Modal Handle Upload Logic
+window.handleUpload = handleUpload;
+function handleUpload(elementId, type) {
+    const modal = document.getElementById('documentUploadModal');
+    if (!modal) return;
+    
+    document.getElementById('docUploadTitle').innerText = type;
+    
+    const isDouble = type === 'CPF' || type === 'CNH';
+    
+    const singleContainer = document.getElementById('docUploadSingleContainer');
+    const doubleContainer = document.getElementById('docUploadDoubleContainer');
+    
+    document.getElementById('docUploadSingleFile').value = '';
+    document.getElementById('docUploadFrenteFile').value = '';
+    document.getElementById('docUploadVersoFile').value = '';
+    document.getElementById('docUploadSinglePreview').style.display = 'none';
+    document.getElementById('docUploadFrentePreview').style.display = 'none';
+    document.getElementById('docUploadVersoPreview').style.display = 'none';
+    
+    if (isDouble) {
+        singleContainer.style.display = 'none';
+        doubleContainer.style.display = 'flex';
+    } else {
+        singleContainer.style.display = 'block';
+        doubleContainer.style.display = 'none';
     }
+    
+    window.currentUploadElementId = elementId;
+    window.currentUploadType = type;
+    window.currentUploadIsDouble = isDouble;
+    
+    modal.style.display = 'flex';
+    modal.offsetHeight; // reflow
+    modal.style.opacity = '1';
+}
 
-    setTimeout(() => {
-        if (el && !isButton) {
-            if (el.classList.contains('upload-item')) {
-                el.classList.add('uploaded');
-                const subtitle = el.querySelector('div > div > p:last-child');
-                if (subtitle) subtitle.innerText = "Enviado e aguardando validação";
-                const iconRight = el.querySelector('i.ph-upload-simple');
-                if (iconRight) {
-                    iconRight.className = 'ph-fill ph-clock';
-                    iconRight.style.color = '#f59e0b';
-                    iconRight.style.fontSize = '24px';
-                }
-            } else {
-                el.classList.add('uploaded');
-                el.innerHTML = `<i class="ph-fill ph-check-circle"></i><p style="font-size: 13px; font-weight: 600;">Enviado</p>`;
+window.previewDocUpload = previewDocUpload;
+function previewDocUpload(previewType) {
+    let inputId = '';
+    let previewId = '';
+    if (previewType === 'single') {
+        inputId = 'docUploadSingleFile';
+        previewId = 'docUploadSinglePreview';
+    } else if (previewType === 'frente') {
+        inputId = 'docUploadFrenteFile';
+        previewId = 'docUploadFrentePreview';
+    } else if (previewType === 'verso') {
+        inputId = 'docUploadVersoFile';
+        previewId = 'docUploadVersoPreview';
+    }
+    
+    const file = document.getElementById(inputId).files[0];
+    const preview = document.getElementById(previewId);
+    if (file) {
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
             }
-        } else if (el && isButton) {
-            if (elementId === 'btnPhoto') {
-                el.innerHTML = `<i class="ph-fill ph-check" style="font-size: 18px;"></i>`;
-                el.style.background = '#22c55e';
-                el.style.borderColor = '#22c55e';
-                el.style.color = '#fff';
-            } else {
-                el.innerHTML = `<i class="ph-fill ph-check-circle"></i> Capturada`;
-                el.style.background = '#f0fdf4';
-                el.style.borderColor = '#22c55e';
-                el.style.color = '#15803d';
+            reader.readAsDataURL(file);
+        } else {
+            preview.style.display = 'none';
+        }
+    }
+}
+
+window.closeDocUploadModal = closeDocUploadModal;
+function closeDocUploadModal() {
+    const modal = document.getElementById('documentUploadModal');
+    if (modal) {
+        modal.style.opacity = '0';
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+    }
+}
+
+window.confirmDocUpload = confirmDocUpload;
+async function confirmDocUpload() {
+    const isDouble = window.currentUploadIsDouble;
+    const btn = document.getElementById('btnConfirmDocUpload');
+    
+    let files = {};
+    if (isDouble) {
+        files.frente = document.getElementById('docUploadFrenteFile').files[0];
+        files.verso = document.getElementById('docUploadVersoFile').files[0];
+        if (!files.frente || !files.verso) {
+            showToast('Por favor, selecione as fotos da frente e do verso.', 'error');
+            return;
+        }
+    } else {
+        files.single = document.getElementById('docUploadSingleFile').files[0];
+        if (!files.single) {
+            showToast('Por favor, selecione o arquivo do documento.', 'error');
+            return;
+        }
+    }
+    
+    const originalText = btn.innerHTML;
+    btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Enviando...`;
+    btn.disabled = true;
+    
+    try {
+        const uid = auth.currentUser.uid;
+        let updates = { docStatus: 'Pendente', updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+        let docUrls = userData.documentUrls || {};
+        
+        if (isDouble) {
+            const frenteRef = storage.ref().child(`documents/${uid}/${window.currentUploadElementId}_Frente_${Date.now()}`);
+            const versoRef = storage.ref().child(`documents/${uid}/${window.currentUploadElementId}_Verso_${Date.now()}`);
+            
+            await frenteRef.put(files.frente);
+            docUrls[window.currentUploadElementId + 'Frente'] = await frenteRef.getDownloadURL();
+            
+            await versoRef.put(files.verso);
+            docUrls[window.currentUploadElementId + 'Verso'] = await versoRef.getDownloadURL();
+        } else {
+            const fileRef = storage.ref().child(`documents/${uid}/${window.currentUploadElementId}_${Date.now()}`);
+            await fileRef.put(files.single);
+            docUrls[window.currentUploadElementId] = await fileRef.getDownloadURL();
+        }
+        
+        updates.documentUrls = docUrls;
+        await db.collection("users").doc(uid).update(updates);
+        
+        userData.docStatus = 'Pendente';
+        userData.documentUrls = docUrls;
+        
+        // Update UI locally
+        const el = document.getElementById(window.currentUploadElementId);
+        if (el) {
+            el.classList.add('uploaded');
+            const subtitle = el.querySelector('div > div > p:last-child');
+            if (subtitle) subtitle.innerText = "Enviado e aguardando validação";
+            const iconRight = el.querySelector('i.ph-upload-simple');
+            if (iconRight) {
+                iconRight.className = 'ph-fill ph-check-circle';
+                iconRight.style.color = '#10b981';
             }
         }
-        showToast(`${type} enviado com sucesso!`);
-    }, 1500);
+        
+        preencherPerfil(); // update badges
+        showToast('Documento enviado com sucesso!');
+        closeDocUploadModal();
+        
+    } catch (err) {
+        console.error("Erro no upload", err);
+        showToast('Erro ao enviar documento. Tente novamente.', 'error');
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
 }
 
 function salvarCadastroMotorista(btn) {

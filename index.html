@@ -706,14 +706,16 @@
                     <input type="text" id="regDriverPlaca" placeholder="ABC-1234" />
                 </div>
                 
-                <div class="input-group">
-                    <label>Foto da CNH (Frente e Verso)</label>
-                    <input type="file" id="regDriverCnhPhoto" accept="image/*,application/pdf" style="padding: 10px; border: 1px dashed var(--border); border-radius: 12px; width: 100%;" />
+                <div class="input-group" style="display: flex; flex-direction: column; gap: 8px;">
+                    <label>Foto da CNH</label>
+                    <input type="file" id="regDriverCnhFrente" accept="image/*,application/pdf" style="padding: 10px; border: 1px dashed var(--border); border-radius: 12px; width: 100%;" placeholder="Frente da CNH" />
+                    <input type="file" id="regDriverCnhVerso" accept="image/*,application/pdf" style="padding: 10px; border: 1px dashed var(--border); border-radius: 12px; width: 100%;" placeholder="Verso da CNH" />
                 </div>
                 
-                <div class="input-group">
-                    <label>Foto do Veículo / Identificação</label>
-                    <input type="file" id="regDriverIdPhoto" accept="image/*,application/pdf" style="padding: 10px; border: 1px dashed var(--border); border-radius: 12px; width: 100%;" />
+                <div class="input-group" style="display: flex; flex-direction: column; gap: 8px;">
+                    <label>Foto do CPF</label>
+                    <input type="file" id="regDriverCpfFrente" accept="image/*,application/pdf" style="padding: 10px; border: 1px dashed var(--border); border-radius: 12px; width: 100%;" placeholder="Frente do CPF" />
+                    <input type="file" id="regDriverCpfVerso" accept="image/*,application/pdf" style="padding: 10px; border: 1px dashed var(--border); border-radius: 12px; width: 100%;" placeholder="Verso do CPF" />
                 </div>
 
                 <button class="btn btn-orange mt-4" onclick="irParaSenha(this)" style="border-radius: 18px; padding: 18px; width: 100%;">
@@ -1232,9 +1234,9 @@
 
             <h2 style="font-size: 22px; font-weight: 800; color: var(--primary); margin-bottom: 8px; z-index: 2;" id="profileDisplayName">Carregando...</h2>
             
-            <div style="display: flex; align-items: center; gap: 6px; background: #ecfdf5; border: 1.5px solid #d1fae5; padding: 5px 14px; border-radius: 99px; z-index: 2; margin-bottom: 12px;">
-                <span style="font-size: 11px; font-weight: 700; color: #065f46; text-transform: uppercase; letter-spacing: 0.5px;">Embarcador Homologado</span>
-                <i class="ph-fill ph-seal-check" style="color: #10b981; font-size: 16px;"></i>
+            <div id="profileStatusTagContainer" style="display: flex; align-items: center; gap: 6px; background: #ecfdf5; border: 1.5px solid #d1fae5; padding: 5px 14px; border-radius: 99px; z-index: 2; margin-bottom: 12px;">
+                <span id="profileStatusTagText" style="font-size: 11px; font-weight: 700; color: #065f46; text-transform: uppercase; letter-spacing: 0.5px;">Carregando...</span>
+                <i id="profileStatusTagIcon" class="ph-fill ph-seal-check" style="color: #10b981; font-size: 16px;"></i>
             </div>
 
             <!-- Dynamic Stats Subcard -->
@@ -1326,6 +1328,33 @@
                         <div class="input-suffix" style="padding-right: 14px;"><i class="ph ph-truck" style="font-size: 18px; color: #94a3b8;"></i></div>
                     </div>
                 </div>
+
+                <!-- ANTT (Motorista) -->
+                <div class="input-group-premium" id="profAnttGroup" style="display: none; margin: 0; flex-direction: column;">
+                    <label style="display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">RNTRC (ANTT)</label>
+                    <div class="input-wrapper" style="background: #f8fafc; border: 1.5px solid var(--border); border-radius: 14px; display: flex; align-items: center;">
+                        <input type="text" id="profAntt" placeholder="Número ANTT" disabled style="border: none; background: transparent; padding: 12px 14px; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1;" />
+                        <div class="input-suffix" style="padding-right: 14px;"><i class="ph ph-identification-card" style="font-size: 18px; color: #94a3b8;"></i></div>
+                    </div>
+                </div>
+
+                <!-- Número da CNH (Motorista) -->
+                <div class="input-group-premium" id="profCnhNumGroup" style="display: none; margin: 0; flex-direction: column;">
+                    <label style="display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Número da CNH</label>
+                    <div class="input-wrapper" style="background: #f8fafc; border: 1.5px solid var(--border); border-radius: 14px; display: flex; align-items: center;">
+                        <input type="text" id="profCnhNum" placeholder="Número da CNH" disabled style="border: none; background: transparent; padding: 12px 14px; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1;" />
+                        <div class="input-suffix" style="padding-right: 14px;"><i class="ph ph-identification-badge" style="font-size: 18px; color: #94a3b8;"></i></div>
+                    </div>
+                </div>
+
+                <!-- Placa (Motorista) -->
+                <div class="input-group-premium" id="profPlacaGroup" style="display: none; margin: 0; flex-direction: column;">
+                    <label style="display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Placa do Veículo Principal</label>
+                    <div class="input-wrapper" style="background: #f8fafc; border: 1.5px solid var(--border); border-radius: 14px; display: flex; align-items: center;">
+                        <input type="text" id="profPlaca" placeholder="ABC-1234" disabled style="border: none; background: transparent; padding: 12px 14px; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1;" />
+                        <div class="input-suffix" style="padding-right: 14px;"><i class="ph ph-truck" style="font-size: 18px; color: #94a3b8;"></i></div>
+                    </div>
+                </div>
             </div>
 
             <button class="btn btn-orange" id="btnSaveProfile"
@@ -1360,25 +1389,49 @@
             </p>
 
             <div class="upload-list" id="profileUploadList" style="display: flex; flex-direction: column; gap: 12px;">
-                <!-- Cartão CNPJ (Repurposed upCPF) -->
-                <div class="upload-item" id="upCPF" onclick="handleUpload('upCPF', 'Cartão CNPJ')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
+                <!-- CRLV -->
+                <div class="upload-item" id="upCRLV" onclick="handleUpload('upCRLV', 'CRLV')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
                     <div style="display: flex; align-items: center; gap: 14px;">
                         <i class="ph-fill ph-file-text" style="font-size: 24px; color: var(--orange);"></i>
                         <div style="text-align: left;">
-                            <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">Cartão CNPJ</p>
-                            <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;">Toque para enviar</p>
+                            <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">CRLV</p>
+                            <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;" id="status_upCRLV">Toque para enviar</p>
                         </div>
                     </div>
                     <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
                 </div>
 
-                <!-- Comprovante de Endereço (Repurposed upResidencia) -->
-                <div class="upload-item" id="upResidencia" onclick="handleUpload('upResidencia', 'Comprovante de Endereço')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
+                <!-- Comprovante de Residência -->
+                <div class="upload-item" id="upResidencia" onclick="handleUpload('upResidencia', 'Comprovante de Residência')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
                     <div style="display: flex; align-items: center; gap: 14px;">
                         <i class="ph-fill ph-house-line" style="font-size: 24px; color: var(--orange);"></i>
                         <div style="text-align: left;">
-                            <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">Comprovante de Endereço</p>
-                            <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;">Toque para enviar</p>
+                            <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">Comprovante de Residência</p>
+                            <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;" id="status_upResidencia">Toque para enviar</p>
+                        </div>
+                    </div>
+                    <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
+                </div>
+
+                <!-- CPF -->
+                <div class="upload-item" id="upCPF" onclick="handleUpload('upCPF', 'CPF')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <i class="ph-fill ph-identification-card" style="font-size: 24px; color: var(--orange);"></i>
+                        <div style="text-align: left;">
+                            <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">CPF</p>
+                            <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;" id="status_upCPF">Toque para enviar</p>
+                        </div>
+                    </div>
+                    <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
+                </div>
+
+                <!-- CNH -->
+                <div class="upload-item" id="upCNH" onclick="handleUpload('upCNH', 'CNH')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <i class="ph-fill ph-identification-badge" style="font-size: 24px; color: var(--orange);"></i>
+                        <div style="text-align: left;">
+                            <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">CNH</p>
+                            <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;" id="status_upCNH">Toque para enviar</p>
                         </div>
                     </div>
                     <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
@@ -1494,6 +1547,38 @@
                     <button class="btn btn-outline" style="margin: 0; border-radius: 16px; padding: 14px; font-weight: 700; color: var(--text-muted); border-color: var(--border);" onclick="fecharModalDeleteAccount()">
                         Cancelar
                     </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- MODAL UPLOAD DOCUMENTO -->
+        <div id="documentUploadModal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 10002; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: opacity 0.3s ease;">
+            <div style="background: white; padding: 24px; margin: 16px; max-width: 400px; width: 100%; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.15);">
+                <h3 id="docUploadTitle" style="margin-bottom: 8px; font-weight: 800; font-size: 20px; color: var(--primary);">Enviar Documento</h3>
+                <p id="docUploadDesc" style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Anexe a foto do documento solicitado.</p>
+                
+                <div id="docUploadSingleContainer" style="display: none;">
+                    <label style="font-size: 12px; font-weight: bold; margin-bottom: 4px; display: block;">Selecione o arquivo:</label>
+                    <input type="file" id="docUploadSingleFile" accept="image/*,application/pdf" style="margin-bottom: 12px; width: 100%; padding: 8px; border: 1px dashed var(--border); border-radius: 8px;" onchange="previewDocUpload('single')" />
+                    <img id="docUploadSinglePreview" style="display:none; max-width: 100%; max-height: 200px; border-radius: 12px; margin-bottom: 12px;" />
+                </div>
+
+                <div id="docUploadDoubleContainer" style="display: none; gap: 12px; flex-direction: column;">
+                    <div>
+                        <label style="font-size: 12px; font-weight: bold; margin-bottom: 4px; display: block;">Foto da Frente:</label>
+                        <input type="file" id="docUploadFrenteFile" accept="image/*,application/pdf" style="margin-bottom: 8px; width: 100%; padding: 8px; border: 1px dashed var(--border); border-radius: 8px;" onchange="previewDocUpload('frente')" />
+                        <img id="docUploadFrentePreview" style="display:none; max-width: 100%; max-height: 150px; border-radius: 12px;" />
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; font-weight: bold; margin-bottom: 4px; display: block;">Foto do Verso:</label>
+                        <input type="file" id="docUploadVersoFile" accept="image/*,application/pdf" style="margin-bottom: 8px; width: 100%; padding: 8px; border: 1px dashed var(--border); border-radius: 8px;" onchange="previewDocUpload('verso')" />
+                        <img id="docUploadVersoPreview" style="display:none; max-width: 100%; max-height: 150px; border-radius: 12px;" />
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; margin-top: 16px;">
+                    <button class="btn btn-outline" style="flex: 1; margin: 0; padding: 12px; border-radius: 14px;" onclick="closeDocUploadModal()">Cancelar</button>
+                    <button class="btn btn-orange" id="btnConfirmDocUpload" style="flex: 1; margin: 0; padding: 12px; border-radius: 14px;" onclick="confirmDocUpload()">Enviar</button>
                 </div>
             </div>
         </div>
