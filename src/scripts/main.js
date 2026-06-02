@@ -1520,47 +1520,60 @@ function preencherPerfil() {
     checkUploadStatus('upCNH', 'upCNH');
 
     const driverHomologationCard = document.getElementById('driverHomologationCard');
-    let shipperHomologationCard = null;
-    document.querySelectorAll('.glass-card h3').forEach(h3 => {
-        if (h3.textContent.includes("Homologação de Segurança")) {
-            shipperHomologationCard = h3.parentElement;
+    const shipperHomologationCard = document.getElementById('shipperHomologationCard');
+    
+    // Helper to apply status to a badge + message pair
+    function applyHomologationStatus(badge, msg, status, rejectionReason) {
+        if (!badge) return;
+        badge.innerText = status;
+        
+        if (status === 'Aprovado') {
+            badge.style.background = '#dcfce7';
+            badge.style.color = '#16a34a';
+            if (msg) { msg.innerText = 'Seus documentos foram validados com sucesso! Você tem acesso total à plataforma.'; msg.style.display = 'block'; }
+        } else if (status === 'Reprovado') {
+            badge.style.background = '#fee2e2';
+            badge.style.color = '#ef4444';
+            if (msg) { msg.innerText = rejectionReason || 'Seus documentos foram reprovados. Acesse o suporte para mais informações.'; msg.style.display = 'block'; }
+        } else if (status === 'Bloqueado') {
+            badge.style.background = '#f1f5f9';
+            badge.style.color = '#64748b';
+            if (msg) { msg.innerText = rejectionReason || 'O seu perfil foi temporariamente bloqueado pela administração.'; msg.style.display = 'block'; }
+        } else if (status === 'Pendente' || status === 'Em Análise') {
+            badge.style.background = '#fef3c7';
+            badge.style.color = '#d97706';
+            if (msg) { msg.innerText = 'A sua documentação foi recebida e está em análise (prazo de até 24 horas).'; msg.style.display = 'block'; }
+        } else {
+            badge.style.background = '#ffedd5';
+            badge.style.color = '#ea580c';
+            if (msg) { msg.innerText = 'Para obter o selo ouro, envie toda a documentação necessária.'; msg.style.display = 'block'; }
         }
-    });
+    }
+    
+    const status = userData.docStatus || 'Documentação Incompleta';
     
     if (driverHomologationCard) {
         if (userData.role === 'driver') {
             driverHomologationCard.style.display = 'block';
-            
-            const badge = document.getElementById('homologationStatusBadge');
-            const msg = document.getElementById('homologationStatusMessage');
-            const status = userData.docStatus || 'Documentação Incompleta';
-            
-            badge.innerText = status;
-            
-            if (status === 'Aprovado') {
-                badge.style.background = '#dcfce7';
-                badge.style.color = '#16a34a';
-                msg.innerText = 'Seus documentos foram validados com sucesso! Você tem acesso total à plataforma.';
-            } else if (status === 'Reprovado') {
-                badge.style.background = '#fee2e2';
-                badge.style.color = '#ef4444';
-                msg.innerText = userData.rejectionReason || 'Seus documentos foram reprovados. Acesse o suporte para mais informações.';
-            } else if (status === 'Bloqueado') {
-                badge.style.background = '#f1f5f9';
-                badge.style.color = '#64748b';
-                msg.innerText = userData.rejectionReason || 'O seu perfil foi temporariamente bloqueado pela administração.';
-            } else if (status === 'Pendente' || status === 'Em Análise') {
-                badge.style.background = '#fef3c7';
-                badge.style.color = '#d97706';
-                msg.innerText = 'A sua documentação foi recebida e está em análise (prazo de até 24 horas).';
-            } else {
-                badge.style.background = '#ffedd5';
-                badge.style.color = '#ea580c';
-                msg.innerText = 'Para aceitar fretes e entrar no radar, precisamos que envie sua documentação.';
-            }
+            applyHomologationStatus(
+                document.getElementById('homologationStatusBadge'),
+                document.getElementById('homologationStatusMessage'),
+                status, userData.rejectionReason
+            );
         } else {
             driverHomologationCard.style.display = 'none';
         }
+    }
+    
+    // Shipper badge (on the upload card)
+    if (shipperHomologationCard) {
+        const hasAnyDoc = userData.documentUrls && Object.keys(userData.documentUrls).length > 0;
+        const shipperStatus = hasAnyDoc ? (userData.docStatus || 'Pendente') : 'Documentação Incompleta';
+        applyHomologationStatus(
+            document.getElementById('shipperHomologationBadge'),
+            document.getElementById('shipperHomologationMessage'),
+            shipperStatus, userData.rejectionReason
+        );
     }
 
     const uploadList = document.getElementById('profileUploadList');
