@@ -1511,20 +1511,29 @@ function preencherPerfil() {
     }
 
     // Atualizar status dos documentos anexados
-    const checkUploadStatus = (id, key) => {
+    const checkUploadStatus = (id, baseKey) => {
         const el = document.getElementById(id);
         if (!el) return;
-        const hasDoc = userData.documentUrls && (userData.documentUrls[key] || userData.documentUrls[key + 'Frente']);
+        
+        // Verifica se há pelomenos um arquivo (seja o base, ou o Frente, ou o Verso)
+        const hasDoc = userData.documentUrls && (
+            userData.documentUrls[baseKey] || 
+            userData.documentUrls[baseKey + 'Frente'] || 
+            userData.documentUrls[baseKey + 'Verso']
+        );
         
         const subtitle = el.querySelector('p:last-child');
         const iconRight = el.querySelector('i.ph-upload-simple') || el.querySelector('i.ph-check-circle') || el.querySelector('i.ph-clock') || el.querySelector('i.ph-warning-circle');
         
         if (hasDoc) {
             el.classList.add('uploaded');
-            // Check individual status first, then fall back to global status, then default to Pendente
-            const indStatus = (userData.documentStatuses && userData.documentStatuses[key]) 
-                            ? userData.documentStatuses[key] 
-                            : (userData.docStatus || 'Pendente');
+            
+            // Pega o status individual: primeiro tenta o exato, depois Frente, depois cai pro global
+            const indStatus = (userData.documentStatuses && userData.documentStatuses[baseKey])
+                            ? userData.documentStatuses[baseKey]
+                            : (userData.documentStatuses && userData.documentStatuses[baseKey + 'Frente'])
+                                ? userData.documentStatuses[baseKey + 'Frente']
+                                : (userData.docStatus || 'Pendente');
             
             if (indStatus === 'Aprovado') {
                 if (subtitle) subtitle.innerText = "Aprovado";
@@ -1555,10 +1564,10 @@ function preencherPerfil() {
         }
     };
     
-    checkUploadStatus('upCRLV', 'upCRLV');
-    checkUploadStatus('upResidencia', 'upResidencia');
-    checkUploadStatus('upCPF', 'upCPF');
-    checkUploadStatus('upCNH', 'upCNH');
+    checkUploadStatus('upCRLV', 'crlv');
+    checkUploadStatus('upResidencia', 'residencia');
+    checkUploadStatus('upCPF', 'cpf');
+    checkUploadStatus('upCNH', 'cnh');
 
     const homologationCard = document.getElementById('shipperHomologationCard');
     
