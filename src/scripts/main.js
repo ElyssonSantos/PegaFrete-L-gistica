@@ -1495,14 +1495,33 @@ function preencherPerfil() {
         const hasDoc = userData.documentUrls && (userData.documentUrls[key] || userData.documentUrls[key + 'Frente']);
         
         const subtitle = el.querySelector('p:last-child');
-        const iconRight = el.querySelector('i.ph-upload-simple') || el.querySelector('i.ph-check-circle');
+        const iconRight = el.querySelector('i.ph-upload-simple') || el.querySelector('i.ph-check-circle') || el.querySelector('i.ph-clock') || el.querySelector('i.ph-warning-circle');
         
         if (hasDoc) {
             el.classList.add('uploaded');
-            if (subtitle) subtitle.innerText = "Enviado e aguardando validação";
-            if (iconRight) {
-                iconRight.className = 'ph-fill ph-check-circle';
-                iconRight.style.color = '#10b981';
+            // Check individual status first, then fall back to global status, then default to Pendente
+            const indStatus = (userData.documentStatuses && userData.documentStatuses[key]) 
+                            ? userData.documentStatuses[key] 
+                            : (userData.docStatus || 'Pendente');
+            
+            if (indStatus === 'Aprovado') {
+                if (subtitle) subtitle.innerText = "Aprovado";
+                if (iconRight) {
+                    iconRight.className = 'ph-fill ph-check-circle';
+                    iconRight.style.color = '#10b981'; // green
+                }
+            } else if (indStatus === 'Reprovado' || indStatus === 'Bloqueado') {
+                if (subtitle) subtitle.innerText = "Reprovado";
+                if (iconRight) {
+                    iconRight.className = 'ph-fill ph-warning-circle';
+                    iconRight.style.color = '#ef4444'; // red
+                }
+            } else {
+                if (subtitle) subtitle.innerText = "Enviado e aguardando validação";
+                if (iconRight) {
+                    iconRight.className = 'ph-fill ph-clock';
+                    iconRight.style.color = '#d97706'; // yellow
+                }
             }
         } else {
             el.classList.remove('uploaded');
@@ -1519,8 +1538,7 @@ function preencherPerfil() {
     checkUploadStatus('upCPF', 'upCPF');
     checkUploadStatus('upCNH', 'upCNH');
 
-    const driverHomologationCard = document.getElementById('driverHomologationCard');
-    const shipperHomologationCard = document.getElementById('shipperHomologationCard');
+    const homologationCard = document.getElementById('shipperHomologationCard');
     
     // Helper to apply status to a badge + message pair
     function applyHomologationStatus(badge, msg, status, rejectionReason) {
@@ -1550,29 +1568,14 @@ function preencherPerfil() {
         }
     }
     
-    const status = userData.docStatus || 'Documentação Incompleta';
+    const hasAnyDoc = userData.documentUrls && Object.keys(userData.documentUrls).length > 0;
+    const computedStatus = hasAnyDoc ? (userData.docStatus || 'Pendente') : 'Documentação Incompleta';
     
-    if (driverHomologationCard) {
-        if (userData.role === 'driver') {
-            driverHomologationCard.style.display = 'block';
-            applyHomologationStatus(
-                document.getElementById('homologationStatusBadge'),
-                document.getElementById('homologationStatusMessage'),
-                status, userData.rejectionReason
-            );
-        } else {
-            driverHomologationCard.style.display = 'none';
-        }
-    }
-    
-    // Shipper badge (on the upload card)
-    if (shipperHomologationCard) {
-        const hasAnyDoc = userData.documentUrls && Object.keys(userData.documentUrls).length > 0;
-        const shipperStatus = hasAnyDoc ? (userData.docStatus || 'Pendente') : 'Documentação Incompleta';
+    if (homologationCard) {
         applyHomologationStatus(
             document.getElementById('shipperHomologationBadge'),
             document.getElementById('shipperHomologationMessage'),
-            shipperStatus, userData.rejectionReason
+            computedStatus, userData.rejectionReason
         );
     }
 
