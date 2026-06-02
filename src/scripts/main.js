@@ -1569,46 +1569,8 @@ function preencherPerfil() {
     checkUploadStatus('upCPF', 'cpf');
     checkUploadStatus('upCNH', 'cnh');
 
-    const homologationCard = document.getElementById('shipperHomologationCard');
-    
-    // Helper to apply status to a badge + message pair
-    function applyHomologationStatus(badge, msg, status, rejectionReason) {
-        if (!badge) return;
-        badge.innerText = status;
-        
-        if (status === 'Aprovado') {
-            badge.style.background = '#dcfce7';
-            badge.style.color = '#16a34a';
-            if (msg) { msg.innerText = 'Seus documentos foram validados com sucesso! Você tem acesso total à plataforma.'; msg.style.display = 'block'; }
-        } else if (status === 'Reprovado') {
-            badge.style.background = '#fee2e2';
-            badge.style.color = '#ef4444';
-            if (msg) { msg.innerText = rejectionReason || 'Seus documentos foram reprovados. Acesse o suporte para mais informações.'; msg.style.display = 'block'; }
-        } else if (status === 'Bloqueado') {
-            badge.style.background = '#f1f5f9';
-            badge.style.color = '#64748b';
-            if (msg) { msg.innerText = rejectionReason || 'O seu perfil foi temporariamente bloqueado pela administração.'; msg.style.display = 'block'; }
-        } else if (status === 'Pendente' || status === 'Em Análise') {
-            badge.style.background = '#fef3c7';
-            badge.style.color = '#d97706';
-            if (msg) { msg.innerText = 'A sua documentação foi recebida e está em análise (prazo de até 24 horas).'; msg.style.display = 'block'; }
-        } else {
-            badge.style.background = '#ffedd5';
-            badge.style.color = '#ea580c';
-            if (msg) { msg.innerText = 'Para obter o selo ouro, envie toda a documentação necessária.'; msg.style.display = 'block'; }
-        }
-    }
-    
-    const hasAnyDoc = userData.documentUrls && Object.keys(userData.documentUrls).length > 0;
-    const computedStatus = hasAnyDoc ? (userData.docStatus || 'Pendente') : 'Documentação Incompleta';
-    
-    if (homologationCard) {
-        applyHomologationStatus(
-            document.getElementById('shipperHomologationBadge'),
-            document.getElementById('shipperHomologationMessage'),
-            computedStatus, userData.rejectionReason
-        );
-    }
+    // As mensagens globais e badges foram removidos do topo do card a pedido do usuário.
+    // O status é exibido apenas individualmente em cada documento.
 
     const uploadList = document.getElementById('profileUploadList');
     if (uploadList) {
