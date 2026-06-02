@@ -1241,27 +1241,49 @@ async function finalizarCadastro(btn) {
             cleanUserData.docStatus = userData.docStatus;
         }
 
-        // Upload files if pending
+        // Upload files if pending (Using Local Compression to avoid Firebase Storage Pricing/CORS)
         if (cleanUserData.role === 'driver' && cleanUserData.docStatus === 'Pendente' && userData.filesToUpload) {
-            showToast('Enviando documentos, aguarde...');
+            showToast('Processando e enviando documentos, aguarde...');
             try {
+                const compressImageToBase64 = (file, maxWidth = 800) => {
+                    return new Promise((resolve, reject) => {
+                        if (!file || !file.type.match(/image.*/)) {
+                            const reader = new FileReader();
+                            reader.onload = e => resolve(e.target.result);
+                            reader.onerror = error => reject(error);
+                            if(file) reader.readAsDataURL(file); else resolve(null);
+                            return;
+                        }
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            const img = new Image();
+                            img.onload = function() {
+                                const canvas = document.createElement('canvas');
+                                let width = img.width;
+                                let height = img.height;
+                                if (width > maxWidth) {
+                                    height = Math.round(height * maxWidth / width);
+                                    width = maxWidth;
+                                }
+                                canvas.width = width;
+                                canvas.height = height;
+                                const ctx = canvas.getContext('2d');
+                                ctx.drawImage(img, 0, 0, width, height);
+                                resolve(canvas.toDataURL('image/jpeg', 0.6));
+                            };
+                            img.onerror = error => reject(error);
+                            img.src = event.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                };
+
                 const uploads = userData.filesToUpload;
-                const cnhFrenteRef = storage.ref().child(`documents/${uid}/cnhFrente_${Date.now()}`);
-                const cnhVersoRef = storage.ref().child(`documents/${uid}/cnhVerso_${Date.now()}`);
-                const cpfFrenteRef = storage.ref().child(`documents/${uid}/cpfFrente_${Date.now()}`);
-                const cpfVersoRef = storage.ref().child(`documents/${uid}/cpfVerso_${Date.now()}`);
                 
-                await cnhFrenteRef.put(uploads.cnhFrente);
-                const cnhFrenteUrl = await cnhFrenteRef.getDownloadURL();
-                
-                await cnhVersoRef.put(uploads.cnhVerso);
-                const cnhVersoUrl = await cnhVersoRef.getDownloadURL();
-
-                await cpfFrenteRef.put(uploads.cpfFrente);
-                const cpfFrenteUrl = await cpfFrenteRef.getDownloadURL();
-
-                await cpfVersoRef.put(uploads.cpfVerso);
-                const cpfVersoUrl = await cpfVersoRef.getDownloadURL();
+                const cnhFrenteUrl = await compressImageToBase64(uploads.cnhFrente);
+                const cnhVersoUrl = await compressImageToBase64(uploads.cnhVerso);
+                const cpfFrenteUrl = await compressImageToBase64(uploads.cpfFrente);
+                const cpfVersoUrl = await compressImageToBase64(uploads.cpfVerso);
                 
                 cleanUserData.documentUrls = {
                     cnhFrente: cnhFrenteUrl,
@@ -2044,19 +2066,44 @@ async function confirmDocUpload() {
         let updates = { docStatus: 'Pendente', updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
         let docUrls = userData.documentUrls || {};
         
+        const compressImageToBase64 = (file, maxWidth = 800) => {
+            return new Promise((resolve, reject) => {
+                if (!file || !file.type.match(/image.*/)) {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.onerror = error => reject(error);
+                    if(file) reader.readAsDataURL(file); else resolve(null);
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > maxWidth) {
+                            height = Math.round(height * maxWidth / width);
+                            width = maxWidth;
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.6));
+                    };
+                    img.onerror = error => reject(error);
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        };
+        
         if (isDouble) {
-            const frenteRef = storage.ref().child(`documents/${uid}/${window.currentUploadElementId}_Frente_${Date.now()}`);
-            const versoRef = storage.ref().child(`documents/${uid}/${window.currentUploadElementId}_Verso_${Date.now()}`);
-            
-            await frenteRef.put(files.frente);
-            docUrls[window.currentUploadElementId + 'Frente'] = await frenteRef.getDownloadURL();
-            
-            await versoRef.put(files.verso);
-            docUrls[window.currentUploadElementId + 'Verso'] = await versoRef.getDownloadURL();
+            docUrls[window.currentUploadElementId + 'Frente'] = await compressImageToBase64(files.frente);
+            docUrls[window.currentUploadElementId + 'Verso'] = await compressImageToBase64(files.verso);
         } else {
-            const fileRef = storage.ref().child(`documents/${uid}/${window.currentUploadElementId}_${Date.now()}`);
-            await fileRef.put(files.single);
-            docUrls[window.currentUploadElementId] = await fileRef.getDownloadURL();
+            docUrls[window.currentUploadElementId] = await compressImageToBase64(files.single);
         }
         
         updates.documentUrls = docUrls;
