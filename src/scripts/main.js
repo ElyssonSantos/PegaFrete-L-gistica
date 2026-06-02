@@ -351,22 +351,39 @@ window.onload = () => {
                     }, { merge: true }).catch(err => console.warn("Erro ao salvar public_emails:", err));
                 }
 
-                const docRef = await db.collection("users").doc(user.uid).get();
-                if (docRef.exists) {
-                    userData = docRef.data();
-                    // SE O USUÁRIO FOR ADMIN, ELE É TRATADO COMO EMBARCADOR (SHIPPER) NO APP PRINCIPAL
-                    if (userData.role === 'admin') {
-                        userData.role = 'shipper';
-                    }
-                    preencherPerfil();
-                    setRole(userData.role || 'driver');
-                    startFreightListener();
-                    startSystemMessagesListener();
-                } else {
-                    // Se logou com Google mas não tem perfil, vai escolher o papel
-                    preencherCamposCadastroGoogle(user);
-                    navTo('choice');
+                const userRef = db.collection("users").doc(user.uid);
+                
+                // Add a global variable to store the unubscribe function so we can clean it up
+                if (window.userDocListener) {
+                    window.userDocListener();
                 }
+
+                window.userDocListener = userRef.onSnapshot((doc) => {
+                    if (doc.exists) {
+                        userData = doc.data();
+                        // SE O USUÁRIO FOR ADMIN, ELE É TRATADO COMO EMBARCADOR (SHIPPER) NO APP PRINCIPAL
+                        if (userData.role === 'admin') {
+                            userData.role = 'shipper';
+                        }
+                        preencherPerfil();
+                        setRole(userData.role || 'driver');
+                        
+                        // Start these only once, not on every user update, to avoid duplicate listeners
+                        if (!window.freightListenerStarted) {
+                            startFreightListener();
+                            startSystemMessagesListener();
+                            window.freightListenerStarted = true;
+                        }
+                    } else {
+                        // Se logou com Google mas não tem perfil, vai escolher o papel
+                        if (window.userDocListener) window.userDocListener(); // stop listening
+                        preencherCamposCadastroGoogle(user);
+                        navTo('choice');
+                    }
+                }, (error) => {
+                    console.error("Erro no listener do usuário:", error);
+                });
+                
             } catch (error) {
                 console.error("Erro ao verificar documento do usuário:", error);
                 showToast(`Erro na validação do perfil: ${error.message}`, 'error');
@@ -378,6 +395,11 @@ window.onload = () => {
                 systemMessagesListener();
                 systemMessagesListener = null;
             }
+            if (window.userDocListener) {
+                window.userDocListener();
+                window.userDocListener = null;
+            }
+            window.freightListenerStarted = false;
             restaurarBotoesCadastroPadrao();
             navTo('auth_entry');
         }
