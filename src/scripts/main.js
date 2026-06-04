@@ -1889,6 +1889,26 @@ async function salvarPerfil(btn) {
 // Modal Handle Upload Logic
 window.handleUpload = handleUpload;
 function handleUpload(elementId, type) {
+    let baseKey = '';
+    if (elementId === 'upCNH') baseKey = 'cnh';
+    else if (elementId === 'upCPF') baseKey = 'cpf';
+    else if (elementId === 'upCRLV') baseKey = 'crlv';
+    else if (elementId === 'upResidencia') baseKey = 'residencia';
+    else if (elementId === 'upCNPJ') baseKey = 'cnpj';
+    else if (elementId === 'upEnderecoEmpresa') baseKey = 'enderecoEmpresa';
+    else baseKey = elementId;
+
+    const indStatus = (userData.documentStatuses && userData.documentStatuses[baseKey])
+                    ? userData.documentStatuses[baseKey]
+                    : (userData.documentStatuses && userData.documentStatuses[baseKey + 'Frente'])
+                        ? userData.documentStatuses[baseKey + 'Frente']
+                        : null;
+
+    if (indStatus === 'Aprovado') {
+        showToast('Este documento já foi verificado e aprovado.', 'info');
+        return;
+    }
+
     const modal = document.getElementById('documentUploadModal');
     if (!modal) return;
     
