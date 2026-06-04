@@ -1512,12 +1512,6 @@ function preencherPerfil() {
 
     // Atualizar status dos documentos anexados
     const checkUploadStatus = (id, baseKey) => {
-            `;
-        }
-    }
-
-    // Atualizar status dos documentos anexados
-    const checkUploadStatus = (id, baseKey) => {
         const el = document.getElementById(id);
         if (!el) return;
         
