@@ -1523,7 +1523,7 @@ function preencherPerfil() {
         );
         
         const subtitle = el.querySelector('p:last-child');
-        const iconRight = el.querySelector('i.ph-upload-simple') || el.querySelector('i.ph-check-circle') || el.querySelector('i.ph-clock') || el.querySelector('i.ph-warning-circle');
+        const iconRight = el.querySelector('i.ph-upload-simple') || el.querySelector('i.ph-check-circle') || el.querySelector('i.ph-clock') || el.querySelector('i.ph-warning-circle') || el.querySelector('i.ph-x-circle');
         
         if (hasDoc) {
             el.classList.add('uploaded');
@@ -1536,22 +1536,22 @@ function preencherPerfil() {
                                 : (userData.docStatus || 'Pendente');
             
             if (indStatus === 'Aprovado') {
-                if (subtitle) subtitle.innerText = "Aprovado";
+                if (subtitle) subtitle.innerText = "Verificado";
                 if (iconRight) {
                     iconRight.className = 'ph-fill ph-check-circle';
                     iconRight.style.color = '#10b981'; // green
                 }
             } else if (indStatus === 'Reprovado' || indStatus === 'Bloqueado') {
-                if (subtitle) subtitle.innerText = "Reprovado";
+                if (subtitle) subtitle.innerText = "Documento recusado";
                 if (iconRight) {
-                    iconRight.className = 'ph-fill ph-warning-circle';
+                    iconRight.className = 'ph-fill ph-x-circle';
                     iconRight.style.color = '#ef4444'; // red
                 }
             } else {
-                if (subtitle) subtitle.innerText = "Enviado e aguardando validação";
+                if (subtitle) subtitle.innerText = "Em análise";
                 if (iconRight) {
                     iconRight.className = 'ph-fill ph-clock';
-                    iconRight.style.color = '#d97706'; // yellow
+                    iconRight.style.color = '#d97706'; // yellow/orange
                 }
             }
         } else {
@@ -2028,29 +2028,49 @@ async function confirmDocUpload() {
             });
         };
         
+        let baseKey = '';
+        if (window.currentUploadElementId === 'upCNH') baseKey = 'cnh';
+        else if (window.currentUploadElementId === 'upCPF') baseKey = 'cpf';
+        else if (window.currentUploadElementId === 'upCRLV') baseKey = 'crlv';
+        else if (window.currentUploadElementId === 'upResidencia') baseKey = 'residencia';
+        else if (window.currentUploadElementId === 'upCNPJ') baseKey = 'cnpj';
+        else if (window.currentUploadElementId === 'upEnderecoEmpresa') baseKey = 'enderecoEmpresa';
+        else baseKey = window.currentUploadElementId;
+
         if (isDouble) {
-            docUrls[window.currentUploadElementId + 'Frente'] = await compressImageToBase64(files.frente);
-            docUrls[window.currentUploadElementId + 'Verso'] = await compressImageToBase64(files.verso);
+            docUrls[baseKey + 'Frente'] = await compressImageToBase64(files.frente);
+            docUrls[baseKey + 'Verso'] = await compressImageToBase64(files.verso);
         } else {
-            docUrls[window.currentUploadElementId] = await compressImageToBase64(files.single);
+            docUrls[baseKey] = await compressImageToBase64(files.single);
         }
         
         updates.documentUrls = docUrls;
+
+        // Ao reenviar um documento, redefinir seu status individual para Pendente
+        let documentStatuses = userData.documentStatuses || {};
+        documentStatuses[baseKey] = 'Pendente';
+        if (isDouble) {
+            documentStatuses[baseKey + 'Frente'] = 'Pendente';
+            documentStatuses[baseKey + 'Verso'] = 'Pendente';
+        }
+        updates.documentStatuses = documentStatuses;
+
         await db.collection("users").doc(uid).update(updates);
         
         userData.docStatus = 'Pendente';
         userData.documentUrls = docUrls;
+        userData.documentStatuses = documentStatuses;
         
         // Update UI locally
         const el = document.getElementById(window.currentUploadElementId);
         if (el) {
             el.classList.add('uploaded');
             const subtitle = el.querySelector('div > div > p:last-child');
-            if (subtitle) subtitle.innerText = "Enviado e aguardando validação";
-            const iconRight = el.querySelector('i.ph-upload-simple');
+            if (subtitle) subtitle.innerText = "Em análise";
+            const iconRight = el.querySelector('i.ph-upload-simple') || el.querySelector('i.ph-check-circle') || el.querySelector('i.ph-warning-circle') || el.querySelector('i.ph-x-circle');
             if (iconRight) {
-                iconRight.className = 'ph-fill ph-check-circle';
-                iconRight.style.color = '#10b981';
+                iconRight.className = 'ph-fill ph-clock';
+                iconRight.style.color = '#d97706';
             }
         }
         
