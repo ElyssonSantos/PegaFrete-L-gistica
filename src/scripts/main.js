@@ -1,17 +1,17 @@
-import firebase from 'firebase/compat/app';
+﻿import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import 'firebase/compat/storage';
 
 // ====== ZERO TRUST HARDENING ======
-// Prevenção de vazamento de dados em Produção
+// PrevenÃ§Ã£o de vazamento de dados em ProduÃ§Ã£o
 if (import.meta.env?.PROD || window.location.hostname !== 'localhost') {
-    // Sobrescreve métodos de console para evitar vazamento de tokens e logs na rede
+    // Sobrescreve mÃ©todos de console para evitar vazamento de tokens e logs na rede
     console.log = function() {};
     console.warn = function() {};
     console.info = function() {};
     console.debug = function() {};
-    // Mantém apenas console.error genérico (opcional, ou pode desativar também)
+    // MantÃ©m apenas console.error genÃ©rico (opcional, ou pode desativar tambÃ©m)
     const originalError = console.error;
     console.error = function() {
         originalError("[Security] Application Error");
@@ -26,12 +26,12 @@ if (import.meta.env?.PROD || window.location.hostname !== 'localhost') {
     }, 1000);
 }
 
-// Proteção contra Brute Force / Rate Limiting Local
+// ProteÃ§Ã£o contra Brute Force / Rate Limiting Local
 let loginAttempts = 0;
 let lastLoginAttemptTime = 0;
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOGIN_COOLDOWN_MS = 60000; // 1 minuto
-// Configuração do Firebase
+// ConfiguraÃ§Ã£o do Firebase
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyD7lL5jSj57oLL_wWJWbImUD2Y7TKk3gRI",
     authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "pegafrete-logistica.firebaseapp.com",
@@ -48,13 +48,13 @@ if (!firebase.apps.length) {
 }
 
 // ==========================================
-// PROTEÇÃO DE FRONTEND E ANTI-DEVTOOLS
+// PROTEÃ‡ÃƒO DE FRONTEND E ANTI-DEVTOOLS
 // ==========================================
 
-// Bloqueia clique com botão direito
+// Bloqueia clique com botÃ£o direito
 document.addEventListener('contextmenu', event => event.preventDefault());
 
-// Bloqueia atalhos comuns de inspeção
+// Bloqueia atalhos comuns de inspeÃ§Ã£o
 document.addEventListener('keydown', event => {
     // F12
     if (event.keyCode === 123) {
@@ -71,12 +71,12 @@ document.addEventListener('keydown', event => {
         event.preventDefault();
         return false;
     }
-    // Ctrl+U ou Cmd+U (Ver Código Fonte)
+    // Ctrl+U ou Cmd+U (Ver CÃ³digo Fonte)
     if (event.ctrlKey && event.keyCode === 85) {
         event.preventDefault();
         return false;
     }
-    // Ctrl+S ou Cmd+S (Salvar página)
+    // Ctrl+S ou Cmd+S (Salvar pÃ¡gina)
     if (event.ctrlKey && event.keyCode === 83) {
         event.preventDefault();
         return false;
@@ -100,12 +100,12 @@ let tempRole = '';
 let isRegisteringProcess = false; // Flag to block onAuthStateChanged auto-redirects during registration
 let smsSendCooldown = false; // Rate limit para envio de SMS
 
-// ====== SEGURANÇA: SANITIZAÇÃO E VALIDAÇÃO ======
+// ====== SEGURANÃ‡A: SANITIZAÃ‡ÃƒO E VALIDAÃ‡ÃƒO ======
 
 /**
  * Client-side input sanitization (Defense in Depth)
- * Firestore Security Rules fornecem a proteção primária.
- * Esta camada adicional impede injeção de HTML/JS antes de gravar.
+ * Firestore Security Rules fornecem a proteÃ§Ã£o primÃ¡ria.
+ * Esta camada adicional impede injeÃ§Ã£o de HTML/JS antes de gravar.
  */
 function sanitizeInput(str, maxLen = 500) {
     if (!str || typeof str !== 'string') return '';
@@ -116,14 +116,14 @@ function sanitizeInput(str, maxLen = 500) {
         .slice(0, maxLen);
 }
 
-// ====== SEGURANÇA: LOGS E MONITORAMENTO ======
+// ====== SEGURANÃ‡A: LOGS E MONITORAMENTO ======
 async function logSecurityEvent(event, details) {
     try {
         const user = auth.currentUser;
         const uid = user ? user.uid : 'unauthenticated';
 
-        // Em produção, isso gravaria no Firestore (coleção security_logs)
-        // Apenas o backend ou o próprio usuário pode ler seus logs.
+        // Em produÃ§Ã£o, isso gravaria no Firestore (coleÃ§Ã£o security_logs)
+        // Apenas o backend ou o prÃ³prio usuÃ¡rio pode ler seus logs.
         if (user) {
             await db.collection('security_logs').add({
                 uid: uid,
@@ -135,36 +135,36 @@ async function logSecurityEvent(event, details) {
         }
         console.warn(`[SECURITY LOG] ${event}:`, details);
     } catch (err) {
-        console.error('Falha ao gravar log de segurança', err);
+        console.error('Falha ao gravar log de seguranÃ§a', err);
     }
 }
 
-// ====== SEGURANÇA: VALIDAÇÃO DE ARQUIVOS (MAGIC BYTES) ======
+// ====== SEGURANÃ‡A: VALIDAÃ‡ÃƒO DE ARQUIVOS (MAGIC BYTES) ======
 async function validateFile(file, isProfilePhoto = false) {
     if (!file) return { valid: false, error: 'Nenhum arquivo selecionado.' };
 
     // 1. Validar tamanho
     const maxSize = isProfilePhoto ? 10 * 1024 * 1024 : 10 * 1024 * 1024; // 10MB
     if (file.size > maxSize) {
-        return { valid: false, error: `Arquivo muito grande. O limite é ${maxSize / (1024 * 1024)}MB.` };
+        return { valid: false, error: `Arquivo muito grande. O limite Ã© ${maxSize / (1024 * 1024)}MB.` };
     }
 
-    // 2. Validar MIME Type básico
+    // 2. Validar MIME Type bÃ¡sico
     const allowedTypes = isProfilePhoto
         ? ['image/jpeg', 'image/png', 'image/webp']
         : ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
 
     if (!allowedTypes.includes(file.type)) {
-        return { valid: false, error: 'Formato de arquivo não permitido. Use JPG, PNG, WEBP ou PDF.' };
+        return { valid: false, error: 'Formato de arquivo nÃ£o permitido. Use JPG, PNG, WEBP ou PDF.' };
     }
 
     // 3. Validar nome do arquivo (Path traversal e XSS extensions)
     if (file.name.includes('..') || /\.(exe|sh|bat|cmd|js|vbs|php|phtml|html|htm|svg)$/i.test(file.name)) {
         logSecurityEvent('SUSPICIOUS_FILE_NAME', `Tentativa de upload de arquivo com nome perigoso: ${file.name}`);
-        return { valid: false, error: 'Nome ou tipo de arquivo suspeito e foi bloqueado por segurança.' };
+        return { valid: false, error: 'Nome ou tipo de arquivo suspeito e foi bloqueado por seguranÃ§a.' };
     }
 
-    // 4. Verificação de Magic Bytes (Assinatura Hexadecimal) - Zero Trust Upload
+    // 4. VerificaÃ§Ã£o de Magic Bytes (Assinatura Hexadecimal) - Zero Trust Upload
     try {
         const magic = await readMagicBytes(file);
         let isValidMagic = false;
@@ -177,17 +177,17 @@ async function validateFile(file, isProfilePhoto = false) {
         
         if (!isValidMagic) {
             logSecurityEvent('MAGIC_BYTES_MISMATCH', `MIME falsificado detectado. Arquivo: ${file.name}, Assinatura: ${magic}`);
-            return { valid: false, error: 'Assinatura de arquivo inválida. Possível falsificação de formato detectada.' };
+            return { valid: false, error: 'Assinatura de arquivo invÃ¡lida. PossÃ­vel falsificaÃ§Ã£o de formato detectada.' };
         }
     } catch (err) {
         console.error("Erro na leitura de magic bytes:", err);
-        return { valid: false, error: 'Falha na validação de integridade do arquivo.' };
+        return { valid: false, error: 'Falha na validaÃ§Ã£o de integridade do arquivo.' };
     }
 
     return { valid: true };
 }
 
-// Função auxiliar para extrair os primeiros 4 bytes do arquivo (Hex)
+// FunÃ§Ã£o auxiliar para extrair os primeiros 4 bytes do arquivo (Hex)
 function readMagicBytes(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -198,7 +198,7 @@ function readMagicBytes(file) {
                 for (let i = 0; i < arr.length; i++) {
                     hex += arr[i].toString(16).padStart(2, '0');
                 }
-                // Adicionalmente para WEBP, precisamos ler até o byte 12 (4+4+4)
+                // Adicionalmente para WEBP, precisamos ler atÃ© o byte 12 (4+4+4)
                 if (hex === '52494646' && file.size > 12) {
                     const reader2 = new FileReader();
                     reader2.onloadend = function(e2) {
@@ -218,9 +218,9 @@ function readMagicBytes(file) {
     });
 }
 
-// Valores permitidos (validação por whitelist)
+// Valores permitidos (validaÃ§Ã£o por whitelist)
 const VALID_TIPOS = ['Carga Leve', 'Fracionada', 'Carga Fechada', 'Complemento'];
-const VALID_VEICULOS = ['3/4', 'Toco', 'Fiorino', 'Truck', 'Bitruck', 'Carreta LS', 'Bitrem', 'Rodotrem', 'Vanderléia', 'Caçamba', 'Silo', 'Graneleiro', 'Plataforma', 'Prancha', 'Tanque', 'Sider', 'Baú Refrigerado', 'Baú'];
+const VALID_VEICULOS = ['3/4', 'Toco', 'Fiorino', 'Truck', 'Bitruck', 'Carreta LS', 'Bitrem', 'Rodotrem', 'VanderlÃ©ia', 'CaÃ§amba', 'Silo', 'Graneleiro', 'Plataforma', 'Prancha', 'Tanque', 'Sider', 'BaÃº Refrigerado', 'BaÃº'];
 
 // ====== SESSION TIMEOUT (24 hours) ======
 let sessionTimer = null;
@@ -231,7 +231,7 @@ function resetSessionTimer() {
     if (sessionTimer) clearTimeout(sessionTimer);
     sessionTimer = setTimeout(() => {
         if (auth.currentUser) {
-            showToast('Sessão expirada por inatividade.', 'info');
+            showToast('SessÃ£o expirada por inatividade.', 'info');
             logout();
         }
     }, SESSION_TIMEOUT);
@@ -242,7 +242,7 @@ function resetSessionTimer() {
     document.addEventListener(event, resetSessionTimer, { passive: true });
 });
 
-// ====== FUNÇÕES DE SEGURANÇA ======
+// ====== FUNÃ‡Ã•ES DE SEGURANÃ‡A ======
 
 // Toggle visibilidade da senha aprimorado
 function togglePassVisibility(inputId, iconId) {
@@ -268,13 +268,13 @@ function sanitizeHTML(str) {
         .replace(/'/g, '&#039;');
 }
 
-// Validação de e-mail
+// ValidaÃ§Ã£o de e-mail
 function validateEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(String(email).toLowerCase());
 }
 
-// Validação algorítmica de CPF
+// ValidaÃ§Ã£o algorÃ­tmica de CPF
 function validateCPF(cpf) {
     cpf = cpf.replace(/\D/g, '');
     if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
@@ -290,7 +290,7 @@ function validateCPF(cpf) {
     return resto === parseInt(cpf[10]);
 }
 
-// Validação algorítmica de CNPJ
+// ValidaÃ§Ã£o algorÃ­tmica de CNPJ
 function validateCNPJ(cnpj) {
     cnpj = cnpj.replace(/\D/g, '');
     if (cnpj.length !== 14 || /^(\d)\1{13}$/.test(cnpj)) return false;
@@ -308,7 +308,7 @@ function validateCNPJ(cnpj) {
 
 let fretes = [
     { id: 1, origem: 'Salvador', destino: 'Alagoinhas', valor: '620,00', tipo: 'Carga Leve', veiculo: 'VUC', status: 'transito', obs: 'Mercadoria alocada em paletes.' },
-    { id: 2, origem: 'Salvador', destino: 'Ilhéus', valor: '980,00', tipo: 'Fracionada', veiculo: 'Toco', status: 'pendente', obs: 'Carga urgente para hoje.' }
+    { id: 2, origem: 'Salvador', destino: 'IlhÃ©us', valor: '980,00', tipo: 'Fracionada', veiculo: 'Toco', status: 'pendente', obs: 'Carga urgente para hoje.' }
 ];
 
 let mensagens = [];
@@ -331,18 +331,18 @@ window.onload = () => {
         }
     }).catch((error) => {
         console.error("Erro no Redirect Sign-in:", error);
-        showToast(`Falha na autenticação: ${error.message}`, 'error');
+        showToast(`Falha na autenticaÃ§Ã£o: ${error.message}`, 'error');
     });
 
-    // Monitora o estado de autenticação via Firebase
+    // Monitora o estado de autenticaÃ§Ã£o via Firebase
     auth.onAuthStateChanged(async (user) => {
         if (isRegisteringProcess) {
-            console.log("Ignorando redirecionamento automático do onAuthStateChanged durante o cadastro.");
+            console.log("Ignorando redirecionamento automÃ¡tico do onAuthStateChanged durante o cadastro.");
             return;
         }
         if (user) {
             try {
-                // Sincroniza/Salva a entrada em public_emails para garantir que o fluxo de verificação funcione
+                // Sincroniza/Salva a entrada em public_emails para garantir que o fluxo de verificaÃ§Ã£o funcione
                 if (user.email) {
                     const emailKey = user.email.toLowerCase().trim();
                     const providerId = user.providerData[0]?.providerId === 'google.com' ? 'google' : 'password';
@@ -361,7 +361,7 @@ window.onload = () => {
                 window.userDocListener = userRef.onSnapshot((doc) => {
                     if (doc.exists) {
                         userData = doc.data();
-                        // SE O USUÁRIO FOR ADMIN, ELE É TRATADO COMO EMBARCADOR (SHIPPER) NO APP PRINCIPAL
+                        // SE O USUÃRIO FOR ADMIN, ELE Ã‰ TRATADO COMO EMBARCADOR (SHIPPER) NO APP PRINCIPAL
                         if (userData.role === 'admin') {
                             userData.role = 'shipper';
                         }
@@ -375,18 +375,18 @@ window.onload = () => {
                             window.freightListenerStarted = true;
                         }
                     } else {
-                        // Se logou com Google mas não tem perfil, vai escolher o papel
+                        // Se logou com Google mas nÃ£o tem perfil, vai escolher o papel
                         if (window.userDocListener) window.userDocListener(); // stop listening
                         preencherCamposCadastroGoogle(user);
                         navTo('choice');
                     }
                 }, (error) => {
-                    console.error("Erro no listener do usuário:", error);
+                    console.error("Erro no listener do usuÃ¡rio:", error);
                 });
                 
             } catch (error) {
-                console.error("Erro ao verificar documento do usuário:", error);
-                showToast(`Erro na validação do perfil: ${error.message}`, 'error');
+                console.error("Erro ao verificar documento do usuÃ¡rio:", error);
+                showToast(`Erro na validaÃ§Ã£o do perfil: ${error.message}`, 'error');
                 if (typeof restaurarBotaoGoogle === 'function') restaurarBotaoGoogle();
                 navTo('auth_entry');
             }
@@ -406,12 +406,12 @@ window.onload = () => {
     });
 };
 
-// ====== LÓGICA DE AUTENTICAÇÃO (NOVA) ======
+// ====== LÃ“GICA DE AUTENTICAÃ‡ÃƒO (NOVA) ======
 
 async function verificarEmailDisponivel(email) {
     const emailKey = email.toLowerCase().trim();
     
-    // Se o usuário logado no Firebase Auth tem o mesmo e-mail, está tudo bem (ele está apenas completando o perfil)
+    // Se o usuÃ¡rio logado no Firebase Auth tem o mesmo e-mail, estÃ¡ tudo bem (ele estÃ¡ apenas completando o perfil)
     if (auth.currentUser && auth.currentUser.email && auth.currentUser.email.toLowerCase().trim() === emailKey) {
         return { disponivel: true };
     }
@@ -426,7 +426,7 @@ async function verificarEmailDisponivel(email) {
         console.warn("Erro ao verificar email em public_emails:", e);
     }
 
-    // Fallback secundário para fetchSignInMethodsForEmail
+    // Fallback secundÃ¡rio para fetchSignInMethodsForEmail
     try {
         const methods = await auth.fetchSignInMethodsForEmail(emailKey);
         if (methods && methods.length > 0) {
@@ -461,7 +461,7 @@ function preencherCamposCadastroGoogle(user) {
         regDriverEmailEl.disabled = true;
     }
 
-    // Altera texto dos botões de cadastro para Google
+    // Altera texto dos botÃµes de cadastro para Google
     const btnAvancarShipper = document.querySelector('#register_shipper button.btn-orange');
     if (btnAvancarShipper) {
         btnAvancarShipper.innerHTML = `Finalizar Cadastro <i class="ph ph-check-circle"></i>`;
@@ -494,11 +494,11 @@ function restaurarBotaoGoogle() {
 function restaurarBotoesCadastroPadrao() {
     const btnAvancarShipper = document.querySelector('#register_shipper button.btn-orange');
     if (btnAvancarShipper) {
-        btnAvancarShipper.innerHTML = `Próxima Etapa <i class="ph ph-arrow-right"></i>`;
+        btnAvancarShipper.innerHTML = `PrÃ³xima Etapa <i class="ph ph-arrow-right"></i>`;
     }
     const btnAvancarVehicle = document.querySelector('#register_vehicle button.btn-orange');
     if (btnAvancarVehicle) {
-        btnAvancarVehicle.innerHTML = `Avançar para Senha <i class="ph ph-arrow-right"></i>`;
+        btnAvancarVehicle.innerHTML = `AvanÃ§ar para Senha <i class="ph ph-arrow-right"></i>`;
     }
     
     const regShipperEmailEl = document.getElementById('regShipperEmail');
@@ -512,7 +512,7 @@ function restaurarBotoesCadastroPadrao() {
 async function finalizarCadastroGoogle() {
     const user = auth.currentUser;
     if (!user) {
-        showToast('Usuário não autenticado.', 'error');
+        showToast('UsuÃ¡rio nÃ£o autenticado.', 'error');
         return;
     }
 
@@ -533,7 +533,7 @@ async function finalizarCadastroGoogle() {
         cleanUserData.email = user.email;
     }
 
-    // 1. Salva o perfil do usuário no Firestore
+    // 1. Salva o perfil do usuÃ¡rio no Firestore
     await db.collection("users").doc(uid).set(cleanUserData);
     userData = cleanUserData;
 
@@ -552,7 +552,7 @@ async function finalizarCadastroGoogle() {
 async function handleContinuar(btn) {
     const email = document.getElementById('authEmail').value.trim();
     if (!email || !validateEmail(email)) {
-        showToast('Por favor, insira um e-mail válido.', 'error');
+        showToast('Por favor, insira um e-mail vÃ¡lido.', 'error');
         return;
     }
 
@@ -570,7 +570,7 @@ async function handleContinuar(btn) {
             document.getElementById('regDriverEmail').value = email;
         }
 
-        // Verifica se o e-mail já possui conta vinculada
+        // Verifica se o e-mail jÃ¡ possui conta vinculada
         const check = await verificarEmailDisponivel(email);
         
         btn.innerHTML = original;
@@ -597,10 +597,10 @@ async function loginComGoogle(btn) {
     btn.disabled = true;
 
     try {
-        // Usa popup para garantir que cookies de terceiros não bloqueiem a sessão
+        // Usa popup para garantir que cookies de terceiros nÃ£o bloqueiem a sessÃ£o
         const result = await auth.signInWithPopup(provider);
         console.log("Login com popup bem sucedido:", result.user.email);
-        // O onAuthStateChanged cuidará do redirecionamento
+        // O onAuthStateChanged cuidarÃ¡ do redirecionamento
     } catch (error) {
         console.error("Erro no Google Sign-in:", error);
         btn.innerHTML = original;
@@ -618,7 +618,7 @@ let freightListenerUnsubscribe = null;
 // Escuta novas cargas em tempo real
 function startFreightListener() {
     if (freightListenerUnsubscribe) {
-        freightListenerUnsubscribe(); // Previne múltiplos listeners
+        freightListenerUnsubscribe(); // Previne mÃºltiplos listeners
     }
     let isInitialLoad = true;
     
@@ -626,11 +626,11 @@ function startFreightListener() {
         const novosDados = [];
         snapshot.forEach(doc => novosDados.push({ id: doc.id, ...doc.data() }));
 
-        // Verifica se há novas cargas para notificar (se não for a carga que eu acabei de postar)
+        // Verifica se hÃ¡ novas cargas para notificar (se nÃ£o for a carga que eu acabei de postar)
         if (!isInitialLoad && fretes.length > 0 && novosDados.length > fretes.length) {
             const ultimaCarga = novosDados[0];
             if (userData && userData.role === 'driver' && window.isDriverOnline && ultimaCarga.shipperUid !== auth.currentUser?.uid) {
-                showToast(`Nova carga disponível: ${ultimaCarga.origem} para ${ultimaCarga.destino}`, 'info');
+                showToast(`Nova carga disponÃ­vel: ${ultimaCarga.origem} para ${ultimaCarga.destino}`, 'info');
             }
         }
         isInitialLoad = false;
@@ -729,7 +729,7 @@ function showToast(message, type = 'success') {
 }
 
 function navTo(id, pushState = true) {
-    // Gerenciamento da flag isRegisteringProcess para evitar auto-redirecionamento da sessão
+    // Gerenciamento da flag isRegisteringProcess para evitar auto-redirecionamento da sessÃ£o
     if (['choice', 'register_shipper', 'register_driver', 'register_vehicle', 'register_password'].includes(id)) {
         isRegisteringProcess = true;
     } else if (['auth_entry', 'login', 'driver', 'shipper', 'profile', 'chat', 'financial'].includes(id)) {
@@ -789,7 +789,7 @@ function setRole(role) {
     document.querySelectorAll('.driver-only').forEach(el => el.style.display = role === 'driver' ? 'flex' : 'none');
     document.querySelectorAll('.shipper-only').forEach(el => el.style.display = role === 'shipper' ? 'flex' : 'none');
 
-    // Altera texto do botão de perfil
+    // Altera texto do botÃ£o de perfil
     const changeRoleText = document.getElementById('changeRoleText');
     if (changeRoleText) {
         changeRoleText.innerText = role === 'driver' ? 'Mudar para Embarcador' : 'Mudar para Transportador';
@@ -836,7 +836,7 @@ function limparFiltros() {
 }
 function togglePill(pill) { pill.classList.toggle('active'); }
 
-// Modal de Edição (Embarcador)
+// Modal de EdiÃ§Ã£o (Embarcador)
 let currentEditId = null;
 function abrirEdicaoFrete(id) {
     const f = fretes.find(x => x.id === id);
@@ -870,8 +870,8 @@ async function salvarEdicaoFrete(btn) {
 
         // Whitelist validation
         if (!VALID_TIPOS.includes(updatedData.tipo) || !VALID_VEICULOS.includes(updatedData.veiculo)) {
-            showToast('Tipo de carga ou veículo inválido.', 'error');
-            logSecurityEvent('INVALID_INPUT', `Tipo de carga ou veículo inválido editado por ${auth.currentUser?.uid}`);
+            showToast('Tipo de carga ou veÃ­culo invÃ¡lido.', 'error');
+            logSecurityEvent('INVALID_INPUT', `Tipo de carga ou veÃ­culo invÃ¡lido editado por ${auth.currentUser?.uid}`);
             btn.innerHTML = original;
             btn.disabled = false;
             return;
@@ -891,11 +891,11 @@ async function salvarEdicaoFrete(btn) {
         btn.disabled = false;
         fecharEdicaoFrete();
         renderFretes();
-        showToast('As informações da carga foram atualizadas.');
+        showToast('As informaÃ§Ãµes da carga foram atualizadas.');
     } catch (error) {
         btn.innerHTML = original;
         btn.disabled = false;
-        showToast(error.message || 'Erro ao salvar alterações.', 'error');
+        showToast(error.message || 'Erro ao salvar alteraÃ§Ãµes.', 'error');
     }
 }
 
@@ -912,7 +912,7 @@ async function verificarTelefone(btn) {
     const phoneInput = "+55" + rawPhone.replace(/\D/g, "");
 
     if (phoneInput.length < 13) {
-        showToast('Insira um número válido.', 'error');
+        showToast('Insira um nÃºmero vÃ¡lido.', 'error');
         return;
     }
 
@@ -936,7 +936,7 @@ async function verificarTelefone(btn) {
 
         btn.innerHTML = original;
         btn.disabled = false;
-        showToast('Código enviado com sucesso!', 'success');
+        showToast('CÃ³digo enviado com sucesso!', 'success');
         navTo('otp_verify');
     } catch (error) {
         btn.innerHTML = original;
@@ -948,7 +948,7 @@ async function verificarTelefone(btn) {
 async function confirmarCodigo(btn) {
     const code = document.getElementById('otpCode').value;
     if (code.length !== 6) {
-        showToast('O código deve ter 6 dígitos.', 'error');
+        showToast('O cÃ³digo deve ter 6 dÃ­gitos.', 'error');
         return;
     }
 
@@ -956,18 +956,18 @@ async function confirmarCodigo(btn) {
     btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Validando...`;
 
     try {
-        // Confirma o código no Firebase
+        // Confirma o cÃ³digo no Firebase
         const userCredential = await confirmationResult.confirm(code);
         const user = userCredential.user;
 
         btn.innerHTML = original;
 
-        // Agora que o telefone está validado, verificamos se ele já tem um perfil no banco
+        // Agora que o telefone estÃ¡ validado, verificamos se ele jÃ¡ tem um perfil no banco
         const querySnapshot = await db.collection("users").where("telefone", "==", tempPhone).get();
 
         if (!querySnapshot.empty) {
-            // Já tem cadastro, vai pro Login (onde ele põe o email e a senha que ele criou antes)
-            // Ou podemos fazer o login direto se ele já tiver email salvo, mas o usuário pediu senha.
+            // JÃ¡ tem cadastro, vai pro Login (onde ele pÃµe o email e a senha que ele criou antes)
+            // Ou podemos fazer o login direto se ele jÃ¡ tiver email salvo, mas o usuÃ¡rio pediu senha.
             navTo('login');
         } else {
             // Não tem cadastro, vai escolher o perfil
@@ -975,7 +975,7 @@ async function confirmarCodigo(btn) {
         }
     } catch (error) {
         btn.innerHTML = original;
-        showToast('Código inválido ou expirado.', 'error');
+        showToast('CÃ³digo invÃ¡lido ou expirado.', 'error');
     }
 }
 
@@ -1013,7 +1013,7 @@ async function fazerLogin(btn) {
 
         if (docRef.exists) {
             userData = docRef.data();
-            // SE O USUÁRIO FOR ADMIN, ELE É TRATADO COMO EMBARCADOR (SHIPPER) NO APP PRINCIPAL
+            // SE O USUÃRIO FOR ADMIN, ELE Ã‰ TRATADO COMO EMBARCADOR (SHIPPER) NO APP PRINCIPAL
             if (userData.role === 'admin') {
                 userData.role = 'shipper';
             }
@@ -1021,14 +1021,14 @@ async function fazerLogin(btn) {
             setRole(userData.role || 'driver');
             showToast('Bem-vindo de volta!');
         } else {
-            showToast('Perfil de usuário não encontrado.', 'error');
+            showToast('Perfil de usuÃ¡rio nÃ£o encontrado.', 'error');
         }
     } catch (error) {
         btn.innerHTML = original;
         // SECURITY: Generic error message to prevent credential enumeration
         // Don't distinguish between "user not found" and "wrong password"
         if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-            showToast('Credenciais inválidas. Verifique seu e-mail e senha.', 'error');
+            showToast('Credenciais invÃ¡lidas. Verifique seu e-mail e senha.', 'error');
             // Offer registration option without confirming if email exists
             const registerLink = document.createElement('div');
             registerLink.style.cssText = 'text-align:center; margin-top:12px;';
@@ -1055,19 +1055,19 @@ async function irParaVeiculo(btn) {
     userData.cpf = document.getElementById('regDriverCpf').value.trim();
 
     if (!userData.nome || !userData.email || !userData.telefone) {
-        showToast('Preencha pelo menos os campos obrigatórios.', 'error');
+        showToast('Preencha pelo menos os campos obrigatÃ³rios.', 'error');
         return;
     }
     if (!validateEmail(userData.email)) {
-        showToast('Insira um e-mail válido.', 'error');
+        showToast('Insira um e-mail vÃ¡lido.', 'error');
         return;
     }
     if (userData.cpf && !validateCPF(userData.cpf)) {
-        showToast('CPF inválido. Verifique os dígitos.', 'error');
+        showToast('CPF invÃ¡lido. Verifique os dÃ­gitos.', 'error');
         return;
     }
 
-    const originalText = btn ? btn.innerHTML : 'Próxima Etapa';
+    const originalText = btn ? btn.innerHTML : 'PrÃ³xima Etapa';
     if (btn) {
         btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Validando...`;
         btn.disabled = true;
@@ -1077,9 +1077,9 @@ async function irParaVeiculo(btn) {
         const check = await verificarEmailDisponivel(userData.email);
         if (!check.disponivel) {
             if (check.provider === 'google') {
-                showToast('Este e-mail já está cadastrado via Google. Faça login com o Google.', 'error');
+                showToast('Este e-mail jÃ¡ estÃ¡ cadastrado via Google. FaÃ§a login com o Google.', 'error');
             } else {
-                showToast('Este e-mail já está cadastrado. Faça login ou use outro e-mail.', 'error');
+                showToast('Este e-mail jÃ¡ estÃ¡ cadastrado. FaÃ§a login ou use outro e-mail.', 'error');
             }
             if (btn) {
                 btn.innerHTML = originalText;
@@ -1103,7 +1103,7 @@ async function irParaDocs(btn) {
     const selObj = document.getElementById('regDriverVehicle');
     const opt = selObj.options[selObj.selectedIndex];
     if (opt.disabled || opt.value === "") {
-        showToast('Por favor, selecione o seu veículo.', 'error');
+        showToast('Por favor, selecione o seu veÃ­culo.', 'error');
         return;
     }
     userData.veiculo = opt.value;
@@ -1120,19 +1120,19 @@ async function irParaSenha(btn) {
         userData.razao = document.getElementById('regShipperRazao').value.trim();
 
         if (!userData.nome || !userData.email || !userData.telefone) {
-            showToast('Preencha pelo menos os campos obrigatórios.', 'error');
+            showToast('Preencha pelo menos os campos obrigatÃ³rios.', 'error');
             return;
         }
         if (!validateEmail(userData.email)) {
-            showToast('Insira um e-mail válido.', 'error');
+            showToast('Insira um e-mail vÃ¡lido.', 'error');
             return;
         }
         if (userData.cnpj && !validateCNPJ(userData.cnpj)) {
-            showToast('CNPJ inválido. Verifique os dígitos.', 'error');
+            showToast('CNPJ invÃ¡lido. Verifique os dÃ­gitos.', 'error');
             return;
         }
 
-        const originalText = btn ? btn.innerHTML : 'Próxima Etapa';
+        const originalText = btn ? btn.innerHTML : 'PrÃ³xima Etapa';
         if (btn) {
             btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Validando...`;
             btn.disabled = true;
@@ -1142,9 +1142,9 @@ async function irParaSenha(btn) {
             const check = await verificarEmailDisponivel(userData.email);
             if (!check.disponivel) {
                 if (check.provider === 'google') {
-                    showToast('Este e-mail já está cadastrado via Google. Faça login com o Google.', 'error');
+                    showToast('Este e-mail jÃ¡ estÃ¡ cadastrado via Google. FaÃ§a login com o Google.', 'error');
                 } else {
-                    showToast('Este e-mail já está cadastrado. Faça login ou use outro e-mail.', 'error');
+                    showToast('Este e-mail jÃ¡ estÃ¡ cadastrado. FaÃ§a login ou use outro e-mail.', 'error');
                 }
                 if (btn) {
                     btn.innerHTML = originalText;
@@ -1174,7 +1174,7 @@ async function irParaSenha(btn) {
             return;
         }
 
-        const originalText = btn ? btn.innerHTML : 'Avançar para Senha';
+        const originalText = btn ? btn.innerHTML : 'AvanÃ§ar para Senha';
         if (btn) {
             btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Validando...`;
             btn.disabled = true;
@@ -1191,7 +1191,7 @@ async function irParaSenha(btn) {
         }
 
         if (!valid1.valid || !valid2.valid || !valid3.valid || !valid4.valid) {
-            showToast('Erro na validação das fotos. Verifique o formato e o tamanho.', 'error');
+            showToast('Erro na validaÃ§Ã£o das fotos. Verifique o formato e o tamanho.', 'error');
             return;
         }
 
@@ -1212,7 +1212,7 @@ async function irParaSenha(btn) {
 
 window.concluirDepoisDocs = concluirDepoisDocs;
 function concluirDepoisDocs() {
-    userData.docStatus = 'Documentação Incompleta';
+    userData.docStatus = 'DocumentaÃ§Ã£o Incompleta';
     navTo('register_password');
 }
 
@@ -1220,15 +1220,15 @@ async function finalizarCadastro(btn) {
     const pass1 = document.getElementById('regPassword').value;
     const pass2 = document.getElementById('regPasswordConfirm').value;
 
-    // Validação de senha: 8 dígitos, letra maiúscula, número, caractere especial
+    // ValidaÃ§Ã£o de senha: 8 dÃ­gitos, letra maiÃºscula, nÃºmero, caractere especial
     const passRegex = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
     if (!passRegex.test(pass1)) {
-        showToast('A senha não cumpre os requisitos de segurança.', 'error');
+        showToast('A senha nÃ£o cumpre os requisitos de seguranÃ§a.', 'error');
         return;
     }
 
     if (pass1 !== pass2) {
-        showToast('As senhas não coincidem.', 'error');
+        showToast('As senhas nÃ£o coincidem.', 'error');
         return;
     }
 
@@ -1238,12 +1238,12 @@ async function finalizarCadastro(btn) {
     try {
         let uid;
         if (auth.currentUser) {
-            // Se logou com Google, a conta já existe no Firebase Auth.
-            // Apenas adicionamos a senha para garantir o acesso também via E-mail/Senha.
+            // Se logou com Google, a conta jÃ¡ existe no Firebase Auth.
+            // Apenas adicionamos a senha para garantir o acesso tambÃ©m via E-mail/Senha.
             await auth.currentUser.updatePassword(pass1);
             uid = auth.currentUser.uid;
         } else {
-            // Fluxo normal: Cria o usuário na Auth do Firebase
+            // Fluxo normal: Cria o usuÃ¡rio na Auth do Firebase
             const userCredential = await auth.createUserWithEmailAndPassword(userData.email, pass1);
             uid = userCredential.user.uid;
         }
@@ -1315,15 +1315,15 @@ async function finalizarCadastro(btn) {
                 };
             } catch (err) {
                 console.error("Erro no upload", err);
-                showToast('Aviso: Erro ao enviar fotos. Status ficará incompleto.', 'error');
-                cleanUserData.docStatus = 'Documentação Incompleta';
+                showToast('Aviso: Erro ao enviar fotos. Status ficarÃ¡ incompleto.', 'error');
+                cleanUserData.docStatus = 'DocumentaÃ§Ã£o Incompleta';
             }
             delete userData.filesToUpload; // cleanup
         } else if (cleanUserData.role === 'driver') {
-            cleanUserData.docStatus = 'Documentação Incompleta'; // fallback if no docs provided
+            cleanUserData.docStatus = 'DocumentaÃ§Ã£o Incompleta'; // fallback if no docs provided
         }
 
-        // Verifica Configuração Global de Aprovação Automática (Modo Testes/Homologação)
+        // Verifica ConfiguraÃ§Ã£o Global de AprovaÃ§Ã£o AutomÃ¡tica (Modo Testes/HomologaÃ§Ã£o)
         if (cleanUserData.role === 'driver') {
             try {
                 const configDoc = await db.collection("settings").doc("system_config").get();
@@ -1331,13 +1331,13 @@ async function finalizarCadastro(btn) {
                     cleanUserData.docStatus = 'Aprovado';
                 }
             } catch (err) {
-                console.warn("Erro ao ler configurações globais de aprovação:", err);
+                console.warn("Erro ao ler configuraÃ§Ãµes globais de aprovaÃ§Ã£o:", err);
             }
         }
 
         // Salva no Firestore
         await db.collection("users").doc(uid).set(cleanUserData);
-        userData = cleanUserData; // Atualiza a variável global
+        userData = cleanUserData; // Atualiza a variÃ¡vel global
 
         // Salva em public_emails para controle de login manual
         const emailKey = cleanUserData.email.toLowerCase().trim();
@@ -1353,9 +1353,9 @@ async function finalizarCadastro(btn) {
     } catch (error) {
         btn.innerHTML = original;
         const errMsg = error.code === 'auth/email-already-in-use'
-            ? 'Este e-mail já está em uso.'
+            ? 'Este e-mail jÃ¡ estÃ¡ em uso.'
             : error.code === 'auth/weak-password'
-                ? 'A senha é muito fraca.'
+                ? 'A senha Ã© muito fraca.'
                 : 'Erro ao criar conta. Verifique seus dados.';
         showToast(errMsg, 'error');
     }
@@ -1364,12 +1364,12 @@ async function finalizarCadastro(btn) {
 async function salvarNovoEmail() {
     const novoEmail = document.getElementById('updateEmailInput').value.trim();
     if (!novoEmail || !validateEmail(novoEmail)) {
-        showToast('Insira um e-mail válido.', 'error');
+        showToast('Insira um e-mail vÃ¡lido.', 'error');
         return;
     }
 
     if (novoEmail === userData.email) {
-        showToast('Este já é o seu e-mail atual.', 'info');
+        showToast('Este jÃ¡ Ã© o seu e-mail atual.', 'info');
         return;
     }
 
@@ -1379,17 +1379,17 @@ async function salvarNovoEmail() {
     btn.disabled = true;
 
     try {
-        // Verificar se está disponível
+        // Verificar se estÃ¡ disponÃ­vel
         const check = await verificarEmailDisponivel(novoEmail);
         if (!check.disponivel) {
-            showToast('Este e-mail já está em uso.', 'error');
+            showToast('Este e-mail jÃ¡ estÃ¡ em uso.', 'error');
             btn.innerHTML = original;
             btn.disabled = false;
             return;
         }
 
         const user = auth.currentUser;
-        if (!user) throw new Error("Usuário não autenticado");
+        if (!user) throw new Error("UsuÃ¡rio nÃ£o autenticado");
 
         // Atualizar no Firebase Auth
         await user.updateEmail(novoEmail);
@@ -1414,7 +1414,7 @@ async function salvarNovoEmail() {
     } catch (error) {
         console.error("Erro ao atualizar e-mail:", error);
         if (error.code === 'auth/requires-recent-login') {
-            showToast('Por segurança, faça login novamente para trocar o e-mail.', 'error');
+            showToast('Por seguranÃ§a, faÃ§a login novamente para trocar o e-mail.', 'error');
             setTimeout(() => {
                 auth.signOut().then(() => window.location.reload());
             }, 2500);
@@ -1443,10 +1443,10 @@ function preencherPerfil() {
         if (document.getElementById('profDoc')) document.getElementById('profDoc').value = userData.cpf || userData.documento || '';
     }
 
-    if (document.getElementById('profileDisplayName')) document.getElementById('profileDisplayName').innerText = userData.nome || userData.razao || 'Usuário';
+    if (document.getElementById('profileDisplayName')) document.getElementById('profileDisplayName').innerText = userData.nome || userData.razao || 'UsuÃ¡rio';
     
     // New fields for the redesigned profile layout
-    if (document.getElementById('profileEmailDisplay')) document.getElementById('profileEmailDisplay').innerText = userData.email || 'Email não cadastrado';
+    if (document.getElementById('profileEmailDisplay')) document.getElementById('profileEmailDisplay').innerText = userData.email || 'Email nÃ£o cadastrado';
     if (document.getElementById('updateEmailInput')) document.getElementById('updateEmailInput').value = userData.email || '';
     if (document.getElementById('profileRoleText')) {
         document.getElementById('profileRoleText').innerText = userData.role === 'shipper' ? 'Embarcador' : 'Transportador';
@@ -1454,53 +1454,32 @@ function preencherPerfil() {
 
     const profileTagContainer = document.getElementById('profileStatusTagContainer');
     const profileTagText = document.getElementById('profileStatusTagText');
-    const profileTagIcon = document.getElementById('profileStatusTagIcon');
-    if (profileTagContainer && profileTagText && profileTagIcon) {
+    if (profileTagContainer && profileTagText) {
         let tagTitle = "";
         let colorMain = "#10b981";
-        let colorBg = "#ecfdf5";
-        let colorBorder = "#d1fae5";
-        let iconClass = "ph-fill ph-seal-check";
         
         let docStat = userData.docStatus || 'Documentação Incompleta';
         
         if (docStat === 'Aprovado') {
             tagTitle = "Homologado";
             colorMain = "#10b981";
-            colorBg = "#ecfdf5";
-            colorBorder = "#d1fae5";
-            iconClass = "ph-fill ph-seal-check";
-        } else if (docStat === 'Documentação Incompleta' || docStat === 'Pendente' || docStat === 'Em Análise') {
+        } else if (docStat === 'Recusado') {
+            tagTitle = "Recusado";
+            colorMain = "#ef4444";
+        } else if (docStat === 'Não Verificado') {
+            tagTitle = "Não Verificado";
+            colorMain = "#64748b";
+        } else {
             tagTitle = "Pendente";
             colorMain = "#d97706";
-            colorBg = "#fef3c7";
-            colorBorder = "#fde68a";
-            iconClass = "ph-fill ph-warning-circle";
-        } else if (docStat === 'Reprovado' || docStat === 'Bloqueado') {
-            tagTitle = "Bloqueado";
-            colorMain = "#ef4444";
-            colorBg = "#fee2e2";
-            colorBorder = "#fecaca";
-            iconClass = "ph-fill ph-x-circle";
-        } else {
-            tagTitle = "Não Validado";
-            colorMain = "#64748b";
-            colorBg = "#f1f5f9";
-            colorBorder = "#e2e8f0";
-            iconClass = "ph-fill ph-info";
         }
 
         profileTagText.innerText = tagTitle;
         profileTagText.style.color = colorMain;
-        profileTagIcon.className = iconClass;
-        profileTagIcon.style.color = colorMain;
-        profileTagContainer.style.background = colorBg;
-        profileTagContainer.style.borderColor = colorBorder;
     }
-    
     if (document.getElementById('driverHomeGreeting')) {
-        const firstName = (userData.nome || userData.razao || 'Usuário').split(' ')[0];
-        document.getElementById('driverHomeGreeting').innerText = `Olá, ${firstName}`;
+        const firstName = (userData.nome || userData.razao || 'UsuÃ¡rio').split(' ')[0];
+        document.getElementById('driverHomeGreeting').innerText = `OlÃ¡, ${firstName}`;
     }
 
     if (document.getElementById('profEmail')) document.getElementById('profEmail').value = userData.email || '';
@@ -1513,14 +1492,14 @@ function preencherPerfil() {
         document.getElementById('profileRating').innerText = rating;
     }
 
-    // Entregas enviadas / concluídas
+    // Entregas enviadas / concluÃ­das
     if (document.getElementById('profileDeliveries')) {
         const deliveries = userData.entregas !== undefined ? userData.entregas : 0;
         document.getElementById('profileDeliveries').innerText = deliveries;
     }
     
     if (document.getElementById('profileDeliveriesLabel')) {
-        document.getElementById('profileDeliveriesLabel').innerText = userData.role === 'shipper' ? 'Enviadas' : 'Concluídas';
+        document.getElementById('profileDeliveriesLabel').innerText = userData.role === 'shipper' ? 'Enviadas' : 'ConcluÃ­das';
     }
     if (userData.role === 'shipper') {
         const companyName = userData.razao || userData.nome || 'Distribuidora XPTO';
@@ -1570,10 +1549,10 @@ function preencherPerfil() {
         // Hide driver upload options (Shippers only need Comprovante Residencia and CNPJ/CPF which is handled below)
         if (document.getElementById('upCRLV')) document.getElementById('upCRLV').style.display = 'none';
         if (document.getElementById('upCNH')) document.getElementById('upCNH').style.display = 'none';
-        // upCPF is used as Cartão CNPJ for shippers (see previous implementation or modify text)
+        // upCPF is used as CartÃ£o CNPJ for shippers (see previous implementation or modify text)
         if (userData.tipoDocumento === 'cnpj') {
             const upCpfTitle = document.querySelector('#upCPF p:first-child');
-            if (upCpfTitle) upCpfTitle.innerText = "Cartão CNPJ";
+            if (upCpfTitle) upCpfTitle.innerText = "CartÃ£o CNPJ";
         }
     }
 
@@ -1590,7 +1569,7 @@ function preencherPerfil() {
         const el = document.getElementById(id);
         if (!el) return;
         
-        // Verifica se há pelomenos um arquivo (seja o base, ou o Frente, ou o Verso)
+        // Verifica se hÃ¡ pelomenos um arquivo (seja o base, ou o Frente, ou o Verso)
         const hasDoc = userData.documentUrls && (
             userData.documentUrls[baseKey] || 
             userData.documentUrls[baseKey + 'Frente'] || 
@@ -1623,7 +1602,7 @@ function preencherPerfil() {
                     iconRight.style.color = '#ef4444'; // red
                 }
             } else {
-                if (subtitle) subtitle.innerText = "Em análise";
+                if (subtitle) subtitle.innerText = "Em anÃ¡lise";
                 if (iconRight) {
                     iconRight.className = 'ph-fill ph-clock';
                     iconRight.style.color = '#d97706'; // yellow/orange
@@ -1657,10 +1636,10 @@ function preencherPerfil() {
         if (userData.docStatus === 'Aprovado') {
             docsStatusText = "Todos os documentos verificados";
         } else if (userData.docStatus === 'Reprovado' || userData.docStatus === 'Bloqueado') {
-            docsStatusText = "Ação necessária: Documento recusado";
+            docsStatusText = "AÃ§Ã£o necessÃ¡ria: Documento recusado";
             showDot = true;
-        } else if (userData.docStatus === 'Pendente' || userData.docStatus === 'Em Análise') {
-            docsStatusText = "Documentos em análise";
+        } else if (userData.docStatus === 'Pendente' || userData.docStatus === 'Em AnÃ¡lise') {
+            docsStatusText = "Documentos em anÃ¡lise";
             showDot = true;
         } else {
             docsStatusText = "Envio de documentos pendente";
@@ -1739,15 +1718,15 @@ async function handleProfilePhoto(event) {
     if (!file) return;
 
     if (!['image/jpeg', 'image/png', 'image/webp', 'image/jpg', 'image/gif'].includes(file.type)) {
-        showToast('Tipo de arquivo não permitido.', 'error');
+        showToast('Tipo de arquivo nÃ£o permitido.', 'error');
         return;
     }
 
     showToast('Processando foto de perfil...', 'info');
     
     try {
-        // Otimização: Para evitar erros de CORS e requisições falhas de Storage no console do navegador,
-        // salvamos a imagem comprimida em Base64 diretamente no Firestore do usuário.
+        // OtimizaÃ§Ã£o: Para evitar erros de CORS e requisiÃ§Ãµes falhas de Storage no console do navegador,
+        // salvamos a imagem comprimida em Base64 diretamente no Firestore do usuÃ¡rio.
         const base64Url = await compressImageToBase64(file);
         await db.collection("users").doc(auth.currentUser.uid).update({ 
             foto: base64Url, 
@@ -1808,7 +1787,7 @@ async function confirmDeleteAccount() {
     }
     try {
         const user = auth.currentUser;
-        if (!user) throw new Error("Usuário não autenticado");
+        if (!user) throw new Error("UsuÃ¡rio nÃ£o autenticado");
 
         // Attempt to delete user doc in Firestore
         await db.collection('users').doc(user.uid).delete();
@@ -1816,7 +1795,7 @@ async function confirmDeleteAccount() {
         // Delete auth user
         await user.delete();
 
-        showToast('Sua conta foi excluída permanentemente.', 'success');
+        showToast('Sua conta foi excluÃ­da permanentemente.', 'success');
         
         setTimeout(() => {
             window.location.reload();
@@ -1829,7 +1808,7 @@ async function confirmDeleteAccount() {
             btn.disabled = false;
         }
         if (error.code === 'auth/requires-recent-login') {
-            showToast('Para segurança, você precisa fazer login novamente antes de excluir a conta.', 'error');
+            showToast('Para seguranÃ§a, vocÃª precisa fazer login novamente antes de excluir a conta.', 'error');
             setTimeout(() => {
                 auth.signOut().then(() => window.location.reload());
             }, 2500);
@@ -1856,7 +1835,7 @@ async function confirmarLogoutExec() {
         userData = {};
         window.isDriverOnline = false;
         
-        showToast('Você saiu da conta com segurança.', 'info');
+        showToast('VocÃª saiu da conta com seguranÃ§a.', 'info');
         
         // Timeout to allow the toast to show briefly before reloading
         setTimeout(() => {
@@ -1872,7 +1851,7 @@ async function confirmarLogoutExec() {
     }
 }
 
-// Controla o modo de edição do perfil
+// Controla o modo de ediÃ§Ã£o do perfil
 let profileEditMode = false;
 
 function toggleEditProfile() {
@@ -1882,7 +1861,7 @@ function toggleEditProfile() {
     const btnSave = document.getElementById('btnSaveProfile');
 
     if (profileEditMode) {
-        // Ativar edição
+        // Ativar ediÃ§Ã£o
         fields.forEach(id => {
             const el = document.getElementById(id);
             if (el) {
@@ -1900,7 +1879,7 @@ function toggleEditProfile() {
         // Foca no primeiro campo
         document.getElementById('profName').focus();
     } else {
-        // Desativar edição (cancelar)
+        // Desativar ediÃ§Ã£o (cancelar)
         fields.forEach(id => {
             const el = document.getElementById(id);
             if (el) {
@@ -1936,8 +1915,8 @@ async function salvarPerfil(btn) {
     try {
         const user = auth.currentUser;
         if (!user) {
-            showToast('Usuário não autenticado.', 'error');
-            logSecurityEvent('UNAUTHENTICATED_ACCESS', 'Tentativa de salvar perfil sem autenticação');
+            showToast('UsuÃ¡rio nÃ£o autenticado.', 'error');
+            logSecurityEvent('UNAUTHENTICATED_ACCESS', 'Tentativa de salvar perfil sem autenticaÃ§Ã£o');
             btn.innerHTML = original;
             btn.disabled = false;
             return;
@@ -1966,7 +1945,7 @@ async function salvarPerfil(btn) {
             if (profPlaca) updatedData.placa = sanitizeInput(profPlaca.value.trim(), 20);
         }
 
-        // Firestore protegido por Security Rules (só permite atualizar campos permitidos)
+        // Firestore protegido por Security Rules (sÃ³ permite atualizar campos permitidos)
         updatedData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
         await db.collection('users').doc(user.uid).update(updatedData);
         Object.assign(userData, updatedData);
@@ -1975,7 +1954,7 @@ async function salvarPerfil(btn) {
         btn.disabled = false;
 
         // Volta ao modo bloqueado
-        profileEditMode = true; // Forçar toggle para desligar
+        profileEditMode = true; // ForÃ§ar toggle para desligar
         toggleEditProfile();
 
         showToast('Dados do perfil atualizados com sucesso!');
@@ -2004,7 +1983,7 @@ function handleUpload(elementId, type) {
                         : null;
 
     if (indStatus === 'Aprovado') {
-        showToast('Este documento já foi verificado e aprovado.', 'info');
+        showToast('Este documento jÃ¡ foi verificado e aprovado.', 'info');
         return;
     }
 
@@ -2185,7 +2164,7 @@ async function confirmDocUpload() {
         if (el) {
             el.classList.add('uploaded');
             const subtitle = el.querySelector('div > div > p:last-child');
-            if (subtitle) subtitle.innerText = "Em análise";
+            if (subtitle) subtitle.innerText = "Em anÃ¡lise";
             const iconRight = el.querySelector('i.ph-upload-simple') || el.querySelector('i.ph-check-circle') || el.querySelector('i.ph-warning-circle') || el.querySelector('i.ph-x-circle');
             if (iconRight) {
                 iconRight.className = 'ph-fill ph-clock';
@@ -2221,14 +2200,14 @@ function solicitarSaque(btn) {
     btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Processando PIX...`;
     setTimeout(() => {
         btn.innerHTML = original;
-        showToast('Transferência enviada. O valor cairá na sua conta em instantes.');
+        showToast('TransferÃªncia enviada. O valor cairÃ¡ na sua conta em instantes.');
     }, 2000);
 }
 
 window.isDriverOnline = false;
 function toggleStatus(btn) {
     if (userData && userData.role === 'driver' && userData.docStatus !== 'Aprovado') {
-        showToast('Sua documentação precisa ser aprovada para você ficar online.', 'error');
+        showToast('Sua documentaÃ§Ã£o precisa ser aprovada para vocÃª ficar online.', 'error');
         return;
     }
 
@@ -2245,9 +2224,9 @@ function toggleStatus(btn) {
 
         indicator.innerHTML = `
             <span class="status-indicator-dot"></span>
-            <span class="status-indicator-text">Disponível para cargas</span>
+            <span class="status-indicator-text">DisponÃ­vel para cargas</span>
         `;
-        showToast('Você está online e visível para novas cargas!');
+        showToast('VocÃª estÃ¡ online e visÃ­vel para novas cargas!');
     } else {
         window.isDriverOnline = false;
         btn.innerText = 'Ficar Online';
@@ -2259,7 +2238,7 @@ function toggleStatus(btn) {
             <span class="status-indicator-dot"></span>
             <span class="status-indicator-text">Oculto no Radar</span>
         `;
-        showToast('Você agora está invisível no radar.', 'info');
+        showToast('VocÃª agora estÃ¡ invisÃ­vel no radar.', 'info');
     }
 }
 
@@ -2271,7 +2250,7 @@ function aceitarFrete(btn) {
     setTimeout(() => {
         btn.innerHTML = `<i class="ph-fill ph-check-circle"></i> Viagem Iniciada!`;
         btn.style.background = '#22c55e';
-        showToast('Carga confirmada! Acompanhe os detalhes na área de Chat.');
+        showToast('Carga confirmada! Acompanhe os detalhes na Ã¡rea de Chat.');
     }, 1500);
 }
 
@@ -2341,8 +2320,8 @@ function renderFretes() {
                 <div class="empty-icon-circle">
                     <i class="ph ph-warning-circle"></i>
                 </div>
-                <h3>Sem cargas compatíveis</h3>
-                <p>Não encontramos nenhuma carga publicada compatível com seu veículo no momento.</p>
+                <h3>Sem cargas compatÃ­veis</h3>
+                <p>Não encontramos nenhuma carga publicada compatÃ­vel com seu veÃ­culo no momento.</p>
             </div>
         `;
     } else {
@@ -2413,8 +2392,8 @@ function renderFretes() {
                 <div class="empty-icon-circle">
                     <i class="ph ph-warning-circle"></i>
                 </div>
-                <h3>Nenhuma carga disponível</h3>
-                <p>Não há nenhuma publicação de carga ativa no momento.</p>
+                <h3>Nenhuma carga disponÃ­vel</h3>
+                <p>Não hÃ¡ nenhuma publicaÃ§Ã£o de carga ativa no momento.</p>
             </div>
         `;
     } else {
@@ -2467,11 +2446,11 @@ function renderFretes() {
     if (areaHome) areaHome.innerHTML = htmlHome;
     if (areaSearch) areaSearch.innerHTML = htmlSearch;
 
-    // Render para o painel do Embarcador (com botão editar)
+    // Render para o painel do Embarcador (com botÃ£o editar)
     if (areaShipper) {
         let shipperHtml = '';
         listFretesHome.forEach(f => {
-            const statusLabel = f.status === 'transito' ? '<i class="ph ph-navigation-arrow"></i> Em trânsito' : '<i class="ph ph-hourglass"></i> Aguardando motorista';
+            const statusLabel = f.status === 'transito' ? '<i class="ph ph-navigation-arrow"></i> Em trÃ¢nsito' : '<i class="ph ph-hourglass"></i> Aguardando motorista';
             const statusClass = f.status === 'transito' ? 'status-transito' : 'status-pendente';
             const safeId = typeof f.id === 'string' ? `'${sanitizeHTML(f.id)}'` : f.id;
 
@@ -2529,7 +2508,7 @@ function renderFretes() {
 
     buscarFretes();
 
-    // Atualiza também o histórico do Embarcador
+    // Atualiza tambÃ©m o histÃ³rico do Embarcador
     renderShipperHistory();
 }
 
@@ -2546,7 +2525,7 @@ function openFreight(idOrIndex) {
     document.getElementById('detailOriginText').innerText = frete.origem;
     document.getElementById('detailDestinationText').innerText = frete.destino;
     document.getElementById('detailPaymentText').innerText = `R$ ${frete.valor}`;
-    document.getElementById('detailObsText').innerText = frete.obs || 'Nenhuma observação informada.';
+    document.getElementById('detailObsText').innerText = frete.obs || 'Nenhuma observaÃ§Ã£o informada.';
 
     // Formatar datas no formato brasileiro (DD/MM/AAAA)
     const formatDateBR = (dateStr) => {
@@ -2558,14 +2537,14 @@ function openFreight(idOrIndex) {
         return dateStr;
     };
 
-    // Preenche as novas informações de detalhes da carga
+    // Preenche as novas informaÃ§Ãµes de detalhes da carga
     document.getElementById('detailColetaText').innerText = formatDateBR(frete.coleta);
     document.getElementById('detailPrevisaoText').innerText = formatDateBR(frete.previsao);
     document.getElementById('detailPesoText').innerText = frete.peso ? `${frete.peso} kg` : '--';
     
     if (frete.volume) {
         document.getElementById('detailVolumeRow').style.display = 'flex';
-        document.getElementById('detailVolumeText').innerText = `${frete.volume} m³`;
+        document.getElementById('detailVolumeText').innerText = `${frete.volume} mÂ³`;
     } else {
         document.getElementById('detailVolumeRow').style.display = 'none';
     }
@@ -2574,14 +2553,14 @@ function openFreight(idOrIndex) {
     document.getElementById('detailDistanciaText').innerText = distKm ? `~${distKm} km` : 'Calculando...';
     document.getElementById('detailUrgenciaText').innerText = frete.urgencia || 'Normal';
 
-    // Badge de urgência dinâmica com cores
+    // Badge de urgÃªncia dinÃ¢mica com cores
     const badges = document.getElementById('detailBadges');
     let urgencyBadgeColor = '#64748b';
     let urgencyBadgeBg = '#f1f5f9';
     if (frete.urgencia === 'Alta') {
         urgencyBadgeColor = '#ef4444';
         urgencyBadgeBg = '#fef2f2';
-    } else if (frete.urgencia === 'Média') {
+    } else if (frete.urgencia === 'MÃ©dia') {
         urgencyBadgeColor = '#f97316';
         urgencyBadgeBg = '#fff7ed';
     }
@@ -2598,7 +2577,7 @@ function openFreight(idOrIndex) {
     const btnWhatsApp = document.getElementById('btnWhatsApp');
     
     if (userData && userData.role === 'driver' && userData.docStatus !== 'Aprovado') {
-        const blockMsg = "showToast('Sua documentação precisa ser aprovada para negociar cargas.', 'error');";
+        const blockMsg = "showToast('Sua documentaÃ§Ã£o precisa ser aprovada para negociar cargas.', 'error');";
         btnCall.setAttribute('onclick', blockMsg);
         btnCall.style.opacity = '0.5';
         btnWhatsApp.setAttribute('onclick', blockMsg);
@@ -2606,7 +2585,7 @@ function openFreight(idOrIndex) {
     } else {
         btnCall.setAttribute('onclick', `window.open('tel:${frete.telefoneContato}', '_blank')`);
         btnCall.style.opacity = '1';
-        btnWhatsApp.setAttribute('onclick', `window.open('https://wa.me/55${frete.whatsappContato.replace(/\\D/g, '')}?text=${encodeURIComponent('Olá, vim pelo PegaFrete. Tenho interesse na carga de ' + frete.origem + ' para ' + frete.destino + '.')}', '_blank')`);
+        btnWhatsApp.setAttribute('onclick', `window.open('https://wa.me/55${frete.whatsappContato.replace(/\\D/g, '')}?text=${encodeURIComponent('OlÃ¡, vim pelo PegaFrete. Tenho interesse na carga de ' + frete.origem + ' para ' + frete.destino + '.')}', '_blank')`);
         btnWhatsApp.style.opacity = '1';
     }
 
@@ -2631,7 +2610,7 @@ function openFreight(idOrIndex) {
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: '© OpenStreetMap'
+            attribution: 'Â© OpenStreetMap'
         }).addTo(window.detailMap);
 
         if (typeof obterCoordenadasNominatim === 'function') {
@@ -2691,7 +2670,7 @@ async function publicarFrete(btn) {
 
     // Client-side validation (also validated server-side)
     if (!origem || !destino || !valor || !tipo || !veiculo || !telefoneContato || !whatsappContato || !peso) {
-        showToast('Preencha todas as informações obrigatórias (incluindo o peso estimado e contatos) para publicar.', 'error');
+        showToast('Preencha todas as informaÃ§Ãµes obrigatÃ³rias (incluindo o peso estimado e contatos) para publicar.', 'error');
         return;
     }
 
@@ -2701,14 +2680,14 @@ async function publicarFrete(btn) {
     try {
         // Whitelist validation
         if (!VALID_TIPOS.includes(tipo) || !VALID_VEICULOS.includes(veiculo)) {
-            showToast('Tipo de carga ou veículo inválido.', 'error');
-            logSecurityEvent('INVALID_INPUT', `Tentativa de publicar carga com veículo/tipo inválido: ${tipo} / ${veiculo}`);
+            showToast('Tipo de carga ou veÃ­culo invÃ¡lido.', 'error');
+            logSecurityEvent('INVALID_INPUT', `Tentativa de publicar carga com veÃ­culo/tipo invÃ¡lido: ${tipo} / ${veiculo}`);
             btn.innerHTML = originalContent;
             btn.disabled = false;
             return;
         }
 
-        // Obter coordenadas para calcular distância
+        // Obter coordenadas para calcular distÃ¢ncia
         let distanciaKm = 0;
         let duracaoDias = 0;
 
@@ -2795,7 +2774,7 @@ function enviarMensagem() {
         db.collection("system_messages").add({
             userUid: uid,
             text: text,
-            sender: 'Você',
+            sender: 'VocÃª',
             isMe: true,
             read: true,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -2806,7 +2785,7 @@ function enviarMensagem() {
     } else {
         const now = new Date();
         const time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-        mensagens.push({ isMe: true, sender: 'Você', text: text, time: time });
+        mensagens.push({ isMe: true, sender: 'VocÃª', text: text, time: time });
         input.value = '';
         input.style.height = 'auto';
         renderChats();
@@ -2896,7 +2875,7 @@ function startSystemMessagesListener() {
         if (systemMessages.length === 0) {
             db.collection("system_messages").add({
                 userUid: uid,
-                text: "Bem-vindo ao canal oficial do Pega Frete! Aqui você receberá avisos importantes, atualizações do aplicativo e notificações sobre suas cargas.",
+                text: "Bem-vindo ao canal oficial do Pega Frete! Aqui vocÃª receberÃ¡ avisos importantes, atualizaÃ§Ãµes do aplicativo e notificaÃ§Ãµes sobre suas cargas.",
                 sender: "Pega Frete",
                 isMe: false,
                 read: false,
@@ -2920,7 +2899,7 @@ function startSystemMessagesListener() {
 function updateChatListUI() {
     const unreadCount = systemMessages.filter(m => !m.isMe && !m.read).length;
     
-    // Atualiza o badge da barra de navegação inferior
+    // Atualiza o badge da barra de navegaÃ§Ã£o inferior
     const bottomNavBadge = document.querySelector('#bottomNav .notification-badge');
     if (bottomNavBadge) {
         if (unreadCount > 0) {
@@ -3092,10 +3071,10 @@ window.fazerLogin = fazerLogin;
 window.publicarFrete = publicarFrete;
 window.salvarEdicaoFrete = salvarEdicaoFrete;
 window.concluirFrete = async function(id) {
-    if(!confirm('Tem certeza que deseja marcar esta carga como concluída?')) return;
+    if(!confirm('Tem certeza que deseja marcar esta carga como concluÃ­da?')) return;
     try {
         await db.collection("freights").doc(id).update({ status: 'entregue' });
-        showToast('Carga concluída com sucesso!');
+        showToast('Carga concluÃ­da com sucesso!');
     } catch(err) {
         console.error(err);
         showToast('Erro ao concluir carga.', 'error');
@@ -3127,7 +3106,7 @@ window.db = db;
 window.auth = auth;
 window.firebase = firebase;
 
-// Implementações do Histórico do Embarcador
+// ImplementaÃ§Ãµes do HistÃ³rico do Embarcador
 function setShipperHistoryTab(tab, element) {
     currentShipperHistoryTab = tab;
     const tabs = document.querySelectorAll('#shipperHistoryTabs .tag');
@@ -3159,7 +3138,7 @@ function renderShipperHistory() {
         html = `
             <div class="text-center" style="padding: 40px 24px; color: var(--text-muted);">
                 <i class="ph ph-clock-counter-clockwise" style="font-size: 48px; margin-bottom: 16px; color: var(--text-muted); opacity: 0.5;"></i>
-                <p style="font-size: 14px; font-weight: 500;">Nenhum envio ${currentShipperHistoryTab === 'concluida' ? 'concluído' : 'cancelado'} ainda.</p>
+                <p style="font-size: 14px; font-weight: 500;">Nenhum envio ${currentShipperHistoryTab === 'concluida' ? 'concluÃ­do' : 'cancelado'} ainda.</p>
             </div>
         `;
     } else {
@@ -3192,7 +3171,7 @@ function renderShipperHistory() {
     listArea.innerHTML = html;
 }
 
-// ====== CONTROLLER MULTI-STEP DE PUBLICAÇÃO DE CARGA ======
+// ====== CONTROLLER MULTI-STEP DE PUBLICAÃ‡ÃƒO DE CARGA ======
 let publishStep = 1;
 
 function resetPublishStep() {
@@ -3242,7 +3221,7 @@ function nextPublishStep(btn) {
         const tVal = document.getElementById('telefoneContato').value.trim();
         const wVal = document.getElementById('whatsappContato').value.trim();
         if (!tVal || !wVal) {
-            showToast('Por favor, informe as informações de contato.', 'error');
+            showToast('Por favor, informe as informaÃ§Ãµes de contato.', 'error');
             return;
         }
         publishStep++;
@@ -3257,7 +3236,7 @@ function nextPublishStep(btn) {
             return;
         }
         if (!vehicleSelect) {
-            showToast('Selecione o tipo de veículo.', 'error');
+            showToast('Selecione o tipo de veÃ­culo.', 'error');
             return;
         }
         if (!priceVal || priceVal === 'R$ 0,00') {
@@ -3265,13 +3244,13 @@ function nextPublishStep(btn) {
             return;
         }
 
-        // Se passar nas validações finais, publica a carga!
+        // Se passar nas validaÃ§Ãµes finais, publica a carga!
         publicarFrete(btn);
     }
 }
 
 function updatePublishStep() {
-    // Esconde/mostra painéis
+    // Esconde/mostra painÃ©is
     for (let i = 1; i <= 3; i++) {
         const panel = document.getElementById(`publishStep${i}`);
         if (panel) {
@@ -3296,7 +3275,7 @@ function updatePublishStep() {
             const labelText = indicator.querySelector('.step-label');
 
             if (i < publishStep) {
-                // Concluído
+                // ConcluÃ­do
                 indicator.classList.add('completed');
                 indicator.classList.remove('active');
                 if (numBox) {
@@ -3334,7 +3313,7 @@ function updatePublishStep() {
         }
     }
 
-    // Atualiza botões do Footer
+    // Atualiza botÃµes do Footer
     const cancelBtn = document.getElementById('btnPublishCancel');
     const nextBtn = document.getElementById('btnPublishNext');
 
@@ -3349,7 +3328,7 @@ function updatePublishStep() {
             nextBtn.style.borderColor = '#22c55e';
             nextBtn.style.boxShadow = '0 4px 14px rgba(34, 197, 94, 0.25)';
         } else {
-            nextBtn.innerHTML = 'Próximo Passo <i class="ph ph-arrow-right" id="btnPublishNextIcon"></i>';
+            nextBtn.innerHTML = 'PrÃ³ximo Passo <i class="ph ph-arrow-right" id="btnPublishNextIcon"></i>';
             nextBtn.style.background = 'var(--orange)';
             nextBtn.style.borderColor = 'var(--orange)';
             nextBtn.style.boxShadow = '0 4px 14px rgba(249, 115, 22, 0.25)';
@@ -3378,7 +3357,7 @@ window.prevPublishStep = prevPublishStep;
             activeMap = null;
         }
 
-        // Inicializa o mapa com o Leaflet focado no Brasil por padrão
+        // Inicializa o mapa com o Leaflet focado no Brasil por padrÃ£o
         activeMap = L.map(mapElement, {
             zoomControl: true,
             attributionControl: false
@@ -3389,7 +3368,7 @@ window.prevPublishStep = prevPublishStep;
             maxZoom: 19
         }).addTo(activeMap);
 
-        // Tenta obter a geolocalização do usuário via GPS
+        // Tenta obter a geolocalizaÃ§Ã£o do usuÃ¡rio via GPS
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
@@ -3403,10 +3382,10 @@ window.prevPublishStep = prevPublishStep;
                         color: "white",
                         weight: 2,
                         fillOpacity: 1
-                    }).addTo(activeMap).bindPopup("Você está aqui");
+                    }).addTo(activeMap).bindPopup("VocÃª estÃ¡ aqui");
                 },
                 () => {
-                    console.warn("Geolocalização não permitida ou indisponível.");
+                    console.warn("GeolocalizaÃ§Ã£o nÃ£o permitida ou indisponÃ­vel.");
                 }
             );
         }
@@ -3521,11 +3500,11 @@ window.prevPublishStep = prevPublishStep;
         }
     }
 
-    // ====== SEGURANÇA: GLOBAL ERROR TRACKING FOR DEBUGGING ======
+    // ====== SEGURANÃ‡A: GLOBAL ERROR TRACKING FOR DEBUGGING ======
     window.addEventListener('unhandledrejection', event => {
         console.error('Unhandled rejection:', event.reason);
         if (typeof showToast === 'function') {
-            showToast(`Erro não tratado: ${event.reason?.message || event.reason}`, 'error');
+            showToast(`Erro nÃ£o tratado: ${event.reason?.message || event.reason}`, 'error');
         }
         if (typeof restaurarBotaoGoogle === 'function') restaurarBotaoGoogle();
     });
@@ -3533,3 +3512,4 @@ window.prevPublishStep = prevPublishStep;
         console.error('Global error:', event.error);
         if (typeof restaurarBotaoGoogle === 'function') restaurarBotaoGoogle();
     });
+

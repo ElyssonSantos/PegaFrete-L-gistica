@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#ea580c" />
     <link rel="manifest" href="/manifest.json" />
-    <title>PegaFrete | Logística Inteligente</title>
+    <title>PegaFrete | LogÃ­stica Inteligente</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
@@ -23,7 +23,7 @@
 
 
     <style>
-        /* Estilos Premium para Multi-Step de Publicação */
+        /* Estilos Premium para Multi-Step de PublicaÃ§Ã£o */
         .input-group-premium {
             display: flex;
             flex-direction: column;
@@ -86,14 +86,14 @@
 
 <body>
 
-    <!-- Toast (Notificações) -->
+    <!-- Toast (NotificaÃ§Ãµes) -->
     <div id="toast" class="toast"></div>
 
-    <!-- Barra de Navegação Inferior (Global e Fixa) -->
+    <!-- Barra de NavegaÃ§Ã£o Inferior (Global e Fixa) -->
     <nav id="bottomNav" class="navbar" style="display: none;">
         <div class="nav-item" data-target="home" onclick="goHome()">
             <i class="ph ph-house"></i>
-            <span>Início</span>
+            <span>InÃ­cio</span>
         </div>
 
         <!-- Apenas Motorista -->
@@ -131,7 +131,7 @@
     <div id="filterModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Filtros e ordenação</h2>
+                <h2>Filtros e ordenaÃ§Ã£o</h2>
                 <button class="text-btn" onclick="limparFiltros()">Limpar filtros</button>
                 <button class="icon-btn" onclick="closeFilters()"><i class="ph ph-x"></i></button>
             </div>
@@ -140,12 +140,12 @@
                     <h3>Destino da carga (opcional)</h3>
                     <select
                         style="width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); background: transparent;">
-                        <option>Estado, Região ou País</option>
+                        <option>Estado, RegiÃ£o ou PaÃ­s</option>
                     </select>
                 </div>
                 <div class="filter-section">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <h3>Veículos e carrocerias</h3>
+                        <h3>VeÃ­culos e carrocerias</h3>
                         <span id="distValue" style="color: var(--orange); font-weight: 700;">250 km</span>
                     </div>
                     <p style="font-size: 13px; color: var(--text-muted);">De Aracaju, SE</p>
@@ -159,7 +159,7 @@
                 </div>
 
                 <div class="filter-section">
-                    <p class="subtitle" style="font-size: 12px; margin-bottom: 12px;">Selecione quantas opções desejar
+                    <p class="subtitle" style="font-size: 12px; margin-bottom: 12px;">Selecione quantas opÃ§Ãµes desejar
                     </p>
                     <h4
                         style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">
@@ -175,7 +175,7 @@
                 <div class="filter-section">
                     <h4
                         style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">
-                        Médios</h4>
+                        MÃ©dios</h4>
                     <div class="pill-group">
                         <div class="pill" onclick="togglePill(this)">Truck</div>
                         <div class="pill" onclick="togglePill(this)">Bitruck</div>
@@ -192,7 +192,7 @@
                         <div class="pill" onclick="togglePill(this)">Carreta LS</div>
                         <div class="pill" onclick="togglePill(this)">Bitrem</div>
                         <div class="pill" onclick="togglePill(this)">Rodotrem</div>
-                        <div class="pill" onclick="togglePill(this)">Vanderléia</div>
+                        <div class="pill" onclick="togglePill(this)">VanderlÃ©ia</div>
                     </div>
                 </div>
 
@@ -201,7 +201,7 @@
                         style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">
                         Especiais</h4>
                     <div class="pill-group">
-                        <div class="pill" onclick="togglePill(this)">Caçamba</div>
+                        <div class="pill" onclick="togglePill(this)">CaÃ§amba</div>
                         <div class="pill" onclick="togglePill(this)">Silo</div>
                         <div class="pill" onclick="togglePill(this)">Graneleiro</div>
                         <div class="pill" onclick="togglePill(this)">Plataforma</div>
@@ -216,15 +216,15 @@
                         Fechadas</h4>
                     <div class="pill-group">
                         <div class="pill" onclick="togglePill(this)">Sider</div>
-                        <div class="pill active" onclick="togglePill(this)"><i class="ph-fill ph-star"></i> Baú</div>
-                        <div class="pill" onclick="togglePill(this)">Baú Refrigerado</div>
+                        <div class="pill active" onclick="togglePill(this)"><i class="ph-fill ph-star"></i> BaÃº</div>
+                        <div class="pill" onclick="togglePill(this)">BaÃº Refrigerado</div>
                     </div>
                 </div>
 
                 <div class="filter-section">
                     <h3>Detalhes do Frete</h3>
                     <div class="pill-group" style="margin-bottom: 16px;">
-                        <div class="pill" onclick="togglePill(this)">Fretes com preço</div>
+                        <div class="pill" onclick="togglePill(this)">Fretes com preÃ§o</div>
                     </div>
 
                     <h4
@@ -251,7 +251,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE EDIÇÃO DE CARGAS (Embarcador) -->
+    <!-- MODAL DE EDIÃ‡ÃƒO DE CARGAS (Embarcador) -->
     <div id="editFreightModal" class="modal-overlay">
         <div class="modal-content" style="height: 85vh;">
             <div class="modal-header">
@@ -259,7 +259,7 @@
                 <button class="icon-btn" onclick="fecharEdicaoFrete()"><i class="ph ph-x"></i></button>
             </div>
             <div class="modal-body">
-                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">Atualize as informações
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">Atualize as informaÃ§Ãµes
                     completas da carga.</p>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
@@ -290,7 +290,7 @@
                     </div>
                     <div class="input-group no-icon" style="margin: 0;">
                         <span
-                            style="font-size: 10px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">VEÍCULO</span>
+                            style="font-size: 10px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">VEÃCULO</span>
                         <select id="editVeiculo">
                             <option>VLC</option>
                             <option>VUC</option>
@@ -310,7 +310,7 @@
 
                 <div class="input-group no-icon">
                     <span
-                        style="font-size: 10px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">OBSERVAÇÕES
+                        style="font-size: 10px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">OBSERVAÃ‡Ã•ES
                         DO EMBARCADOR</span>
                     <textarea id="editObs" placeholder="Ex: Mercadoria alocada em paletes..."
                         style="min-height: 80px;"></textarea>
@@ -318,7 +318,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-primary" style="margin: 0;" onclick="salvarEdicaoFrete(this)">Salvar
-                    Alterações</button>
+                    AlteraÃ§Ãµes</button>
             </div>
         </div>
     </div>
@@ -345,7 +345,7 @@
         </style>
     </section>
 
-    <!-- TELA: ENTRADA DE AUTENTICAÇÃO (NOVA) -->
+    <!-- TELA: ENTRADA DE AUTENTICAÃ‡ÃƒO (NOVA) -->
     <section id="auth_entry" class="screen">
         <div class="text-center" style="margin-top: 60px; margin-bottom: 40px;">
             <div style="color: var(--orange) !important; margin-bottom: 20px; display: flex; justify-content: center;">
@@ -356,7 +356,7 @@
                 <span style="color: var(--orange);">PegaFrete</span>
             </h1>
             <p class="subtitle" style="font-size: 16px; max-width: 300px; margin: 0 auto; color: var(--text-muted);">
-                Encontre cargas e motoristas em poucos segundos. Simples, rápido e sem burocracia.
+                Encontre cargas e motoristas em poucos segundos. Simples, rÃ¡pido e sem burocracia.
             </p>
         </div>
 
@@ -390,20 +390,20 @@
                 </button>
 
                 <div class="text-center mt-4" style="color: var(--text-muted); font-size: 13px; line-height: 1.5; padding: 0 8px;">
-                    O sistema irá verificar se já existe uma conta associada a este e-mail. Se houver, você fará o login. Caso contrário, iniciaremos o seu cadastro.
+                    O sistema irÃ¡ verificar se jÃ¡ existe uma conta associada a este e-mail. Se houver, vocÃª farÃ¡ o login. Caso contrÃ¡rio, iniciaremos o seu cadastro.
                 </div>
 
                 <div class="auth-footer" style="margin-top: 40px;">
-                    Criando uma conta, você concorda com nossos <a href="#" onclick="event.preventDefault(); navTo('terms_screen')">Termos e Condições</a>.
+                    Criando uma conta, vocÃª concorda com nossos <a href="#" onclick="event.preventDefault(); navTo('terms_screen')">Termos e CondiÃ§Ãµes</a>.
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- TELA: VERIFICAÇÃO DE TELEFONE (REMOVIDA) -->
+    <!-- TELA: VERIFICAÃ‡ÃƒO DE TELEFONE (REMOVIDA) -->
     <section id="phone_check" class="screen" style="display:none !important;"></section>
 
-    <!-- TELA: VERIFICAÇÃO DE CÓDIGO (REMOVIDA) -->
+    <!-- TELA: VERIFICAÃ‡ÃƒO DE CÃ“DIGO (REMOVIDA) -->
     <section id="otp_verify" class="screen" style="display:none !important;"></section>
 
     <!-- TELA: LOGIN -->
@@ -415,7 +415,7 @@
         </div>
 
         <div style="max-width: 420px; margin: 0 auto; margin-top: 20px;">
-            <div class="auth-card-title">Que bom ver você!</div>
+            <div class="auth-card-title">Que bom ver vocÃª!</div>
             <div class="auth-card-subtitle">Insira sua senha para acessar sua conta no Pega Frete.</div>
 
             <form class="glass-card" onsubmit="event.preventDefault(); fazerLogin(this.querySelector('.btn-orange'))">
@@ -425,7 +425,7 @@
                 </div>
                 <div class="input-group" style="position: relative;">
                     <label>Senha</label>
-                    <input type="password" id="loginPassword" placeholder="••••••••" style="padding-right: 52px;" autocomplete="current-password" />
+                    <input type="password" id="loginPassword" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" style="padding-right: 52px;" autocomplete="current-password" />
                     <button type="button" onclick="togglePassVisibility('loginPassword', 'togglePasswordLogin')"
                         style="position: absolute; right: 4px; bottom: 4px; width: 44px; height: 44px; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2;">
                         <i class="ph ph-eye" id="togglePasswordLogin"
@@ -437,7 +437,7 @@
                 </button>
                 <div class="text-center mt-4" style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
                     <button type="button" class="text-btn" style="color: var(--orange); font-weight: 700;"
-                        onclick="showToast('Recuperação de senha em manutenção')">Esqueci minha senha</button>
+                        onclick="showToast('RecuperaÃ§Ã£o de senha em manutenÃ§Ã£o')">Esqueci minha senha</button>
                 </div>
             </form>
         </div>
@@ -498,7 +498,7 @@
                 <h2 style="font-size: 28px; margin-bottom: 8px; font-weight: 800; color: var(--primary);">Como deseja
                     atuar?</h2>
                 <p class="subtitle" style="color: var(--text-muted); line-height: 1.5; padding: 0 16px;">Selecione o seu
-                    perfil para personalizar sua experiência e encontrar as melhores oportunidades.</p>
+                    perfil para personalizar sua experiÃªncia e encontrar as melhores oportunidades.</p>
             </div>
 
             <div class="role-card glass-card" onclick="iniciarCadastro('shipper')"
@@ -512,7 +512,7 @@
                     <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 4px; color: var(--primary);">Embarcador
                     </h3>
                     <p style="font-size: 14px; color: var(--text-muted); line-height: 1.4;">Tenho cargas e preciso de
-                        transportadores qualificados com segurança.</p>
+                        transportadores qualificados com seguranÃ§a.</p>
                 </div>
                 <i class="ph ph-caret-right" style="font-size: 20px; color: #cbd5e1;"></i>
             </div>
@@ -527,8 +527,8 @@
                 <div class="role-info" style="flex: 1;">
                     <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 4px; color: var(--primary);">
                         Transportador</h3>
-                    <p style="font-size: 14px; color: var(--text-muted); line-height: 1.4;">Tenho veículo e quero
-                        encontrar as melhores cargas na minha região.</p>
+                    <p style="font-size: 14px; color: var(--text-muted); line-height: 1.4;">Tenho veÃ­culo e quero
+                        encontrar as melhores cargas na minha regiÃ£o.</p>
                 </div>
                 <i class="ph ph-caret-right" style="font-size: 20px; color: #cbd5e1;"></i>
             </div>
@@ -545,15 +545,15 @@
 
         <div style="max-width: 480px; margin: 0 auto; margin-top: 20px;">
             <div class="auth-card-title">Dados da Empresa</div>
-            <div class="auth-card-subtitle">Complete as informações para começar a publicar cargas.</div>
+            <div class="auth-card-subtitle">Complete as informaÃ§Ãµes para comeÃ§ar a publicar cargas.</div>
 
             <div class="glass-card">
                 <div class="input-group">
-                    <label>Nome do Responsável</label>
+                    <label>Nome do ResponsÃ¡vel</label>
                     <input type="text" id="regShipperName" placeholder="Nome completo" />
                 </div>
                 <div class="input-group">
-                    <label>Razão Social</label>
+                    <label>RazÃ£o Social</label>
                     <input type="text" id="regShipperRazao" placeholder="Nome da empresa" />
                 </div>
                 <div class="input-group">
@@ -570,12 +570,12 @@
                     <input type="tel" id="regShipperPhone" placeholder="(00) 00000-0000" oninput="maskPhone(this)" />
                 </div>
                 <div class="input-group">
-                    <label>Endereço</label>
-                    <input type="text" id="regShipperAddress" placeholder="Rua, número, cidade..." />
+                    <label>EndereÃ§o</label>
+                    <input type="text" id="regShipperAddress" placeholder="Rua, nÃºmero, cidade..." />
                 </div>
 
                 <button class="btn btn-orange mt-4" onclick="irParaSenha(this)" style="border-radius: 18px; padding: 18px;">
-                    Próxima Etapa <i class="ph ph-arrow-right"></i>
+                    PrÃ³xima Etapa <i class="ph ph-arrow-right"></i>
                 </button>
             </div>
         </div>
@@ -591,7 +591,7 @@
 
         <div style="max-width: 480px; margin: 0 auto; margin-top: 20px;">
             <div class="auth-card-title">Seus Dados</div>
-            <div class="auth-card-subtitle">Cadastre-se para ter acesso às melhores cargas da região.</div>
+            <div class="auth-card-subtitle">Cadastre-se para ter acesso Ã s melhores cargas da regiÃ£o.</div>
 
             <div class="glass-card">
                 <div class="input-group">
@@ -613,41 +613,41 @@
                 </div>
                 <div class="input-group">
                     <label>Cidade/Base</label>
-                    <input type="text" id="regDriverAddress" placeholder="Sua localização principal" />
+                    <input type="text" id="regDriverAddress" placeholder="Sua localizaÃ§Ã£o principal" />
                 </div>
 
                 <button class="btn btn-orange mt-4" onclick="irParaVeiculo(this)"
                     style="border-radius: 18px; padding: 18px;">
-                    Próxima Etapa <i class="ph ph-arrow-right"></i>
+                    PrÃ³xima Etapa <i class="ph ph-arrow-right"></i>
                 </button>
             </div>
         </div>
     </section>
 
-    <!-- TELA: CADASTRO VEÍCULO (TRANSPORTADOR) -->
+    <!-- TELA: CADASTRO VEÃCULO (TRANSPORTADOR) -->
     <section id="register_vehicle" class="screen">
         <div class="topbar">
             <button class="back-btn" onclick="navTo('register_driver')"><i class="ph ph-arrow-left"></i></button>
-            <h1 style="font-size: 22px;">Seu Veículo</h1>
+            <h1 style="font-size: 22px;">Seu VeÃ­culo</h1>
             <div style="width: 44px;"></div>
         </div>
 
         <div style="max-width: 480px; margin: 0 auto; margin-top: 20px;">
-            <div class="auth-card-title">Informações do Veículo</div>
-            <div class="auth-card-subtitle">Selecione o tipo de veículo para receber cargas compatíveis.</div>
+            <div class="auth-card-title">InformaÃ§Ãµes do VeÃ­culo</div>
+            <div class="auth-card-subtitle">Selecione o tipo de veÃ­culo para receber cargas compatÃ­veis.</div>
 
             <div class="glass-card">
                 <div class="input-group">
-                    <label>Tipo de Veículo (Obrigatório)</label>
+                    <label>Tipo de VeÃ­culo (ObrigatÃ³rio)</label>
                     <select id="regDriverVehicle"
                         style="width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); font-size: 15px; outline: none;">
-                        <option value="" disabled selected>Selecione um veículo...</option>
+                        <option value="" disabled selected>Selecione um veÃ­culo...</option>
                         <optgroup label="Leves">
                             <option value="3/4">3/4</option>
                             <option value="Toco">Toco</option>
                             <option value="Fiorino">Fiorino</option>
                         </optgroup>
-                        <optgroup label="Médios">
+                        <optgroup label="MÃ©dios">
                             <option value="Truck">Truck</option>
                             <option value="Bitruck">Bitruck</option>
                         </optgroup>
@@ -655,26 +655,26 @@
                             <option value="Carreta LS">Carreta LS</option>
                             <option value="Bitrem">Bitrem</option>
                             <option value="Rodotrem">Rodotrem</option>
-                            <option value="Vanderléia">Vanderléia</option>
+                            <option value="VanderlÃ©ia">VanderlÃ©ia</option>
                         </optgroup>
                         <optgroup label="Especiais">
-                            <option value="Caçamba">Caçamba</option>
+                            <option value="CaÃ§amba">CaÃ§amba</option>
                             <option value="Silo">Silo</option>
                             <option value="Graneleiro">Graneleiro</option>
                             <option value="Plataforma">Plataforma</option>
                             <option value="Prancha">Prancha</option>
                             <option value="Tanque">Tanque</option>
                         </optgroup>
-                        <optgroup label="Veículo Fechado">
+                        <optgroup label="VeÃ­culo Fechado">
                             <option value="Sider">Sider</option>
-                            <option value="Baú Refrigerado">Baú Refrigerado</option>
-                            <option value="Baú">Baú</option>
+                            <option value="BaÃº Refrigerado">BaÃº Refrigerado</option>
+                            <option value="BaÃº">BaÃº</option>
                         </optgroup>
                     </select>
                 </div>
 
                 <button class="btn btn-orange mt-4" onclick="irParaDocs(this)" style="border-radius: 18px; padding: 18px;">
-                    Avançar para Documentos <i class="ph ph-arrow-right"></i>
+                    AvanÃ§ar para Documentos <i class="ph ph-arrow-right"></i>
                 </button>
             </div>
         </div>
@@ -684,25 +684,25 @@
     <section id="register_driver_docs" class="screen">
         <div class="topbar">
             <button class="back-btn" onclick="navTo('register_vehicle')"><i class="ph ph-arrow-left"></i></button>
-            <h1 style="font-size: 22px;">Documentação</h1>
+            <h1 style="font-size: 22px;">DocumentaÃ§Ã£o</h1>
             <div style="width: 44px;"></div>
         </div>
 
         <div style="max-width: 480px; margin: 0 auto; margin-top: 20px;">
-            <div class="auth-card-title">Validação e Homologação</div>
-            <div class="auth-card-subtitle">Precisamos dos seus documentos para liberar seu perfil. A análise leva até 24 horas.</div>
+            <div class="auth-card-title">ValidaÃ§Ã£o e HomologaÃ§Ã£o</div>
+            <div class="auth-card-subtitle">Precisamos dos seus documentos para liberar seu perfil. A anÃ¡lise leva atÃ© 24 horas.</div>
 
             <div class="glass-card">
                 <div class="input-group">
                     <label>RNTRC (ANTT)</label>
-                    <input type="text" id="regDriverAntt" placeholder="Número ANTT" />
+                    <input type="text" id="regDriverAntt" placeholder="NÃºmero ANTT" />
                 </div>
                 <div class="input-group">
-                    <label>Número da CNH</label>
-                    <input type="text" id="regDriverCnh" placeholder="Número da CNH" />
+                    <label>NÃºmero da CNH</label>
+                    <input type="text" id="regDriverCnh" placeholder="NÃºmero da CNH" />
                 </div>
                 <div class="input-group">
-                    <label>Placa do Veículo Principal</label>
+                    <label>Placa do VeÃ­culo Principal</label>
                     <input type="text" id="regDriverPlaca" placeholder="ABC-1234" />
                 </div>
                 
@@ -719,7 +719,7 @@
                 </div>
 
                 <button class="btn btn-orange mt-4" onclick="irParaSenha(this)" style="border-radius: 18px; padding: 18px; width: 100%;">
-                    Avançar para Senha <i class="ph ph-arrow-right"></i>
+                    AvanÃ§ar para Senha <i class="ph ph-arrow-right"></i>
                 </button>
                 
                 <button class="btn btn-secondary mt-3" onclick="concluirDepoisDocs()" style="border-radius: 18px; padding: 18px; background: transparent; color: var(--text-muted); border: 1px solid var(--border); width: 100%; font-weight: 600; cursor: pointer;">
@@ -729,7 +729,7 @@
         </div>
     </section>
 
-    <!-- TELA: CRIAÇÃO DE SENHA -->
+    <!-- TELA: CRIAÃ‡ÃƒO DE SENHA -->
     <section id="register_password" class="screen">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
@@ -738,7 +738,7 @@
         </div>
 
         <div style="max-width: 480px; margin: 0 auto; margin-top: 20px;">
-            <div class="auth-card-subtitle">Sua senha é a chave para seus ganhos. Escolha uma bem forte.</div>
+            <div class="auth-card-subtitle">Sua senha Ã© a chave para seus ganhos. Escolha uma bem forte.</div>
 
             <form class="glass-card" onsubmit="event.preventDefault(); finalizarCadastro(this.querySelector('.btn-orange'))">
                 <input type="text" name="username" autocomplete="username" style="display:none;" />
@@ -757,18 +757,18 @@
                     style="padding: 16px; margin: -8px 0 24px 0; border-radius: 18px; background: rgba(15, 23, 42, 0.03); border: none; box-shadow: none; animation: none;">
                     <p
                         style="font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">
-                        Requisitos de Segurança</p>
+                        Requisitos de SeguranÃ§a</p>
                     <div id="req-len"
                         style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">
                         <i class="ph ph-circle"></i> 8+ caracteres
                     </div>
                     <div id="req-upper"
                         style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">
-                        <i class="ph ph-circle"></i> Letra maiúscula
+                        <i class="ph ph-circle"></i> Letra maiÃºscula
                     </div>
                     <div id="req-number"
                         style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">
-                        <i class="ph ph-circle"></i> Pelo menos um número
+                        <i class="ph ph-circle"></i> Pelo menos um nÃºmero
                     </div>
                     <div id="req-special"
                         style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted);">
@@ -799,7 +799,7 @@
     <section id="driver" class="screen driver-home-screen">
         <header class="driver-home-header">
             <div class="driver-greeting-info">
-                <h1 id="driverHomeGreeting">Olá</h1>
+                <h1 id="driverHomeGreeting">OlÃ¡</h1>
                 <p>Pronto para pegar a estrada?</p>
             </div>
             <div class="driver-home-avatar" id="driverHomeAvatar" onclick="navTo('profile')"
@@ -828,7 +828,7 @@
 
         <!-- Feed List -->
         <div class="driver-freight-list" id="dynamicFreights">
-            <!-- Cargas dinâmicas aparecem aqui -->
+            <!-- Cargas dinÃ¢micas aparecem aqui -->
         </div>
     </section>
 
@@ -881,7 +881,7 @@
 
         <h2 class="mb-4">Seus Envios Ativos</h2>
         <div id="shipperActiveFreights">
-            <!-- Cargas dinâmicas aparecem aqui -->
+            <!-- Cargas dinÃ¢micas aparecem aqui -->
         </div>
     </section>
 
@@ -890,7 +890,7 @@
         <!-- Header minimal for Focused View -->
         <header style="display: flex; align-items: center; padding: 16px; border-bottom: 1.5px solid var(--border); background: #fff; position: sticky; top: 0; z-index: 10;">
             <button class="back-btn" style="background: transparent;" onclick="prevPublishStep()"><i class="ph ph-arrow-left" style="font-size: 20px;"></i></button>
-            <h1 style="font-size: 18px; font-weight: 800; color: var(--primary); margin-left: 12px;" id="publishHeaderTitle">Nova Publicação</h1>
+            <h1 style="font-size: 18px; font-weight: 800; color: var(--primary); margin-left: 12px;" id="publishHeaderTitle">Nova PublicaÃ§Ã£o</h1>
         </header>
 
         <!-- Progress Stepper -->
@@ -929,7 +929,7 @@
                 <div class="input-group-premium">
                     <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Origem</label>
                     <div class="input-wrapper">
-                        <input id="origem" type="text" placeholder="Ex: São Paulo, SP" style="border: none; background: transparent; padding: 14px 16px; margin: 0; box-shadow: none;" />
+                        <input id="origem" type="text" placeholder="Ex: SÃ£o Paulo, SP" style="border: none; background: transparent; padding: 14px 16px; margin: 0; box-shadow: none;" />
                         <div class="input-suffix">
                             <i class="ph ph-map-pin" style="font-size: 20px; color: var(--orange);"></i>
                         </div>
@@ -956,8 +956,8 @@
             <!-- Step 2: Contato -->
             <div id="publishStep2" class="publish-step-panel" style="display: none; flex-direction: column; gap: 20px;">
                 <div style="margin-bottom: 4px;">
-                    <h2 style="font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 4px;">Informações de Contato</h2>
-                    <p style="font-size: 14px; color: var(--text-muted); font-weight: 500;">Preencha os dados do responsável pela carga.</p>
+                    <h2 style="font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 4px;">InformaÃ§Ãµes de Contato</h2>
+                    <p style="font-size: 14px; color: var(--text-muted); font-weight: 500;">Preencha os dados do responsÃ¡vel pela carga.</p>
                 </div>
 
                 <div class="input-group-premium">
@@ -984,8 +984,8 @@
             <!-- Step 3: Carga -->
             <div id="publishStep3" class="publish-step-panel" style="display: none; flex-direction: column; gap: 20px;">
                 <div style="margin-bottom: 4px;">
-                    <h2 style="font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 4px;">Veículo e Valor</h2>
-                    <p style="font-size: 14px; color: var(--text-muted); font-weight: 500;">Defina o tipo, veículo necessário e oferta.</p>
+                    <h2 style="font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 4px;">VeÃ­culo e Valor</h2>
+                    <p style="font-size: 14px; color: var(--text-muted); font-weight: 500;">Defina o tipo, veÃ­culo necessÃ¡rio e oferta.</p>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
@@ -1003,16 +1003,16 @@
                     </div>
                     
                     <div class="input-group-premium">
-                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Veículo</label>
+                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">VeÃ­culo</label>
                         <div class="input-wrapper">
                             <select id="veiculo" style="border: none; background: transparent; padding: 14px 16px; margin: 0; box-shadow: none; padding-left: 16px; height: 50px;">
-                                <option value="" disabled selected>Selecione um veículo...</option>
+                                <option value="" disabled selected>Selecione um veÃ­culo...</option>
                                 <optgroup label="Leves">
                                     <option value="3/4">3/4</option>
                                     <option value="Toco">Toco</option>
                                     <option value="Fiorino">Fiorino</option>
                                 </optgroup>
-                                <optgroup label="Médios">
+                                <optgroup label="MÃ©dios">
                                     <option value="Truck">Truck</option>
                                     <option value="Bitruck">Bitruck</option>
                                 </optgroup>
@@ -1020,20 +1020,20 @@
                                     <option value="Carreta LS">Carreta LS</option>
                                     <option value="Bitrem">Bitrem</option>
                                     <option value="Rodotrem">Rodotrem</option>
-                                    <option value="Vanderléia">Vanderléia</option>
+                                    <option value="VanderlÃ©ia">VanderlÃ©ia</option>
                                 </optgroup>
                                 <optgroup label="Especiais">
-                                    <option value="Caçamba">Caçamba</option>
+                                    <option value="CaÃ§amba">CaÃ§amba</option>
                                     <option value="Silo">Silo</option>
                                     <option value="Graneleiro">Graneleiro</option>
                                     <option value="Plataforma">Plataforma</option>
                                     <option value="Prancha">Prancha</option>
                                     <option value="Tanque">Tanque</option>
                                 </optgroup>
-                                <optgroup label="Veículo Fechado">
+                                <optgroup label="VeÃ­culo Fechado">
                                     <option value="Sider">Sider</option>
-                                    <option value="Baú Refrigerado">Baú Refrigerado</option>
-                                    <option value="Baú">Baú</option>
+                                    <option value="BaÃº Refrigerado">BaÃº Refrigerado</option>
+                                    <option value="BaÃº">BaÃº</option>
                                 </optgroup>
                             </select>
                         </div>
@@ -1049,7 +1049,7 @@
                     </div>
                     
                     <div class="input-group-premium">
-                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Volume (m³) (opcional)</label>
+                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Volume (mÂ³) (opcional)</label>
                         <div class="input-wrapper">
                             <input id="volumeCarga" type="text" placeholder="Ex: 4.5" style="border: none; background: transparent; padding: 14px 16px; margin: 0; box-shadow: none;" />
                         </div>
@@ -1065,7 +1065,7 @@
                     </div>
                     
                     <div class="input-group-premium">
-                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Previsão de Entrega</label>
+                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">PrevisÃ£o de Entrega</label>
                         <div class="input-wrapper">
                             <input id="previsaoCarga" type="date" style="border: none; background: transparent; padding: 14px 16px; margin: 0; box-shadow: none;" />
                         </div>
@@ -1073,12 +1073,12 @@
                 </div>
 
                 <div class="input-group-premium">
-                    <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Urgência</label>
+                    <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">UrgÃªncia</label>
                     <div class="input-wrapper">
                         <select id="urgenciaCarga" style="border: none; background: transparent; padding: 14px 16px; margin: 0; box-shadow: none; padding-left: 16px; height: 50px;">
                             <option value="Baixa">Baixa</option>
                             <option value="Normal" selected>Normal</option>
-                            <option value="Média">Média</option>
+                            <option value="MÃ©dia">MÃ©dia</option>
                             <option value="Alta">Alta</option>
                         </select>
                     </div>
@@ -1093,8 +1093,8 @@
                 </div>
 
                 <div class="input-group-premium">
-                    <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Observações</label>
-                    <textarea id="obsCarga" placeholder="Ex: Carga frágil, exige ajudante para descarregar..." 
+                    <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">ObservaÃ§Ãµes</label>
+                    <textarea id="obsCarga" placeholder="Ex: Carga frÃ¡gil, exige ajudante para descarregar..." 
                               style="min-height: 100px; padding: 16px; background: rgba(255,255,255,0.5); border-radius: 18px; border: 1.5px solid var(--border); transition: 0.3s;"></textarea>
                 </div>
             </div>
@@ -1105,23 +1105,23 @@
                     Cancelar
                 </button>
                 <button class="btn btn-primary" id="btnPublishNext" style="flex: 2; padding: 14px; font-weight: 700; border-radius: 14px; background: var(--orange); border-color: var(--orange); color: white; margin: 0; box-shadow: 0 4px 14px rgba(249, 115, 22, 0.25);" onclick="nextPublishStep(this)">
-                    Próximo Passo <i class="ph ph-arrow-right" id="btnPublishNextIcon"></i>
+                    PrÃ³ximo Passo <i class="ph ph-arrow-right" id="btnPublishNextIcon"></i>
                 </button>
             </div>
         </main>
     </section>
 
-    <!-- TELA: HISTÓRICO DE ENVIOS (Menu Inferior Embarcador) -->
+    <!-- TELA: HISTÃ“RICO DE ENVIOS (Menu Inferior Embarcador) -->
     <section id="shipper_history" class="screen">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
-            <h1>Histórico de Cargas</h1>
+            <h1>HistÃ³rico de Cargas</h1>
             <div style="width: 44px;"></div>
         </div>
 
         <div style="display: flex; gap: 8px; margin-bottom: 24px; overflow-x: auto; padding-bottom: 8px;" id="shipperHistoryTabs">
             <div class="tag active" onclick="setShipperHistoryTab('concluida', this)" style="background:var(--primary); color:white; white-space:nowrap; cursor:pointer;">
-                Concluídas</div>
+                ConcluÃ­das</div>
             <div class="tag" onclick="setShipperHistoryTab('cancelada', this)" style="white-space:nowrap; cursor:pointer;">Canceladas</div>
         </div>
 
@@ -1165,7 +1165,7 @@
                     <strong id="detailColetaText">--</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px;">
-                    <span style="color: var(--text-muted);">Previsão de Entrega</span>
+                    <span style="color: var(--text-muted);">PrevisÃ£o de Entrega</span>
                     <strong id="detailPrevisaoText">--</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px;">
@@ -1177,148 +1177,143 @@
                     <strong id="detailVolumeText">--</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px;">
-                    <span style="color: var(--text-muted);">Distância Estimada</span>
+                    <span style="color: var(--text-muted);">DistÃ¢ncia Estimada</span>
                     <strong id="detailDistanciaText">--</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px;">
-                    <span style="color: var(--text-muted);">Urgência</span>
+                    <span style="color: var(--text-muted);">UrgÃªncia</span>
                     <strong id="detailUrgenciaText">--</strong>
                 </div>
             </div>
 
             <div
                 style="background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 24px;">
-                <p style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 8px;">OBSERVAÇÕES
+                <p style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 8px;">OBSERVAÃ‡Ã•ES
                     DO EMBARCADOR</p>
                 <p id="detailObsText" style="font-size: 14px; line-height: 1.5;">Mercadoria alocada em paletes.
                     Pagamento garantido e
-                    liberado automaticamente na plataforma após a confirmação da entrega (Baixa de Canhoto Digital).</p>
+                    liberado automaticamente na plataforma apÃ³s a confirmaÃ§Ã£o da entrega (Baixa de Canhoto Digital).</p>
             </div>
 
             <button class="btn btn-orange" id="btnCall"
                 onclick="window.open('tel:' + currentFreight.telefoneContato, '_blank')"
                 style="margin-bottom: 12px; border-radius: 18px; padding: 18px;">
-                Realizar Ligação <i class="ph ph-phone"></i>
+                Realizar LigaÃ§Ã£o <i class="ph ph-phone"></i>
             </button>
             <button class="btn btn-outline" id="btnWhatsApp"
-                onclick="window.open('https://wa.me/55' + currentFreight.whatsappContato.replace(/\D/g, '') + '?text=' + encodeURIComponent('Olá, vim pelo PegaFrete. Tenho interesse na carga de ' + currentFreight.origem + ' para ' + currentFreight.destino + '.'), '_blank')"
+                onclick="window.open('https://wa.me/55' + currentFreight.whatsappContato.replace(/\D/g, '') + '?text=' + encodeURIComponent('OlÃ¡, vim pelo PegaFrete. Tenho interesse na carga de ' + currentFreight.origem + ' para ' + currentFreight.destino + '.'), '_blank')"
                 style="border-radius: 18px; padding: 18px;">
                 Chamar no WhatsApp <i class="ph ph-whatsapp-logo" style="color: #25D366;"></i>
             </button>
         </div>
     </section>
 
-    <!-- TELA: PERFIL / CONFIGURAÇÕES -->
+    <!-- TELA: PERFIL / CONFIGURAÃ‡Ã•ES -->
     <section id="profile" class="screen" style="padding-bottom: 120px;">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
-            <h1 style="font-size: 20px; font-weight: 800;">Meu Perfil</h1>
+            <h1 style="font-size: 20px; font-weight: 800;">Configurações</h1>
             <div style="width: 44px;"></div>
         </div>
 
-        <div style="display: flex; flex-direction: column; align-items: center; padding: 24px 16px 16px 16px; position: relative;">
-            <div style="position: relative; margin-bottom: 16px; display: inline-block; z-index: 2;">
-                <div class="profile-avatar" id="profileAvatar" onclick="openPhotoActionSheet()"
-                    style="width: 96px; height: 96px; border-radius: 50%; background: url('https://i.imgur.com/vnYcevV.png') center/cover; border: 2px solid var(--border); cursor: pointer;">
-                </div>
-                <div style="position: absolute; bottom: 0; right: 0; background: var(--orange); color: white; padding: 4px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px;">
-                    <i class="ph-fill ph-seal-check" style="font-size: 16px;"></i>
+        <div style="display: flex; align-items: center; padding: 24px 20px; border-bottom: 1px solid var(--border); position: relative;">
+            <div class="profile-avatar" id="profileAvatar" onclick="openPhotoActionSheet()"
+                style="width: 64px; height: 64px; border-radius: 50%; background: url('https://i.imgur.com/vnYcevV.png') center/cover; margin-right: 16px; cursor: pointer; flex-shrink: 0;">
+            </div>
+            <div style="flex: 1;">
+                <h2 style="font-size: 20px; font-weight: 700; color: var(--primary); margin: 0 0 4px 0;" id="profileDisplayName">Carregando...</h2>
+                <div style="display: flex; align-items: center; gap: 6px;" id="profileStatusTagContainer">
+                    <span style="font-size: 13px; font-weight: 500; color: var(--text-muted);"><span id="profileRoleText">Carregando...</span> &bull; </span>
+                    <span id="profileStatusTagText" style="font-size: 13px; font-weight: 700; color: var(--orange);">Homologado</span>
                 </div>
             </div>
-
-            <h2 style="font-size: 20px; font-weight: 700; color: var(--primary); margin-bottom: 4px;" id="profileDisplayName">Carregando...</h2>
-            
-            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 16px;" id="profileStatusTagContainer">
-                <span style="font-size: 14px; font-weight: 500; color: var(--text-muted);"><span id="profileRoleText">Carregando...</span> • </span>
-                <span id="profileStatusTagText" style="font-size: 14px; font-weight: 700; color: var(--orange);">Homologado</span>
-            </div>
+            <i class="ph ph-caret-right" style="font-size: 20px; color: var(--text-muted);"></i>
         </div>
 
-        <div style="padding: 0 16px;">
-            <!-- REGISTRATION DATA -->
-            <div style="margin-bottom: 24px;">
-                <h3 style="font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; margin-left: 4px;">Dados Cadastrais</h3>
-                <div style="background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
-                    
-                    <!-- Personal Data -->
-                    <div onclick="navTo('profile_personal_data')" style="padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; border-bottom: 1px solid var(--border);" class="hover-bg-surface">
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <i class="ph ph-user" style="font-size: 24px; color: var(--text-muted);"></i>
-                            <div>
-                                <p style="font-size: 16px; font-weight: 600; color: var(--primary); margin: 0 0 2px 0;">Dados Pessoais</p>
-                                <p style="font-size: 12px; color: var(--text-muted); margin: 0;">Gerencie sua identidade e detalhes</p>
-                            </div>
-                        </div>
-                        <i class="ph ph-caret-right" style="font-size: 20px; color: var(--text-muted);"></i>
-                    </div>
+        <div style="padding: 0;">
+            <!-- Preferências -->
+            <p style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 24px 20px 8px 20px;">Preferências</p>
+            
+            <div onclick="navTo('profile_personal_data')" style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <i class="ph ph-user" style="font-size: 24px; color: var(--primary);"></i>
+                    <span style="font-size: 16px; font-weight: 600; color: var(--primary);">Dados Pessoais</span>
+                </div>
+                <i class="ph ph-caret-right" style="font-size: 20px; color: var(--text-muted);"></i>
+            </div>
 
-                    <!-- Email Address -->
-                    <div onclick="navTo('profile_update_email')" style="padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <i class="ph ph-envelope" style="font-size: 24px; color: var(--text-muted);"></i>
-                            <div>
-                                <p style="font-size: 16px; font-weight: 600; color: var(--primary); margin: 0 0 2px 0;">Endereço de E-mail</p>
-                                <p style="font-size: 12px; color: var(--text-muted); margin: 0;" id="profileEmailDisplay">carregando...</p>
-                            </div>
-                        </div>
-                        <i class="ph ph-caret-right" style="font-size: 20px; color: var(--text-muted);"></i>
-                    </div>
+            <div onclick="navTo('profile_update_email')" style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <i class="ph ph-envelope" style="font-size: 24px; color: var(--primary);"></i>
+                    <span style="font-size: 16px; font-weight: 600; color: var(--primary);">Endereço de E-mail</span>
+                </div>
+                <i class="ph ph-caret-right" style="font-size: 20px; color: var(--text-muted);"></i>
+            </div>
+
+            <div style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <i class="ph ph-globe" style="font-size: 24px; color: var(--primary);"></i>
+                    <span style="font-size: 16px; font-weight: 600; color: var(--primary);">Idioma</span>
+                </div>
+                <i class="ph ph-caret-right" style="font-size: 20px; color: var(--text-muted);"></i>
+            </div>
+
+            <!-- Segurança -->
+            <p style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 24px 20px 8px 20px;">Segurança</p>
+
+            <div onclick="navTo('profile_security_docs')" style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <i class="ph ph-shield-check" style="font-size: 24px; color: var(--primary);"></i>
+                    <span style="font-size: 16px; font-weight: 600; color: var(--primary);">Documentos de Segurança</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div id="profileDocsAlertDot" style="width: 8px; height: 8px; border-radius: 50%; background: var(--orange); display: none;"></div>
+                    <i class="ph ph-caret-right" style="font-size: 20px; color: var(--text-muted);"></i>
                 </div>
             </div>
 
-            <!-- PRIVACY & COMPLIANCE -->
-            <div style="margin-bottom: 24px;">
-                <h3 style="font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; margin-left: 4px;">Privacidade & Segurança</h3>
-                <div style="background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
-                    
-                    <!-- Security Documents -->
-                    <div onclick="navTo('profile_security_docs')" style="padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; border-bottom: 1px solid var(--border);" class="hover-bg-surface">
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <i class="ph ph-shield-check" style="font-size: 24px; color: var(--text-muted);"></i>
-                            <div>
-                                <p style="font-size: 16px; font-weight: 600; color: var(--primary); margin: 0 0 2px 0;">Documentos de Segurança</p>
-                                <p style="font-size: 12px; color: var(--text-muted); margin: 0;" id="profileDocsStatusText">Verificar status dos documentos</p>
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div id="profileDocsAlertDot" style="width: 8px; height: 8px; border-radius: 50%; background: var(--orange); display: none;"></div>
-                            <i class="ph ph-caret-right" style="font-size: 20px; color: var(--text-muted);"></i>
-                        </div>
-                    </div>
-
-                    <!-- Account Management -->
-                    <div onclick="navTo('profile_account')" style="padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <i class="ph ph-gear" style="font-size: 24px; color: var(--text-muted);"></i>
-                            <div>
-                                <p style="font-size: 16px; font-weight: 600; color: var(--primary); margin: 0 0 2px 0;">Gerenciamento de Conta</p>
-                                <p style="font-size: 12px; color: var(--text-muted); margin: 0;">Funções e permissões</p>
-                            </div>
-                        </div>
-                        <i class="ph ph-caret-right" style="font-size: 20px; color: var(--text-muted);"></i>
-                    </div>
+            <div onclick="navTo('profile_account')" style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <i class="ph ph-gear" style="font-size: 24px; color: var(--primary);"></i>
+                    <span style="font-size: 16px; font-weight: 600; color: var(--primary);">Gerenciamento de Conta</span>
                 </div>
+                <i class="ph ph-caret-right" style="font-size: 20px; color: var(--text-muted);"></i>
             </div>
 
-            <!-- SUPPORT -->
-            <div style="margin-bottom: 24px;">
-                <h3 style="font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; margin-left: 4px;">Suporte</h3>
-                <div style="background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
-                    
-                    <!-- Help & Support -->
-                    <div onclick="navTo('profile_support')" style="padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <i class="ph ph-question" style="font-size: 24px; color: var(--text-muted);"></i>
-                            <div>
-                                <p style="font-size: 16px; font-weight: 600; color: var(--primary); margin: 0 0 2px 0;">Ajuda & Suporte</p>
-                                <p style="font-size: 12px; color: var(--text-muted); margin: 0;">FAQ e contato direto</p>
-                            </div>
-                        </div>
-                        <i class="ph ph-caret-right" style="font-size: 20px; color: var(--text-muted);"></i>
-                    </div>
+            <!-- Mais -->
+            <p style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 24px 20px 8px 20px;">Mais</p>
+
+            <div style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <i class="ph ph-lock-key" style="font-size: 24px; color: var(--primary);"></i>
+                    <span style="font-size: 16px; font-weight: 600; color: var(--primary);">Privacidade</span>
                 </div>
+                <i class="ph ph-caret-right" style="font-size: 20px; color: var(--text-muted);"></i>
             </div>
 
+            <div onclick="window.open('https://pegafrete.com.br/termos', '_blank')" style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <i class="ph ph-file-text" style="font-size: 24px; color: var(--primary);"></i>
+                    <span style="font-size: 16px; font-weight: 600; color: var(--primary);">Termos de Uso</span>
+                </div>
+                <i class="ph ph-caret-right" style="font-size: 20px; color: var(--text-muted);"></i>
+            </div>
+
+            <div onclick="navTo('profile_support')" style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <i class="ph ph-question" style="font-size: 24px; color: var(--primary);"></i>
+                    <span style="font-size: 16px; font-weight: 600; color: var(--primary);">Suporte e Dúvidas</span>
+                </div>
+                <i class="ph ph-caret-right" style="font-size: 20px; color: var(--text-muted);"></i>
+            </div>
+
+            <div style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <i class="ph ph-info" style="font-size: 24px; color: var(--primary);"></i>
+                    <span style="font-size: 16px; font-weight: 600; color: var(--primary);">Sobre</span>
+                </div>
+                <i class="ph ph-caret-right" style="font-size: 20px; color: var(--text-muted);"></i>
+            </div>
         </div>
     </section>
 
@@ -1338,7 +1333,7 @@
                 <div style="display: flex; flex-direction: column; gap: 12px;">
                     <button class="btn btn-primary" style="margin: 0; border-radius: 16px; padding: 14px; font-weight: 700;"
                         onclick="document.getElementById('cameraInput').click(); closePhotoActionSheet();">
-                        <i class="ph ph-camera"></i> Tirar Foto (Câmera)
+                        <i class="ph ph-camera"></i> Tirar Foto (CÃ¢mera)
                     </button>
                     <button class="btn btn-outline" style="margin: 0; border-radius: 16px; padding: 14px; font-weight: 700;"
                         onclick="document.getElementById('galleryInput').click(); closePhotoActionSheet();">
@@ -1349,14 +1344,14 @@
             </div>
         </div>
 
-        <!-- MODAL DE CONFIRMAÇÃO DE LOGOUT -->
+        <!-- MODAL DE CONFIRMAÃ‡ÃƒO DE LOGOUT -->
         <div id="logoutConfirmModal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 10001; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: opacity 0.3s ease;">
             <div style="background: white; padding: 32px 24px; text-align: center; margin: 16px; max-width: 340px; width: 100%; border-radius: 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.7); animation: modalScaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
                 <div style="width: 56px; height: 56px; background: #fef2f2; color: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 16px auto;">
                     <i class="ph-fill ph-sign-out"></i>
                 </div>
                 <h3 style="margin-bottom: 8px; font-weight: 800; font-size: 20px; color: var(--primary);">Sair da Conta?</h3>
-                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">Tem certeza que deseja sair da sua conta? Você precisará digitar suas credenciais novamente para acessar.</p>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">Tem certeza que deseja sair da sua conta? VocÃª precisarÃ¡ digitar suas credenciais novamente para acessar.</p>
                 <div style="display: flex; gap: 12px;">
                     <button class="btn btn-outline" style="margin: 0; flex: 1; border-radius: 16px; padding: 14px; font-weight: 700;" onclick="fecharModalLogout()">
                         Cancelar
@@ -1368,14 +1363,14 @@
             </div>
         </div>
         
-        <!-- MODAL DE CONFIRMAÇÃO DE EXCLUSÃO DE CONTA -->
+        <!-- MODAL DE CONFIRMAÃ‡ÃƒO DE EXCLUSÃƒO DE CONTA -->
         <div id="deleteAccountConfirmModal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 10001; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: opacity 0.3s ease;">
             <div style="background: white; padding: 32px 24px; text-align: center; margin: 16px; max-width: 340px; width: 100%; border-radius: 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.7); animation: modalScaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
                 <div style="width: 56px; height: 56px; background: #fef2f2; color: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 16px auto;">
                     <i class="ph-fill ph-warning-circle"></i>
                 </div>
                 <h3 style="margin-bottom: 8px; font-weight: 800; font-size: 20px; color: var(--primary);">Excluir Conta?</h3>
-                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">Esta ação é irreversível. Todos os seus dados, histórico de fretes e informações serão apagados permanentemente. Deseja continuar?</p>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">Esta aÃ§Ã£o Ã© irreversÃ­vel. Todos os seus dados, histÃ³rico de fretes e informaÃ§Ãµes serÃ£o apagados permanentemente. Deseja continuar?</p>
                 <div style="display: flex; gap: 12px; flex-direction: column;">
                     <button class="btn btn-orange" id="btnConfirmDeleteAccount" style="margin: 0; border-radius: 16px; padding: 14px; font-weight: 700; background: #ef4444; border: none; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);" onclick="confirmDeleteAccount()">
                         Sim, excluir permanentemente
@@ -1447,16 +1442,16 @@
 
                 <div style="background: #f8fafc; border-radius: 16px; border: 1px solid var(--border); overflow: hidden; display: flex; flex-direction: column;">
                     
-                    <!-- Nome do Responsável -->
+                    <!-- Nome do ResponsÃ¡vel -->
                     <div id="profNameGroup" style="display: flex; align-items: center; padding: 16px; border-bottom: 1px solid var(--border);">
                         <label style="font-size: 13px; font-weight: 700; color: var(--text-muted); width: 110px; flex-shrink: 0;">Nome</label>
                         <input type="text" id="profName" placeholder="Nome Completo" disabled style="border: none; background: transparent; padding: 0; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; text-align: right;" />
                     </div>
 
-                    <!-- Razão Social (só PJ) -->
+                    <!-- RazÃ£o Social (sÃ³ PJ) -->
                     <div id="profRazaoGroup" style="display: none; align-items: center; padding: 16px; border-bottom: 1px solid var(--border);">
-                        <label style="font-size: 13px; font-weight: 700; color: var(--text-muted); width: 110px; flex-shrink: 0;">Razão Social</label>
-                        <input type="text" id="profRazao" placeholder="Razão Social" disabled style="border: none; background: transparent; padding: 0; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; text-align: right;" />
+                        <label style="font-size: 13px; font-weight: 700; color: var(--text-muted); width: 110px; flex-shrink: 0;">RazÃ£o Social</label>
+                        <input type="text" id="profRazao" placeholder="RazÃ£o Social" disabled style="border: none; background: transparent; padding: 0; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; text-align: right;" />
                     </div>
 
                     <!-- Documento (CPF / CNPJ) -->
@@ -1476,28 +1471,28 @@
                         <input type="text" id="profPhone" placeholder="Celular" disabled style="border: none; background: transparent; padding: 0; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; text-align: right;" />
                     </div>
 
-                    <!-- Endereço -->
+                    <!-- EndereÃ§o -->
                     <div style="display: flex; align-items: center; padding: 16px; border-bottom: 1px solid var(--border);">
-                        <label style="font-size: 13px; font-weight: 700; color: var(--text-muted); width: 110px; flex-shrink: 0;">Endereço</label>
+                        <label style="font-size: 13px; font-weight: 700; color: var(--text-muted); width: 110px; flex-shrink: 0;">EndereÃ§o</label>
                         <input type="text" id="profAddress" placeholder="Cidade - Estado" disabled style="border: none; background: transparent; padding: 0; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; text-align: right;" />
                     </div>
 
-                    <!-- Veículo -->
+                    <!-- VeÃ­culo -->
                     <div id="profVehicleGroup" style="display: none; align-items: center; padding: 16px; border-bottom: 1px solid var(--border);">
-                        <label style="font-size: 13px; font-weight: 700; color: var(--text-muted); width: 110px; flex-shrink: 0;">Veículo</label>
+                        <label style="font-size: 13px; font-weight: 700; color: var(--text-muted); width: 110px; flex-shrink: 0;">VeÃ­culo</label>
                         <input type="text" id="profVehicle" disabled style="border: none; background: transparent; padding: 0; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; text-align: right;" />
                     </div>
 
                     <!-- ANTT -->
                     <div id="profAnttGroup" style="display: none; align-items: center; padding: 16px; border-bottom: 1px solid var(--border);">
                         <label style="font-size: 13px; font-weight: 700; color: var(--text-muted); width: 110px; flex-shrink: 0;">ANTT</label>
-                        <input type="text" id="profAntt" placeholder="Número ANTT" disabled style="border: none; background: transparent; padding: 0; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; text-align: right;" />
+                        <input type="text" id="profAntt" placeholder="NÃºmero ANTT" disabled style="border: none; background: transparent; padding: 0; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; text-align: right;" />
                     </div>
 
                     <!-- CNH -->
                     <div id="profCnhNumGroup" style="display: none; align-items: center; padding: 16px; border-bottom: 1px solid var(--border);">
                         <label style="font-size: 13px; font-weight: 700; color: var(--text-muted); width: 110px; flex-shrink: 0;">CNH</label>
-                        <input type="text" id="profCnhNum" placeholder="Número da CNH" disabled style="border: none; background: transparent; padding: 0; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; text-align: right;" />
+                        <input type="text" id="profCnhNum" placeholder="NÃºmero da CNH" disabled style="border: none; background: transparent; padding: 0; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; text-align: right;" />
                     </div>
 
                     <!-- Placa -->
@@ -1510,7 +1505,7 @@
                 <button class="btn btn-orange" id="btnSaveProfile"
                     style="margin-top: 24px; margin-bottom: 0; display: none; border-radius: 14px; padding: 14px; font-weight: 700; width: 100%; font-size: 14px;"
                     onclick="salvarPerfil(this)">
-                    Salvar Alterações <i class="ph ph-check-circle"></i>
+                    Salvar AlteraÃ§Ãµes <i class="ph ph-check-circle"></i>
                 </button>
             </div>
         </div>
@@ -1520,13 +1515,13 @@
     <section id="profile_update_email" class="screen">
         <div class="topbar">
             <button class="back-btn" onclick="navTo('profile')"><i class="ph ph-arrow-left"></i></button>
-            <h1 style="font-size: 20px; font-weight: 800;">Endereço de E-mail</h1>
+            <h1 style="font-size: 20px; font-weight: 800;">EndereÃ§o de E-mail</h1>
             <div style="width: 44px;"></div>
         </div>
 
         <div style="padding: 16px;">
             <div class="glass-card" style="padding: 24px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); border: 1px solid var(--border); background: white;">
-                <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5;">Atualize o endereço de e-mail usado para acessar a sua conta do PegaFrete.</p>
+                <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5;">Atualize o endereÃ§o de e-mail usado para acessar a sua conta do PegaFrete.</p>
                 
                 <div style="background: #f8fafc; border-radius: 16px; border: 1.5px solid var(--primary); overflow: hidden; display: flex; flex-direction: column;">
                     <div style="display: flex; align-items: center; padding: 16px;">
@@ -1541,7 +1536,7 @@
         </div>
     </section>
 
-    <!-- TELA: DOCUMENTOS DE SEGURANÇA -->
+    <!-- TELA: DOCUMENTOS DE SEGURANÃ‡A -->
     <section id="profile_security_docs" class="screen">
         <div class="topbar">
             <button class="back-btn" onclick="navTo('profile')"><i class="ph ph-arrow-left"></i></button>
@@ -1553,9 +1548,9 @@
             <div class="glass-card" id="shipperHomologationCard" style="padding: 24px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 24px; background: white;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
                     <div>
-                        <h3 style="font-size: 16px; margin: 0 0 6px 0; color: var(--primary); font-weight: 800;">Homologação de Segurança</h3>
+                        <h3 style="font-size: 16px; margin: 0 0 6px 0; color: var(--primary); font-weight: 800;">HomologaÃ§Ã£o de SeguranÃ§a</h3>
                         <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 0; line-height: 1.45; font-weight: 500;">
-                            Envie a documentação de sua empresa para obter o selo ouro e prioridade de atendimento dos motoristas.
+                            Envie a documentaÃ§Ã£o de sua empresa para obter o selo ouro e prioridade de atendimento dos motoristas.
                         </p>
                     </div>
                 </div>
@@ -1573,12 +1568,12 @@
                         <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
                     </div>
 
-                    <!-- Comprovante de Residência -->
-                    <div class="upload-item" id="upResidencia" onclick="handleUpload('upResidencia', 'Comprovante de Residência')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
+                    <!-- Comprovante de ResidÃªncia -->
+                    <div class="upload-item" id="upResidencia" onclick="handleUpload('upResidencia', 'Comprovante de ResidÃªncia')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
                         <div style="display: flex; align-items: center; gap: 14px;">
                             <i class="ph-fill ph-house-line" style="font-size: 24px; color: var(--orange);"></i>
                             <div style="text-align: left;">
-                                <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">Comprovante de Residência</p>
+                                <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">Comprovante de ResidÃªncia</p>
                                 <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;" id="status_upResidencia">Toque para enviar</p>
                             </div>
                         </div>
@@ -1695,8 +1690,8 @@
 
         <div class="card"
             style="background: var(--primary); color: white; border: none; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.3);">
-            <p style="font-size: 14px; color: rgba(255,255,255,0.7); font-weight: 500;">Saldo Disponível (PIX
-                Automático)</p>
+            <p style="font-size: 14px; color: rgba(255,255,255,0.7); font-weight: 500;">Saldo DisponÃ­vel (PIX
+                AutomÃ¡tico)</p>
             <h2 style="color: white; font-size: 36px; margin: 12px 0;">R$ 4.850,00</h2>
 
             <div style="display: flex; gap: 12px; margin-top: 24px;">
@@ -1706,7 +1701,7 @@
             </div>
         </div>
 
-        <h2 class="mb-4">Histórico de Ganhos</h2>
+        <h2 class="mb-4">HistÃ³rico de Ganhos</h2>
 
         <div class="freight-card"
             style="display: flex; justify-content: space-between; align-items: center; padding: 16px;">
@@ -1733,7 +1728,7 @@
         </div>
 
         <div class="chat-list-container">
-            <!-- Conversa Única: Pega Frete -->
+            <!-- Conversa Ãšnica: Pega Frete -->
             <div class="chat-list-item" id="systemChatItem" onclick="openChatDetail('Pega Frete', 'Online', '/orange_truck_avatar.png')">
                 <div class="chat-list-avatar-wrapper" style="position: relative; display: flex; align-items: center; justify-content: center;">
                     <img class="chat-list-avatar" src="/orange_truck_avatar.png" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15);" />
@@ -1756,7 +1751,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
                     <div>
                         <h4 style="font-size: 11px; font-weight: 800; color: var(--orange); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Oferta Especial</h4>
-                        <p style="font-size: 14px; font-weight: 600; color: var(--text-main); line-height: 1.4;">Antecipe seus recebíveis com as menores taxas do mercado.</p>
+                        <p style="font-size: 14px; font-weight: 600; color: var(--text-main); line-height: 1.4;">Antecipe seus recebÃ­veis com as menores taxas do mercado.</p>
                     </div>
                     <i class="ph ph-trend-up" style="color: var(--orange); font-size: 24px;"></i>
                 </div>
@@ -1786,7 +1781,7 @@
         </header>
 
         <div class="chat-messages scrollbar-hide" id="chatMessages">
-            <!-- As mensagens serão renderizadas dinamicamente aqui -->
+            <!-- As mensagens serÃ£o renderizadas dinamicamente aqui -->
         </div>
 
         <footer id="chatFooter" class="chat-footer" style="background: white; border-top: 1px solid rgba(0,0,0,0.05); padding: 12px 16px 24px 16px;">
@@ -1826,7 +1821,7 @@
                             <i class="ph ph-whatsapp-logo" style="font-size: 24px; color: var(--text-main);"></i>
                             <div>
                                 <span style="font-weight: 700; font-size: 15px; color: var(--primary); display: block; margin-bottom: 2px;">Fale com o Suporte (WhatsApp)</span>
-                                <span style="font-size: 12px; color: var(--text-muted); font-weight: 500;">Atendimento geral por WhatsApp para tirar suas dúvidas</span>
+                                <span style="font-size: 12px; color: var(--text-muted); font-weight: 500;">Atendimento geral por WhatsApp para tirar suas dÃºvidas</span>
                             </div>
                         </div>
                         <i class="ph ph-caret-right" style="font-size: 16px; color: var(--text-muted);"></i>
@@ -1845,7 +1840,7 @@
         </div>
         
         <div style="padding: 16px;">
-            <h3 style="font-size: 15px; color: var(--primary); font-weight: 800; margin-bottom: 16px; padding-left: 8px;">Termos e Políticas da PegaFrete</h3>
+            <h3 style="font-size: 15px; color: var(--primary); font-weight: 800; margin-bottom: 16px; padding-left: 8px;">Termos e PolÃ­ticas da PegaFrete</h3>
             
             <div class="glass-card" style="padding: 8px 16px; border-radius: 24px; border: 1px solid var(--border); background: white;">
                 <div style="display: flex; flex-direction: column;">
@@ -1861,7 +1856,7 @@
                     <div onclick="navTo('privacy_screen')" style="padding: 16px 8px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
                         <div style="display: flex; align-items: center; gap: 14px;">
                             <i class="ph ph-shield-check" style="font-size: 22px; color: var(--text-main);"></i>
-                            <span style="font-weight: 600; font-size: 15px; color: var(--primary);">Política de Privacidade</span>
+                            <span style="font-weight: 600; font-size: 15px; color: var(--primary);">PolÃ­tica de Privacidade</span>
                         </div>
                         <i class="ph ph-caret-right" style="font-size: 16px; color: var(--text-muted);"></i>
                     </div>
@@ -1869,7 +1864,7 @@
                     <div onclick="navTo('cookies_screen')" style="padding: 16px 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
                         <div style="display: flex; align-items: center; gap: 14px;">
                             <i class="ph ph-cookie" style="font-size: 22px; color: var(--text-main);"></i>
-                            <span style="font-weight: 600; font-size: 15px; color: var(--primary);">Política de Cookies</span>
+                            <span style="font-weight: 600; font-size: 15px; color: var(--primary);">PolÃ­tica de Cookies</span>
                         </div>
                         <i class="ph ph-caret-right" style="font-size: 16px; color: var(--text-muted);"></i>
                     </div>
@@ -1888,16 +1883,16 @@
         
         <div style="padding: 16px;">
             <div class="glass-card" style="padding: 24px; border-radius: 24px; border: 1px solid var(--border); background: white;">
-                <h3 style="font-size: 16px; color: var(--primary); font-weight: 800; margin-bottom: 20px;">Dúvidas Comuns</h3>
+                <h3 style="font-size: 16px; color: var(--primary); font-weight: 800; margin-bottom: 20px;">DÃºvidas Comuns</h3>
                 
                 <div style="display: flex; flex-direction: column; gap: 4px;">
                     <details class="group py-4 border-b border-gray-100 cursor-pointer">
                         <summary class="flex justify-between items-center font-semibold text-gray-800 list-none" style="display: flex; justify-content: space-between; align-items: center; list-style: none;">
-                            <span style="font-size: 14.5px; color: var(--primary); font-weight: 700; line-height: 1.4;">O que é o PegaFrete?</span>
+                            <span style="font-size: 14.5px; color: var(--primary); font-weight: 700; line-height: 1.4;">O que Ã© o PegaFrete?</span>
                             <i class="ph ph-caret-down transition-transform duration-200" style="color: var(--text-muted); font-size: 16px;"></i>
                         </summary>
                         <p style="margin-top: 12px; font-size: 13.5px; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
-                            O PegaFrete é uma plataforma digital que conecta diretamente motoristas autônomos (transportadores) e empresas ou pessoas físicas que precisam enviar mercadorias (embarcadores). Nosso objetivo é facilitar a logística, reduzindo a burocracia e agilizando a negociação do frete.
+                            O PegaFrete Ã© uma plataforma digital que conecta diretamente motoristas autÃ´nomos (transportadores) e empresas ou pessoas fÃ­sicas que precisam enviar mercadorias (embarcadores). Nosso objetivo Ã© facilitar a logÃ­stica, reduzindo a burocracia e agilizando a negociaÃ§Ã£o do frete.
                         </p>
                     </details>
 
@@ -1907,7 +1902,7 @@
                             <i class="ph ph-caret-down transition-transform duration-200" style="color: var(--text-muted); font-size: 16px;"></i>
                         </summary>
                         <p style="margin-top: 12px; font-size: 13.5px; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
-                            Sendo um Embarcador cadastrado, acesse a aba principal e toque em "Publicar Frete". Preencha os campos obrigatórios como origem, destino, tipo de veículo, peso da carga e valor proposto. Após salvar, o frete ficará visível instantaneamente para todos os transportadores parceiros.
+                            Sendo um Embarcador cadastrado, acesse a aba principal e toque em "Publicar Frete". Preencha os campos obrigatÃ³rios como origem, destino, tipo de veÃ­culo, peso da carga e valor proposto. ApÃ³s salvar, o frete ficarÃ¡ visÃ­vel instantaneamente para todos os transportadores parceiros.
                         </p>
                     </details>
 
@@ -1917,27 +1912,27 @@
                             <i class="ph ph-caret-down transition-transform duration-200" style="color: var(--text-muted); font-size: 16px;"></i>
                         </summary>
                         <p style="margin-top: 12px; font-size: 13.5px; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
-                            Como Transportador, acesse a aba de cargas disponíveis, filtre por veículo ou região e clique na carga de interesse. Você verá a rota estimada no mapa e as informações detalhadas. Para fechar o frete, basta tocar no botão de contato direto pelo WhatsApp ou ligar para o embarcador.
+                            Como Transportador, acesse a aba de cargas disponÃ­veis, filtre por veÃ­culo ou regiÃ£o e clique na carga de interesse. VocÃª verÃ¡ a rota estimada no mapa e as informaÃ§Ãµes detalhadas. Para fechar o frete, basta tocar no botÃ£o de contato direto pelo WhatsApp ou ligar para o embarcador.
                         </p>
                     </details>
 
                     <details class="group py-4 border-b border-gray-100 cursor-pointer">
                         <summary class="flex justify-between items-center font-semibold text-gray-800 list-none" style="display: flex; justify-content: space-between; align-items: center; list-style: none;">
-                            <span style="font-size: 14.5px; color: var(--primary); font-weight: 700; line-height: 1.4;">O uso do aplicativo é gratuito?</span>
+                            <span style="font-size: 14.5px; color: var(--primary); font-weight: 700; line-height: 1.4;">O uso do aplicativo Ã© gratuito?</span>
                             <i class="ph ph-caret-down transition-transform duration-200" style="color: var(--text-muted); font-size: 16px;"></i>
                         </summary>
                         <p style="margin-top: 12px; font-size: 13.5px; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
-                            Sim! O PegaFrete é 100% gratuito para motoristas e empresas se conectarem. Não cobramos mensalidades, assinaturas ou qualquer comissão sobre o valor do frete fechado. Toda a negociação financeira ocorre diretamente entre você e a contraparte.
+                            Sim! O PegaFrete Ã© 100% gratuito para motoristas e empresas se conectarem. NÃ£o cobramos mensalidades, assinaturas ou qualquer comissÃ£o sobre o valor do frete fechado. Toda a negociaÃ§Ã£o financeira ocorre diretamente entre vocÃª e a contraparte.
                         </p>
                     </details>
 
                     <details class="group py-4 border-b border-gray-100 cursor-pointer">
                         <summary class="flex justify-between items-center font-semibold text-gray-800 list-none" style="display: flex; justify-content: space-between; align-items: center; list-style: none;">
-                            <span style="font-size: 14.5px; color: var(--primary); font-weight: 700; line-height: 1.4;">Como alterar meus dados ou de veículo?</span>
+                            <span style="font-size: 14.5px; color: var(--primary); font-weight: 700; line-height: 1.4;">Como alterar meus dados ou de veÃ­culo?</span>
                             <i class="ph ph-caret-down transition-transform duration-200" style="color: var(--text-muted); font-size: 16px;"></i>
                         </summary>
                         <p style="margin-top: 12px; font-size: 13.5px; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
-                            Basta ir à aba de "Perfil" (ícone de usuário na barra inferior) e editar as informações. Caso seja transportador, lá também é possível editar os dados do seu veículo cadastrado para que os filtros de novas cargas sejam compatíveis com a sua capacidade.
+                            Basta ir Ã  aba de "Perfil" (Ã­cone de usuÃ¡rio na barra inferior) e editar as informaÃ§Ãµes. Caso seja transportador, lÃ¡ tambÃ©m Ã© possÃ­vel editar os dados do seu veÃ­culo cadastrado para que os filtros de novas cargas sejam compatÃ­veis com a sua capacidade.
                         </p>
                     </details>
 
@@ -1947,17 +1942,17 @@
                             <i class="ph ph-caret-down transition-transform duration-200" style="color: var(--text-muted); font-size: 16px;"></i>
                         </summary>
                         <p style="margin-top: 12px; font-size: 13.5px; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
-                            Não. O PegaFrete é exclusivamente um facilitador de conexões logísticas. Toda a negociação de preços, condições, seguro da carga e execução do frete é acordada diretamente e sob inteira responsabilidade das partes (embarcador e transportador).
+                            NÃ£o. O PegaFrete Ã© exclusivamente um facilitador de conexÃµes logÃ­sticas. Toda a negociaÃ§Ã£o de preÃ§os, condiÃ§Ãµes, seguro da carga e execuÃ§Ã£o do frete Ã© acordada diretamente e sob inteira responsabilidade das partes (embarcador e transportador).
                         </p>
                     </details>
 
                     <details class="group py-4 cursor-pointer">
                         <summary class="flex justify-between items-center font-semibold text-gray-800 list-none" style="display: flex; justify-content: space-between; align-items: center; list-style: none;">
-                            <span style="font-size: 14.5px; color: var(--primary); font-weight: 700; line-height: 1.4;">Como faço para excluir a minha conta?</span>
+                            <span style="font-size: 14.5px; color: var(--primary); font-weight: 700; line-height: 1.4;">Como faÃ§o para excluir a minha conta?</span>
                             <i class="ph ph-caret-down transition-transform duration-200" style="color: var(--text-muted); font-size: 16px;"></i>
                         </summary>
                         <p style="margin-top: 12px; font-size: 13.5px; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
-                            A exclusão pode ser feita diretamente no aplicativo. Vá na aba de "Perfil", toque na seção "Conta" e selecione "Excluir Conta". Após confirmar a ação, todos os seus dados cadastrais serão removidos definitivamente dos nossos servidores, em respeito à LGPD.
+                            A exclusÃ£o pode ser feita diretamente no aplicativo. VÃ¡ na aba de "Perfil", toque na seÃ§Ã£o "Conta" e selecione "Excluir Conta". ApÃ³s confirmar a aÃ§Ã£o, todos os seus dados cadastrais serÃ£o removidos definitivamente dos nossos servidores, em respeito Ã  LGPD.
                         </p>
                     </details>
                 </div>
@@ -1975,90 +1970,90 @@
         
         <div style="padding: 16px; max-width: 600px; margin: 0 auto; padding-bottom: 40px;">
             <div class="glass-card" style="padding: 24px; border-radius: 24px; border: 1px solid var(--border); background: white; font-size: 14px; line-height: 1.6; color: var(--text-muted);">
-                <h2 style="font-size: 18px; color: var(--primary); font-weight: 800; margin-bottom: 12px;">Termos e Condições de Uso</h2>
-                <p style="margin-bottom: 12px; font-size: 12px; color: var(--text-muted);">Última atualização: 26 de Maio de 2026</p>
-                <p style="margin-bottom: 16px; font-weight: 500;">Ao utilizar a plataforma <strong>PegaFrete</strong>, você concorda de maneira livre, expressa e informada com todos os termos, obrigações e diretrizes descritos a seguir. Por favor, leia atentamente antes de prosseguir com seu cadastro.</p>
+                <h2 style="font-size: 18px; color: var(--primary); font-weight: 800; margin-bottom: 12px;">Termos e CondiÃ§Ãµes de Uso</h2>
+                <p style="margin-bottom: 12px; font-size: 12px; color: var(--text-muted);">Ãšltima atualizaÃ§Ã£o: 26 de Maio de 2026</p>
+                <p style="margin-bottom: 16px; font-weight: 500;">Ao utilizar a plataforma <strong>PegaFrete</strong>, vocÃª concorda de maneira livre, expressa e informada com todos os termos, obrigaÃ§Ãµes e diretrizes descritos a seguir. Por favor, leia atentamente antes de prosseguir com seu cadastro.</p>
                 
-                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">1. Aceitação e Objeto</h3>
-                <p style="margin-bottom: 16px;">Estes termos regem o uso do aplicativo PegaFrete. A plataforma atua exclusivamente como facilitadora de conexões logísticas entre prestadores de serviço de transporte (Transportadores) e solicitantes de envio de cargas (Embarcadores).</p>
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">1. AceitaÃ§Ã£o e Objeto</h3>
+                <p style="margin-bottom: 16px;">Estes termos regem o uso do aplicativo PegaFrete. A plataforma atua exclusivamente como facilitadora de conexÃµes logÃ­sticas entre prestadores de serviÃ§o de transporte (Transportadores) e solicitantes de envio de cargas (Embarcadores).</p>
                 
                 <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">2. Requisitos de Acesso e Cadastro</h3>
-                <p style="margin-bottom: 16px;">Para utilizar a plataforma, os usuários declaram ter capacidade legal e estar com toda a documentação em conformidade com as legislações brasileiras e a ANTT. O usuário assume total responsabilidade pela veracidade dos dados informados e pela segurança da sua senha de acesso.</p>
+                <p style="margin-bottom: 16px;">Para utilizar a plataforma, os usuÃ¡rios declaram ter capacidade legal e estar com toda a documentaÃ§Ã£o em conformidade com as legislaÃ§Ãµes brasileiras e a ANTT. O usuÃ¡rio assume total responsabilidade pela veracidade dos dados informados e pela seguranÃ§a da sua senha de acesso.</p>
                 
-                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">3. Deveres e Obrigações do Transportador</h3>
-                <p style="margin-bottom: 16px;">O Transportador deve garantir a conformidade e integridade física de seu veículo, possuir habilitação regular compatível e realizar o transporte de forma segura, cumprindo os prazos combinados diretamente com o Embarcador.</p>
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">3. Deveres e ObrigaÃ§Ãµes do Transportador</h3>
+                <p style="margin-bottom: 16px;">O Transportador deve garantir a conformidade e integridade fÃ­sica de seu veÃ­culo, possuir habilitaÃ§Ã£o regular compatÃ­vel e realizar o transporte de forma segura, cumprindo os prazos combinados diretamente com o Embarcador.</p>
                 
-                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">4. Deveres e Obrigações do Embarcador</h3>
-                <p style="margin-bottom: 16px;">O Embarcador deve descrever fielmente a natureza da carga, peso, cubagem e riscos envolvidos. É expressamente proibida a publicação de cargas de cunho ilícito, inflamável, perigoso ou proibido por leis vigentes.</p>
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">4. Deveres e ObrigaÃ§Ãµes do Embarcador</h3>
+                <p style="margin-bottom: 16px;">O Embarcador deve descrever fielmente a natureza da carga, peso, cubagem e riscos envolvidos. Ã‰ expressamente proibida a publicaÃ§Ã£o de cargas de cunho ilÃ­cito, inflamÃ¡vel, perigoso ou proibido por leis vigentes.</p>
                 
-                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">5. Isenção de Responsabilidade do PegaFrete</h3>
-                <p style="margin-bottom: 16px;">O PegaFrete não assume nenhuma responsabilidade pela qualidade do transporte, extravios, sinistros, avarias ou pelo pagamento acordado entre as partes. A plataforma não participa das negociações financeiras e operacionais.</p>
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">5. IsenÃ§Ã£o de Responsabilidade do PegaFrete</h3>
+                <p style="margin-bottom: 16px;">O PegaFrete nÃ£o assume nenhuma responsabilidade pela qualidade do transporte, extravios, sinistros, avarias ou pelo pagamento acordado entre as partes. A plataforma nÃ£o participa das negociaÃ§Ãµes financeiras e operacionais.</p>
 
-                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">6. Segurança e Conduta</h3>
-                <p style="margin-bottom: 16px;">Os usuários devem zelar pela ética e respeito no chat da plataforma. Qualquer tentativa de fraude, difamação ou violação de segurança do aplicativo acarretará na suspensão imediata e irrevogável da conta do infrator.</p>
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">6. SeguranÃ§a e Conduta</h3>
+                <p style="margin-bottom: 16px;">Os usuÃ¡rios devem zelar pela Ã©tica e respeito no chat da plataforma. Qualquer tentativa de fraude, difamaÃ§Ã£o ou violaÃ§Ã£o de seguranÃ§a do aplicativo acarretarÃ¡ na suspensÃ£o imediata e irrevogÃ¡vel da conta do infrator.</p>
             </div>
         </div>
     </section>
 
-    <!-- TELA: POLÍTICA DE PRIVACIDADE -->
+    <!-- TELA: POLÃTICA DE PRIVACIDADE -->
     <section id="privacy_screen" class="screen">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
-            <h1 style="font-size: 20px; font-weight: 800;">Política de Privacidade</h1>
+            <h1 style="font-size: 20px; font-weight: 800;">PolÃ­tica de Privacidade</h1>
             <div style="width: 44px;"></div>
         </div>
         
         <div style="padding: 16px; max-width: 600px; margin: 0 auto; padding-bottom: 40px;">
             <div class="glass-card" style="padding: 24px; border-radius: 24px; border: 1px solid var(--border); background: white; font-size: 14px; line-height: 1.6; color: var(--text-muted);">
-                <h2 style="font-size: 18px; color: var(--primary); font-weight: 800; margin-bottom: 12px;">Política de Privacidade</h2>
-                <p style="margin-bottom: 12px; font-size: 12px; color: var(--text-muted);">Última atualização: 26 de Maio de 2026</p>
-                <p style="margin-bottom: 16px; font-weight: 500;">A sua privacidade é de extrema importância para nós. Esta política explica como coletamos, usamos e protegemos as suas informações pessoais de acordo com a Lei Geral de Proteção de Dados (LGPD).</p>
+                <h2 style="font-size: 18px; color: var(--primary); font-weight: 800; margin-bottom: 12px;">PolÃ­tica de Privacidade</h2>
+                <p style="margin-bottom: 12px; font-size: 12px; color: var(--text-muted);">Ãšltima atualizaÃ§Ã£o: 26 de Maio de 2026</p>
+                <p style="margin-bottom: 16px; font-weight: 500;">A sua privacidade Ã© de extrema importÃ¢ncia para nÃ³s. Esta polÃ­tica explica como coletamos, usamos e protegemos as suas informaÃ§Ãµes pessoais de acordo com a Lei Geral de ProteÃ§Ã£o de Dados (LGPD).</p>
                 
-                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">1. Coleta de Informações</h3>
-                <p style="margin-bottom: 16px;">Coletamos dados necessários para a prestação dos nossos serviços, incluindo nome completo, endereço de e-mail, telefone para contato, documentos do veículo (no caso de transportadores) e informações sobre as cargas publicadas (no caso de embarcadores).</p>
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">1. Coleta de InformaÃ§Ãµes</h3>
+                <p style="margin-bottom: 16px;">Coletamos dados necessÃ¡rios para a prestaÃ§Ã£o dos nossos serviÃ§os, incluindo nome completo, endereÃ§o de e-mail, telefone para contato, documentos do veÃ­culo (no caso de transportadores) e informaÃ§Ãµes sobre as cargas publicadas (no caso de embarcadores).</p>
                 
-                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">2. Utilização de Dados</h3>
-                <p style="margin-bottom: 16px;">Os dados coletados servem exclusivamente para permitir a conexão logística entre os usuários, calcular distâncias de rotas e contatos comerciais diretos. Nossos serviços não repassam ou comercializam informações pessoais com terceiros.</p>
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">2. UtilizaÃ§Ã£o de Dados</h3>
+                <p style="margin-bottom: 16px;">Os dados coletados servem exclusivamente para permitir a conexÃ£o logÃ­stica entre os usuÃ¡rios, calcular distÃ¢ncias de rotas e contatos comerciais diretos. Nossos serviÃ§os nÃ£o repassam ou comercializam informaÃ§Ãµes pessoais com terceiros.</p>
                 
                 <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">3. Compartilhamento Estrito</h3>
-                <p style="margin-bottom: 16px;">Informações como nome, telefone e dados de veículo serão compartilhados apenas com a contraparte direta da negociação de uma carga aceita na plataforma para viabilizar a entrega e comunicação.</p>
+                <p style="margin-bottom: 16px;">InformaÃ§Ãµes como nome, telefone e dados de veÃ­culo serÃ£o compartilhados apenas com a contraparte direta da negociaÃ§Ã£o de uma carga aceita na plataforma para viabilizar a entrega e comunicaÃ§Ã£o.</p>
 
-                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">4. Segurança e Armazenamento</h3>
-                <p style="margin-bottom: 16px;">Todas as suas informações são armazenadas em infraestrutura de nuvem segura fornecida pelo Firebase (Google Cloud), utilizando criptografia em trânsito e em repouso. O acesso aos dados é restrito por regras estritas do banco de dados.</p>
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">4. SeguranÃ§a e Armazenamento</h3>
+                <p style="margin-bottom: 16px;">Todas as suas informaÃ§Ãµes sÃ£o armazenadas em infraestrutura de nuvem segura fornecida pelo Firebase (Google Cloud), utilizando criptografia em trÃ¢nsito e em repouso. O acesso aos dados Ã© restrito por regras estritas do banco de dados.</p>
                 
                 <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">5. Seus Direitos (LGPD)</h3>
-                <p style="margin-bottom: 16px;">Em total respeito à LGPD, o usuário tem a liberdade de acessar, corrigir e excluir permanentemente sua conta e dados. Isso pode ser feito a qualquer momento através do painel de controle do perfil dentro do aplicativo.</p>
+                <p style="margin-bottom: 16px;">Em total respeito Ã  LGPD, o usuÃ¡rio tem a liberdade de acessar, corrigir e excluir permanentemente sua conta e dados. Isso pode ser feito a qualquer momento atravÃ©s do painel de controle do perfil dentro do aplicativo.</p>
             </div>
         </div>
     </section>
 
-    <!-- TELA: POLÍTICA DE COOKIES -->
+    <!-- TELA: POLÃTICA DE COOKIES -->
     <section id="cookies_screen" class="screen">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
-            <h1 style="font-size: 20px; font-weight: 800;">Política de Cookies</h1>
+            <h1 style="font-size: 20px; font-weight: 800;">PolÃ­tica de Cookies</h1>
             <div style="width: 44px;"></div>
         </div>
         
         <div style="padding: 16px; max-width: 600px; margin: 0 auto; padding-bottom: 40px;">
             <div class="glass-card" style="padding: 24px; border-radius: 24px; border: 1px solid var(--border); background: white; font-size: 14px; line-height: 1.6; color: var(--text-muted);">
-                <h2 style="font-size: 18px; color: var(--primary); font-weight: 800; margin-bottom: 12px;">Política de Cookies</h2>
-                <p style="margin-bottom: 12px; font-size: 12px; color: var(--text-muted);">Última atualização: 26 de Maio de 2026</p>
-                <p style="margin-bottom: 16px; font-weight: 500;">Para proporcionar uma experiência de acesso mais ágil e segura, utilizamos cookies e identificadores de sessão em nosso aplicativo.</p>
+                <h2 style="font-size: 18px; color: var(--primary); font-weight: 800; margin-bottom: 12px;">PolÃ­tica de Cookies</h2>
+                <p style="margin-bottom: 12px; font-size: 12px; color: var(--text-muted);">Ãšltima atualizaÃ§Ã£o: 26 de Maio de 2026</p>
+                <p style="margin-bottom: 16px; font-weight: 500;">Para proporcionar uma experiÃªncia de acesso mais Ã¡gil e segura, utilizamos cookies e identificadores de sessÃ£o em nosso aplicativo.</p>
                 
-                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">1. O que são Cookies?</h3>
-                <p style="margin-bottom: 16px;">Cookies são pequenos arquivos de texto armazenados no navegador do seu dispositivo. Eles ajudam a reconhecer a sua sessão de forma segura e a carregar as suas configurações personalizadas ao abrir a plataforma.</p>
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">1. O que sÃ£o Cookies?</h3>
+                <p style="margin-bottom: 16px;">Cookies sÃ£o pequenos arquivos de texto armazenados no navegador do seu dispositivo. Eles ajudam a reconhecer a sua sessÃ£o de forma segura e a carregar as suas configuraÃ§Ãµes personalizadas ao abrir a plataforma.</p>
                 
-                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">2. Cookies Necessários</h3>
-                <p style="margin-bottom: 16px;">Utilizamos cookies de autenticação do Firebase. Eles são indispensáveis para comprovar que você está logado em sua conta, permitindo carregar o seu perfil e as funções de frete de forma segura.</p>
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">2. Cookies NecessÃ¡rios</h3>
+                <p style="margin-bottom: 16px;">Utilizamos cookies de autenticaÃ§Ã£o do Firebase. Eles sÃ£o indispensÃ¡veis para comprovar que vocÃª estÃ¡ logado em sua conta, permitindo carregar o seu perfil e as funÃ§Ãµes de frete de forma segura.</p>
                 
-                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">3. Desativação de Cookies</h3>
-                <p style="margin-bottom: 16px;">Você pode configurar o seu navegador ou dispositivo móvel para bloquear ou alertar sobre cookies, mas lembre-se que, ao fazer isso, o aplicativo não conseguirá autenticar a sua conta ou manter a sua sessão de login ativa.</p>
+                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">3. DesativaÃ§Ã£o de Cookies</h3>
+                <p style="margin-bottom: 16px;">VocÃª pode configurar o seu navegador ou dispositivo mÃ³vel para bloquear ou alertar sobre cookies, mas lembre-se que, ao fazer isso, o aplicativo nÃ£o conseguirÃ¡ autenticar a sua conta ou manter a sua sessÃ£o de login ativa.</p>
             </div>
         </div>
     </section>
 
-    <!-- LÓGICA JAVASCRIPT -->
+    <!-- LÃ“GICA JAVASCRIPT -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script type="module" src="/src/scripts/main.js"></script>
 </body>
