@@ -1361,6 +1361,74 @@ async function finalizarCadastro(btn) {
     }
 }
 
+async function salvarNovoEmail() {
+    const novoEmail = document.getElementById('updateEmailInput').value.trim();
+    if (!novoEmail || !validateEmail(novoEmail)) {
+        showToast('Insira um e-mail válido.', 'error');
+        return;
+    }
+
+    if (novoEmail === userData.email) {
+        showToast('Este já é o seu e-mail atual.', 'info');
+        return;
+    }
+
+    const btn = document.getElementById('btnSaveEmail');
+    const original = btn.innerHTML;
+    btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Atualizando...`;
+    btn.disabled = true;
+
+    try {
+        // Verificar se está disponível
+        const check = await verificarEmailDisponivel(novoEmail);
+        if (!check.disponivel) {
+            showToast('Este e-mail já está em uso.', 'error');
+            btn.innerHTML = original;
+            btn.disabled = false;
+            return;
+        }
+
+        const user = auth.currentUser;
+        if (!user) throw new Error("Usuário não autenticado");
+
+        // Atualizar no Firebase Auth
+        await user.updateEmail(novoEmail);
+
+        // Atualizar no Firestore users
+        await db.collection('users').doc(user.uid).update({
+            email: novoEmail
+        });
+
+        // Atualizar no public_emails (Remover antigo e adicionar novo)
+        const oldEmailKey = userData.email.toLowerCase().trim();
+        const newEmailKey = novoEmail.toLowerCase().trim();
+        await db.collection("public_emails").doc(oldEmailKey).delete().catch(()=>console.warn("old email public_emails delete err"));
+        await db.collection("public_emails").doc(newEmailKey).set({ provider: 'password' }, { merge: true }).catch(()=>console.warn("new email public_emails err"));
+
+        userData.email = novoEmail;
+        preencherPerfil();
+        
+        showToast('E-mail atualizado com sucesso!', 'success');
+        setTimeout(() => navTo('profile'), 1500);
+
+    } catch (error) {
+        console.error("Erro ao atualizar e-mail:", error);
+        if (error.code === 'auth/requires-recent-login') {
+            showToast('Por segurança, faça login novamente para trocar o e-mail.', 'error');
+            setTimeout(() => {
+                auth.signOut().then(() => window.location.reload());
+            }, 2500);
+        } else {
+            showToast('Erro ao atualizar e-mail.', 'error');
+        }
+    } finally {
+        if (btn) {
+            btn.innerHTML = original;
+            btn.disabled = false;
+        }
+    }
+}
+
 function preencherPerfil() {
     if (document.getElementById('profName')) document.getElementById('profName').value = userData.nome || '';
 
@@ -1379,6 +1447,7 @@ function preencherPerfil() {
     
     // New fields for the redesigned profile layout
     if (document.getElementById('profileEmailDisplay')) document.getElementById('profileEmailDisplay').innerText = userData.email || 'Email não cadastrado';
+    if (document.getElementById('updateEmailInput')) document.getElementById('updateEmailInput').value = userData.email || '';
     if (document.getElementById('profileRoleText')) {
         document.getElementById('profileRoleText').innerText = userData.role === 'shipper' ? 'Embarcador' : 'Transportador';
     }

@@ -1253,7 +1253,7 @@
                     </div>
 
                     <!-- Email Address -->
-                    <div onclick="navTo('profile_personal_data')" style="padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
+                    <div onclick="navTo('profile_update_email')" style="padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
                         <div style="display: flex; align-items: center; gap: 16px;">
                             <i class="ph ph-envelope" style="font-size: 24px; color: var(--text-muted);"></i>
                             <div>
@@ -1319,12 +1319,9 @@
                 </div>
             </div>
 
-            <!-- Logout Button -->
-            <button class="btn btn-outline" style="width: 100%; padding: 14px; font-size: 16px; font-weight: 600; color: #a14000; border: 2px solid rgba(255, 122, 50, 0.3); border-radius: 12px; display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 24px; background: transparent;" onclick="logout()">
-                <i class="ph ph-sign-out" style="font-size: 20px;"></i>
-                Sair da Conta
-            </button>
         </div>
+    </section>
+
         <style>
             .hover-bg-surface:active {
                 background-color: var(--surface-container, #f8fafc) !important;
@@ -1426,7 +1423,6 @@
             onchange="handleProfilePhoto(event)">
         <input type="file" accept="image/*" id="galleryInput" style="display:none;"
             onchange="handleProfilePhoto(event)">
-    </section>
 
     <!-- TELA: DADOS PESSOAIS -->
     <section id="profile_personal_data" class="screen">
@@ -1449,95 +1445,65 @@
                     </button>
                 </div>
 
-                <div style="display: flex; flex-direction: column; gap: 18px;">
+                <div style="background: #f8fafc; border-radius: 16px; border: 1px solid var(--border); overflow: hidden; display: flex; flex-direction: column;">
+                    
                     <!-- Nome do Responsável -->
-                    <div class="input-group-premium" id="profNameGroup" style="margin: 0; display: flex; flex-direction: column;">
-                        <label style="display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Nome do Responsável</label>
-                        <div class="input-wrapper" style="background: #f8fafc; border: 1.5px solid var(--border); border-radius: 14px; display: flex; align-items: center;">
-                            <input type="text" id="profName" placeholder="Nome Completo" disabled style="border: none; background: transparent; padding: 12px 14px; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1;" />
-                            <div class="input-suffix" style="padding-right: 14px;"><i class="ph ph-user" style="font-size: 18px; color: #94a3b8;"></i></div>
-                        </div>
+                    <div id="profNameGroup" style="display: flex; align-items: center; padding: 16px; border-bottom: 1px solid var(--border);">
+                        <label style="font-size: 13px; font-weight: 700; color: var(--text-muted); width: 110px; flex-shrink: 0;">Nome</label>
+                        <input type="text" id="profName" placeholder="Nome Completo" disabled style="border: none; background: transparent; padding: 0; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; text-align: right;" />
                     </div>
 
                     <!-- Razão Social (só PJ) -->
-                    <div class="input-group-premium" id="profRazaoGroup" style="display: none; margin: 0; flex-direction: column;">
-                        <label style="display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Razão Social</label>
-                        <div class="input-wrapper" style="background: #f8fafc; border: 1.5px solid var(--border); border-radius: 14px; display: flex; align-items: center;">
-                            <input type="text" id="profRazao" placeholder="Razão Social" disabled style="border: none; background: transparent; padding: 12px 14px; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1;" />
-                            <div class="input-suffix" style="padding-right: 14px;"><i class="ph ph-buildings" style="font-size: 18px; color: #94a3b8;"></i></div>
-                        </div>
+                    <div id="profRazaoGroup" style="display: none; align-items: center; padding: 16px; border-bottom: 1px solid var(--border);">
+                        <label style="font-size: 13px; font-weight: 700; color: var(--text-muted); width: 110px; flex-shrink: 0;">Razão Social</label>
+                        <input type="text" id="profRazao" placeholder="Razão Social" disabled style="border: none; background: transparent; padding: 0; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; text-align: right;" />
                     </div>
 
                     <!-- Documento (CPF / CNPJ) -->
-                    <div class="input-group-premium" style="margin: 0; display: flex; flex-direction: column;">
-                        <label id="profDocLabel" style="display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">CNPJ / CPF</label>
-                        <div class="input-wrapper" style="background: #f8fafc; border: 1.5px solid var(--border); border-radius: 14px; display: flex; align-items: center;">
-                            <input type="text" id="profDoc" placeholder="Documento" disabled style="border: none; background: transparent; padding: 12px 14px; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1;" />
-                            <div class="input-suffix" style="padding-right: 14px;"><i class="ph ph-identification-card" style="font-size: 18px; color: #94a3b8;"></i></div>
-                        </div>
+                    <div style="display: flex; align-items: center; padding: 16px; border-bottom: 1px solid var(--border);">
+                        <label id="profDocLabel" style="font-size: 13px; font-weight: 700; color: var(--text-muted); width: 110px; flex-shrink: 0;">CNPJ / CPF</label>
+                        <input type="text" id="profDoc" placeholder="Documento" disabled style="border: none; background: transparent; padding: 0; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; text-align: right;" />
                     </div>
 
-                    <!-- E-mail -->
-                    <div class="input-group-premium" style="margin: 0; display: flex; flex-direction: column;">
-                        <label style="display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">E-mail Corporativo</label>
-                        <div class="input-wrapper" style="background: #f1f5f9; border: 1.5px solid var(--border); border-radius: 14px; display: flex; align-items: center; opacity: 0.85;">
-                            <input type="email" id="profEmail" readonly style="border: none; background: transparent; padding: 12px 14px; margin: 0; box-shadow: none; font-weight: 600; color: #64748b; font-size: 14px; flex: 1; cursor: not-allowed;" />
-                            <div class="input-suffix" style="padding-right: 14px;"><i class="ph ph-envelope" style="font-size: 18px; color: #94a3b8;"></i></div>
-                        </div>
+                    <!-- E-mail (MANTIDO POR COMPATIBILIDADE, MAS OCULTO AQUI POIS TEM TELA PROPRIA) -->
+                    <div style="display: none;">
+                        <input type="email" id="profEmail" />
                     </div>
 
                     <!-- Celular / WhatsApp -->
-                    <div class="input-group-premium" style="margin: 0; display: flex; flex-direction: column;">
-                        <label style="display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Celular / WhatsApp</label>
-                        <div class="input-wrapper" style="background: #f8fafc; border: 1.5px solid var(--border); border-radius: 14px; display: flex; align-items: center;">
-                            <input type="text" id="profPhone" placeholder="Celular" disabled style="border: none; background: transparent; padding: 12px 14px; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1;" />
-                            <div class="input-suffix" style="padding-right: 14px;"><i class="ph ph-phone" style="font-size: 18px; color: #94a3b8;"></i></div>
-                        </div>
+                    <div style="display: flex; align-items: center; padding: 16px; border-bottom: 1px solid var(--border);">
+                        <label style="font-size: 13px; font-weight: 700; color: var(--text-muted); width: 110px; flex-shrink: 0;">Celular</label>
+                        <input type="text" id="profPhone" placeholder="Celular" disabled style="border: none; background: transparent; padding: 0; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; text-align: right;" />
                     </div>
 
                     <!-- Endereço -->
-                    <div class="input-group-premium" style="margin: 0; display: flex; flex-direction: column;">
-                        <label style="display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Endereço Verificado</label>
-                        <div class="input-wrapper" style="background: #f8fafc; border: 1.5px solid var(--border); border-radius: 14px; display: flex; align-items: center;">
-                            <input type="text" id="profAddress" placeholder="Cidade - Estado" disabled style="border: none; background: transparent; padding: 12px 14px; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1;" />
-                            <div class="input-suffix" style="padding-right: 14px;"><i class="ph ph-map-pin" style="font-size: 18px; color: #94a3b8;"></i></div>
-                        </div>
+                    <div style="display: flex; align-items: center; padding: 16px; border-bottom: 1px solid var(--border);">
+                        <label style="font-size: 13px; font-weight: 700; color: var(--text-muted); width: 110px; flex-shrink: 0;">Endereço</label>
+                        <input type="text" id="profAddress" placeholder="Cidade - Estado" disabled style="border: none; background: transparent; padding: 0; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; text-align: right;" />
                     </div>
 
-                    <!-- Veículo Cadastrado (Compatibilidade Opcional Motorista) -->
-                    <div class="input-group-premium" id="profVehicleGroup" style="display: none; margin: 0; flex-direction: column;">
-                        <label style="display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Veículo Cadastrado</label>
-                        <div class="input-wrapper" style="background: #f8fafc; border: 1.5px solid var(--border); border-radius: 14px; display: flex; align-items: center;">
-                            <input type="text" id="profVehicle" disabled style="border: none; background: transparent; padding: 12px 14px; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1;" />
-                            <div class="input-suffix" style="padding-right: 14px;"><i class="ph ph-truck" style="font-size: 18px; color: #94a3b8;"></i></div>
-                        </div>
+                    <!-- Veículo -->
+                    <div id="profVehicleGroup" style="display: none; align-items: center; padding: 16px; border-bottom: 1px solid var(--border);">
+                        <label style="font-size: 13px; font-weight: 700; color: var(--text-muted); width: 110px; flex-shrink: 0;">Veículo</label>
+                        <input type="text" id="profVehicle" disabled style="border: none; background: transparent; padding: 0; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; text-align: right;" />
                     </div>
 
-                    <!-- ANTT (Motorista) -->
-                    <div class="input-group-premium" id="profAnttGroup" style="display: none; margin: 0; flex-direction: column;">
-                        <label style="display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">RNTRC (ANTT)</label>
-                        <div class="input-wrapper" style="background: #f8fafc; border: 1.5px solid var(--border); border-radius: 14px; display: flex; align-items: center;">
-                            <input type="text" id="profAntt" placeholder="Número ANTT" disabled style="border: none; background: transparent; padding: 12px 14px; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1;" />
-                            <div class="input-suffix" style="padding-right: 14px;"><i class="ph ph-identification-card" style="font-size: 18px; color: #94a3b8;"></i></div>
-                        </div>
+                    <!-- ANTT -->
+                    <div id="profAnttGroup" style="display: none; align-items: center; padding: 16px; border-bottom: 1px solid var(--border);">
+                        <label style="font-size: 13px; font-weight: 700; color: var(--text-muted); width: 110px; flex-shrink: 0;">ANTT</label>
+                        <input type="text" id="profAntt" placeholder="Número ANTT" disabled style="border: none; background: transparent; padding: 0; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; text-align: right;" />
                     </div>
 
-                    <!-- Número da CNH (Motorista) -->
-                    <div class="input-group-premium" id="profCnhNumGroup" style="display: none; margin: 0; flex-direction: column;">
-                        <label style="display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Número da CNH</label>
-                        <div class="input-wrapper" style="background: #f8fafc; border: 1.5px solid var(--border); border-radius: 14px; display: flex; align-items: center;">
-                            <input type="text" id="profCnhNum" placeholder="Número da CNH" disabled style="border: none; background: transparent; padding: 12px 14px; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1;" />
-                            <div class="input-suffix" style="padding-right: 14px;"><i class="ph ph-identification-badge" style="font-size: 18px; color: #94a3b8;"></i></div>
-                        </div>
+                    <!-- CNH -->
+                    <div id="profCnhNumGroup" style="display: none; align-items: center; padding: 16px; border-bottom: 1px solid var(--border);">
+                        <label style="font-size: 13px; font-weight: 700; color: var(--text-muted); width: 110px; flex-shrink: 0;">CNH</label>
+                        <input type="text" id="profCnhNum" placeholder="Número da CNH" disabled style="border: none; background: transparent; padding: 0; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; text-align: right;" />
                     </div>
 
-                    <!-- Placa (Motorista) -->
-                    <div class="input-group-premium" id="profPlacaGroup" style="display: none; margin: 0; flex-direction: column;">
-                        <label style="display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Placa do Veículo Principal</label>
-                        <div class="input-wrapper" style="background: #f8fafc; border: 1.5px solid var(--border); border-radius: 14px; display: flex; align-items: center;">
-                            <input type="text" id="profPlaca" placeholder="ABC-1234" disabled style="border: none; background: transparent; padding: 12px 14px; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1;" />
-                            <div class="input-suffix" style="padding-right: 14px;"><i class="ph ph-truck" style="font-size: 18px; color: #94a3b8;"></i></div>
-                        </div>
+                    <!-- Placa -->
+                    <div id="profPlacaGroup" style="display: none; align-items: center; padding: 16px;">
+                        <label style="font-size: 13px; font-weight: 700; color: var(--text-muted); width: 110px; flex-shrink: 0;">Placa</label>
+                        <input type="text" id="profPlaca" placeholder="ABC-1234" disabled style="border: none; background: transparent; padding: 0; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 14px; flex: 1; text-align: right;" />
                     </div>
                 </div>
 
@@ -1545,6 +1511,31 @@
                     style="margin-top: 24px; margin-bottom: 0; display: none; border-radius: 14px; padding: 14px; font-weight: 700; width: 100%; font-size: 14px;"
                     onclick="salvarPerfil(this)">
                     Salvar Alterações <i class="ph ph-check-circle"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- TELA: ATUALIZAR E-MAIL -->
+    <section id="profile_update_email" class="screen">
+        <div class="topbar">
+            <button class="back-btn" onclick="navTo('profile')"><i class="ph ph-arrow-left"></i></button>
+            <h1 style="font-size: 20px; font-weight: 800;">Endereço de E-mail</h1>
+            <div style="width: 44px;"></div>
+        </div>
+
+        <div style="padding: 16px;">
+            <div class="glass-card" style="padding: 24px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); border: 1px solid var(--border); background: white;">
+                <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5;">Atualize o endereço de e-mail usado para acessar a sua conta do PegaFrete.</p>
+                
+                <div style="background: #f8fafc; border-radius: 16px; border: 1.5px solid var(--primary); overflow: hidden; display: flex; flex-direction: column;">
+                    <div style="display: flex; align-items: center; padding: 16px;">
+                        <input type="email" id="updateEmailInput" placeholder="Seu novo e-mail" style="border: none; background: transparent; padding: 0; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 15px; flex: 1; text-align: center;" />
+                    </div>
+                </div>
+
+                <button class="btn btn-orange" id="btnSaveEmail" style="margin-top: 24px; margin-bottom: 0; border-radius: 14px; padding: 14px; font-weight: 700; width: 100%;" onclick="salvarNovoEmail()">
+                    Atualizar E-mail
                 </button>
             </div>
         </div>
