@@ -1377,6 +1377,12 @@ function preencherPerfil() {
 
     if (document.getElementById('profileDisplayName')) document.getElementById('profileDisplayName').innerText = userData.nome || userData.razao || 'Usuário';
     
+    // New fields for the redesigned profile layout
+    if (document.getElementById('profileEmailDisplay')) document.getElementById('profileEmailDisplay').innerText = userData.email || 'Email não cadastrado';
+    if (document.getElementById('profileRoleText')) {
+        document.getElementById('profileRoleText').innerText = userData.role === 'shipper' ? 'Embarcador' : 'Transportador';
+    }
+
     const profileTagContainer = document.getElementById('profileStatusTagContainer');
     const profileTagText = document.getElementById('profileStatusTagText');
     const profileTagIcon = document.getElementById('profileStatusTagIcon');
@@ -1390,19 +1396,19 @@ function preencherPerfil() {
         let docStat = userData.docStatus || 'Documentação Incompleta';
         
         if (docStat === 'Aprovado') {
-            tagTitle = userData.role === 'shipper' ? "Embarcador Homologado" : "Transportador Homologado";
+            tagTitle = "Homologado";
             colorMain = "#10b981";
             colorBg = "#ecfdf5";
             colorBorder = "#d1fae5";
             iconClass = "ph-fill ph-seal-check";
         } else if (docStat === 'Documentação Incompleta' || docStat === 'Pendente' || docStat === 'Em Análise') {
-            tagTitle = "Documentação Pendente";
+            tagTitle = "Pendente";
             colorMain = "#d97706";
             colorBg = "#fef3c7";
             colorBorder = "#fde68a";
             iconClass = "ph-fill ph-warning-circle";
         } else if (docStat === 'Reprovado' || docStat === 'Bloqueado') {
-            tagTitle = "Cadastro Bloqueado";
+            tagTitle = "Bloqueado";
             colorMain = "#ef4444";
             colorBg = "#fee2e2";
             colorBorder = "#fecaca";
@@ -1572,6 +1578,30 @@ function preencherPerfil() {
         checkUploadStatus('upResidencia', 'residencia');
         checkUploadStatus('upCPF', 'cpf');
         checkUploadStatus('upCNH', 'cnh');
+    }
+
+    // Update Security Documents menu item
+    if (document.getElementById('profileDocsStatusText')) {
+        let docsStatusText = "Verificar status dos documentos";
+        let showDot = false;
+        
+        if (userData.docStatus === 'Aprovado') {
+            docsStatusText = "Todos os documentos verificados";
+        } else if (userData.docStatus === 'Reprovado' || userData.docStatus === 'Bloqueado') {
+            docsStatusText = "Ação necessária: Documento recusado";
+            showDot = true;
+        } else if (userData.docStatus === 'Pendente' || userData.docStatus === 'Em Análise') {
+            docsStatusText = "Documentos em análise";
+            showDot = true;
+        } else {
+            docsStatusText = "Envio de documentos pendente";
+            showDot = true;
+        }
+        
+        document.getElementById('profileDocsStatusText').innerText = docsStatusText;
+        if (document.getElementById('profileDocsAlertDot')) {
+            document.getElementById('profileDocsAlertDot').style.display = showDot ? 'block' : 'none';
+        }
     }
 }
 
