@@ -1482,7 +1482,70 @@ function preencherPerfil() {
         document.getElementById('driverHomeGreeting').innerText = `OlÃ¡, ${firstName}`;
     }
 
-    if (document.getElementById('profEmail')) document.getElementById('profEmail').value = userData.email || '';
+        // --- NEW PDDATA INJECTION ---
+    if (document.getElementById('pdFirstName')) {
+        const parts = (userData.nome || userData.razao || 'Usuário').split(' ');
+        document.getElementById('pdFirstName').innerText = parts[0];
+        document.getElementById('pdLastName').innerText = parts.length > 1 ? parts.slice(1).join(' ') : '-';
+        
+        let docStr = userData.tipoDocumento === 'cnpj' ? (userData.cnpj || userData.documento || '') : (userData.cpf || userData.documento || '');
+        if(docStr) {
+            document.getElementById('pdDoc').innerText = docStr;
+        }
+        
+        document.getElementById('pdPhone').innerText = userData.telefone || 'Adicionar';
+        
+        const emailEl = document.getElementById('pdEmail');
+        if (userData.email) {
+            const emParts = userData.email.split('@');
+            if(emParts.length === 2 && emParts[0].length > 1) {
+                emailEl.innerText = emParts[0].charAt(0) + '***@' + emParts[1];
+            } else {
+                emailEl.innerText = userData.email;
+            }
+        } else {
+            emailEl.innerText = 'Adicionar';
+        }
+
+        const avatarUrl = userData.foto || 'https://i.imgur.com/vnYcevV.png';
+        if(document.getElementById('pdAvatar')) {
+            document.getElementById('pdAvatar').style.backgroundImage = "url('$"{avatarUrl}')";
+        }
+
+        const pdTagText = document.getElementById('pdStatusTagText');
+        const pdTagWrap = document.getElementById('pdStatusTagWrapper');
+        if (pdTagText && pdTagWrap) {
+            let docStat = userData.docStatus || 'Documentação Incompleta';
+            if (docStat === 'Aprovado') {
+                pdTagText.innerText = "Homologado";
+                pdTagText.style.color = "#10b981";
+                pdTagWrap.style.borderColor = "#d1fae5";
+            } else if (docStat === 'Recusado') {
+                pdTagText.innerText = "Recusado";
+                pdTagText.style.color = "#ef4444";
+                pdTagWrap.style.borderColor = "#fecaca";
+            } else if (docStat === 'Não Verificado') {
+                pdTagText.innerText = "Não Verificado";
+                pdTagText.style.color = "#64748b";
+                pdTagWrap.style.borderColor = "#e2e8f0";
+            } else {
+                pdTagText.innerText = "Pendente";
+                pdTagText.style.color = "#d97706";
+                pdTagWrap.style.borderColor = "#fde68a";
+            }
+        }
+
+        if (userData.role === 'driver') {
+            document.getElementById('pdExtraBlock').style.display = 'block';
+            document.getElementById('pdVehicle').innerText = userData.veiculo || 'Adicionar';
+            document.getElementById('pdPlaca').innerText = userData.placa || 'Adicionar';
+            document.getElementById('pdCnh').innerText = userData.cnh || 'Adicionar';
+            document.getElementById('pdAntt').innerText = userData.antt || 'Adicionar';
+        } else {
+            document.getElementById('pdExtraBlock').style.display = 'none';
+        }
+    }
+if (document.getElementById('profEmail')) document.getElementById('profEmail').value = userData.email || '';
     if (document.getElementById('profPhone')) document.getElementById('profPhone').value = userData.telefone || '';
     if (document.getElementById('profAddress')) document.getElementById('profAddress').value = userData.endereco || '';
 
@@ -3512,4 +3575,5 @@ window.prevPublishStep = prevPublishStep;
         console.error('Global error:', event.error);
         if (typeof restaurarBotaoGoogle === 'function') restaurarBotaoGoogle();
     });
+
 
