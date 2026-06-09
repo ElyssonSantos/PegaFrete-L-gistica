@@ -1,4 +1,4 @@
-﻿import firebase from 'firebase/compat/app';
+import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import 'firebase/compat/storage';
@@ -1457,7 +1457,6 @@ function preencherPerfil() {
     if (profileTagContainer && profileTagText) {
         let tagTitle = "";
         let colorMain = "#10b981";
-
         let docStat = userData.docStatus || 'Documentação Incompleta';
 
         if (docStat === 'Aprovado') {
@@ -1477,20 +1476,60 @@ function preencherPerfil() {
         profileTagText.innerText = tagTitle;
         profileTagText.style.color = colorMain;
     }
+    
     if (document.getElementById('driverHomeGreeting')) {
         const firstName = (userData.nome || userData.razao || 'Usuário').split(' ')[0];
         document.getElementById('driverHomeGreeting').innerText = `Olá, ${firstName}`;
     }
 
+    // Handle "Dados Empresariais" menu option and business data fields
+    const menuBusinessData = document.getElementById('menuBusinessData');
+    if (menuBusinessData) {
+        if (userData.role === 'shipper') {
+            menuBusinessData.style.display = 'flex';
+            
+            // Populate business details
+            const bdCompanyName = document.getElementById('bdCompanyName');
+            const bdCNPJ = document.getElementById('bdCNPJ');
+            const bdAddress = document.getElementById('bdAddress');
+            
+            if (bdCompanyName) bdCompanyName.innerText = userData.razao || 'Não cadastrado';
+            if (bdCNPJ) bdCNPJ.innerText = userData.cnpj || (userData.tipoDocumento === 'cnpj' ? userData.documento : '') || 'Não cadastrado';
+            if (bdAddress) bdAddress.innerText = userData.endereco || 'Não cadastrado';
+        } else {
+            menuBusinessData.style.display = 'none';
+        }
+    }
+
     // --- NEW PDDATA INJECTION ---
     if (document.getElementById('pdFirstName')) {
-        const parts = (userData.nome || userData.razao || 'Usuário').split(' ');
+        const parts = (userData.nome || 'Usuário').split(' ');
         document.getElementById('pdFirstName').innerText = parts[0];
-        document.getElementById('pdLastName').innerText = parts.length > 1 ? parts.slice(1).join(' ') : '-';
+        document.getElementById('pdLastName').innerText = parts.length > 1 ? parts.slice(1).join(' ') : 'Adicionar sobrenome';
 
-        let docStr = userData.tipoDocumento === 'cnpj' ? (userData.cnpj || userData.documento || '') : (userData.cpf || userData.documento || '');
-        if (docStr) {
-            document.getElementById('pdDoc').innerText = docStr;
+        // CPF/CNPJ separation: Dados Pessoais shows ONLY CPF (both for shippers and carriers)
+        const pdDocLabel = document.getElementById('pdDocLabel');
+        if (pdDocLabel) pdDocLabel.innerText = 'CPF';
+
+        const userCpf = userData.cpf || (userData.tipoDocumento === 'cpf' ? userData.documento : '') || '';
+        window.currentLoadedDoc = userCpf;
+
+        const pdDoc = document.getElementById('pdDoc');
+        if (pdDoc) {
+            if (userCpf) {
+                if (window.docVisibilityState) {
+                    const clean = userCpf.replace(/\D/g, '');
+                    if (clean.length === 11) {
+                        pdDoc.innerText = clean.substring(0, 3) + '.' + clean.substring(3, 6) + '.' + clean.substring(6, 9) + '-' + clean.substring(9);
+                    } else {
+                        pdDoc.innerText = userCpf;
+                    }
+                } else {
+                    pdDoc.innerText = getMaskedDoc(userCpf);
+                }
+            } else {
+                pdDoc.innerText = 'Não cadastrado';
+            }
         }
 
         document.getElementById('pdPhone').innerText = userData.telefone || 'Adicionar';
@@ -1517,209 +1556,212 @@ function preencherPerfil() {
         if (pdTagText && pdTagWrap) {
             let docStat = userData.docStatus || 'Documentação Incompleta';
             if (docStat === 'Aprovado') {
-                pdTagText.innerText = "Homologado";
+                pdTagText.innerText = "Documentação: Homologada";
                 pdTagText.style.color = "#10b981";
                 pdTagWrap.style.borderColor = "#d1fae5";
+                pdTagWrap.style.background = "#e6fbf1";
             } else if (docStat === 'Recusado') {
-                pdTagText.innerText = "Recusado";
+                pdTagText.innerText = "Documentação: Recusada";
                 pdTagText.style.color = "#ef4444";
                 pdTagWrap.style.borderColor = "#fecaca";
+                pdTagWrap.style.background = "#fff5f5";
             } else if (docStat === 'Não Verificado') {
-                pdTagText.innerText = "Não Verificado";
+                pdTagText.innerText = "Documentação: Não Verificada";
                 pdTagText.style.color = "#64748b";
                 pdTagWrap.style.borderColor = "#e2e8f0";
+                pdTagWrap.style.background = "#f8fafc";
             } else {
-                pdTagText.innerText = "Pendente";
+                pdTagText.innerText = "Documentação: Pendente";
                 pdTagText.style.color = "#d97706";
                 pdTagWrap.style.borderColor = "#fde68a";
+                pdTagWrap.style.background = "#fefbeb";
+            }
+            pdTagWrap.style.borderWidth = "1px";
+            pdTagWrap.style.borderStyle = "solid";
+            pdTagWrap.style.padding = "4px 12px";
+            pdTagWrap.style.borderRadius = "100px";
+        }
+    }
+
+    if (userData.role === 'driver') {
+        if (document.getElementById('pdExtraBlock')) document.getElementById('pdExtraBlock').style.display = 'block';
+        if (document.getElementById('pdVehicle')) document.getElementById('pdVehicle').innerText = userData.veiculo || 'Adicionar';
+        if (document.getElementById('pdPlaca')) document.getElementById('pdPlaca').innerText = userData.placa || 'Adicionar';
+        if (document.getElementById('pdCnh')) document.getElementById('pdCnh').innerText = userData.cnh || 'Adicionar';
+        if (document.getElementById('pdAntt')) document.getElementById('pdAntt').innerText = userData.antt || 'Adicionar';
+    } else {
+        if (document.getElementById('pdExtraBlock')) document.getElementById('pdExtraBlock').style.display = 'none';
+    }
+
+    if (document.getElementById('profEmail')) document.getElementById('profEmail').value = userData.email || '';
+    if (document.getElementById('profPhone')) document.getElementById('profPhone').value = userData.telefone || '';
+    if (document.getElementById('profAddress')) document.getElementById('profAddress').value = userData.endereco || '';
+
+    // Estrelas (Rating)
+    if (document.getElementById('profileRating')) {
+        const rating = userData.rating !== undefined ? Number(userData.rating).toFixed(1) : '5.0';
+        document.getElementById('profileRating').innerText = rating;
+    }
+
+    // Entregas enviadas / concluídas
+    if (document.getElementById('profileDeliveries')) {
+        const deliveries = userData.entregas !== undefined ? userData.entregas : 0;
+        document.getElementById('profileDeliveries').innerText = deliveries;
+    }
+
+    if (document.getElementById('profileDeliveriesLabel')) {
+        document.getElementById('profileDeliveriesLabel').innerText = userData.role === 'shipper' ? 'Enviadas' : 'Concluídas';
+    }
+    if (userData.role === 'shipper') {
+        const companyName = userData.razao || userData.nome || 'Distribuidora XPTO';
+        if (document.getElementById('shipperCompanyName')) {
+            document.getElementById('shipperCompanyName').innerText = companyName;
+        }
+        if (document.getElementById('shipperAvatarInitials')) {
+            if (userData.foto) {
+                document.getElementById('shipperAvatarInitials').style.backgroundImage = `url('${userData.foto}')`;
+                document.getElementById('shipperAvatarInitials').style.backgroundSize = 'cover';
+                document.getElementById('shipperAvatarInitials').style.backgroundPosition = 'center';
+                document.getElementById('shipperAvatarInitials').innerText = '';
+            } else {
+                document.getElementById('shipperAvatarInitials').style.backgroundImage = 'none';
+                document.getElementById('shipperAvatarInitials').innerText = companyName.substring(0, 2).toUpperCase();
             }
         }
-
-        pdTagText.innerText = "Pendente";
-        pdTagText.style.color = "#d97706";
-        pdTagWrap.style.borderColor = "#fde68a";
     }
-}
 
-if (userData.role === 'driver') {
-    document.getElementById('pdExtraBlock').style.display = 'block';
-    document.getElementById('pdVehicle').innerText = userData.veiculo || 'Adicionar';
-    document.getElementById('pdPlaca').innerText = userData.placa || 'Adicionar';
-    document.getElementById('pdCnh').innerText = userData.cnh || 'Adicionar';
-    document.getElementById('pdAntt').innerText = userData.antt || 'Adicionar';
-} else {
-    document.getElementById('pdExtraBlock').style.display = 'none';
-}
-    }
-if (document.getElementById('profEmail')) document.getElementById('profEmail').value = userData.email || '';
-if (document.getElementById('profPhone')) document.getElementById('profPhone').value = userData.telefone || '';
-if (document.getElementById('profAddress')) document.getElementById('profAddress').value = userData.endereco || '';
-
-// Estrelas (Rating)
-if (document.getElementById('profileRating')) {
-    const rating = userData.rating !== undefined ? Number(userData.rating).toFixed(1) : '5.0';
-    document.getElementById('profileRating').innerText = rating;
-}
-
-// Entregas enviadas / concluídas
-if (document.getElementById('profileDeliveries')) {
-    const deliveries = userData.entregas !== undefined ? userData.entregas : 0;
-    document.getElementById('profileDeliveries').innerText = deliveries;
-}
-
-if (document.getElementById('profileDeliveriesLabel')) {
-    document.getElementById('profileDeliveriesLabel').innerText = userData.role === 'shipper' ? 'Enviadas' : 'Concluídas';
-}
-if (userData.role === 'shipper') {
-    const companyName = userData.razao || userData.nome || 'Distribuidora XPTO';
-    if (document.getElementById('shipperCompanyName')) {
-        document.getElementById('shipperCompanyName').innerText = companyName;
-    }
-    if (document.getElementById('shipperAvatarInitials')) {
-        if (userData.foto) {
-            document.getElementById('shipperAvatarInitials').style.backgroundImage = `url('${userData.foto}')`;
-            document.getElementById('shipperAvatarInitials').style.backgroundSize = 'cover';
-            document.getElementById('shipperAvatarInitials').style.backgroundPosition = 'center';
-            document.getElementById('shipperAvatarInitials').innerText = '';
+    if (userData.role === 'driver') {
+        if (userData.veiculo) {
+            if (document.getElementById('profVehicleGroup')) document.getElementById('profVehicleGroup').style.display = 'flex';
+            if (document.getElementById('profVehicle')) document.getElementById('profVehicle').value = userData.veiculo;
         } else {
-            document.getElementById('shipperAvatarInitials').style.backgroundImage = 'none';
-            document.getElementById('shipperAvatarInitials').innerText = companyName.substring(0, 2).toUpperCase();
+            if (document.getElementById('profVehicleGroup')) document.getElementById('profVehicleGroup').style.display = 'none';
         }
-    }
-}
 
-if (userData.role === 'driver') {
-    if (userData.veiculo) {
-        if (document.getElementById('profVehicleGroup')) document.getElementById('profVehicleGroup').style.display = 'flex';
-        if (document.getElementById('profVehicle')) document.getElementById('profVehicle').value = userData.veiculo;
+        if (document.getElementById('profAnttGroup')) document.getElementById('profAnttGroup').style.display = 'flex';
+        if (document.getElementById('profAntt')) document.getElementById('profAntt').value = userData.antt || '';
+
+        if (document.getElementById('profCnhNumGroup')) document.getElementById('profCnhNumGroup').style.display = 'flex';
+        if (document.getElementById('profCnhNum')) document.getElementById('profCnhNum').value = userData.cnh || '';
+
+        if (document.getElementById('profPlacaGroup')) document.getElementById('profPlacaGroup').style.display = 'flex';
+        if (document.getElementById('profPlaca')) document.getElementById('profPlaca').value = userData.placa || '';
+
+        // Show driver upload options
+        if (document.getElementById('upCRLV')) document.getElementById('upCRLV').style.display = 'flex';
+        if (document.getElementById('upCPF')) document.getElementById('upCPF').style.display = 'flex';
+        if (document.getElementById('upCNH')) document.getElementById('upCNH').style.display = 'flex';
     } else {
         if (document.getElementById('profVehicleGroup')) document.getElementById('profVehicleGroup').style.display = 'none';
+        if (document.getElementById('profAnttGroup')) document.getElementById('profAnttGroup').style.display = 'none';
+        if (document.getElementById('profCnhNumGroup')) document.getElementById('profCnhNumGroup').style.display = 'none';
+        if (document.getElementById('profPlacaGroup')) document.getElementById('profPlacaGroup').style.display = 'none';
+
+        // Hide driver upload options (Shippers only need Comprovante Residencia and CNPJ/CPF which is handled below)
+        if (document.getElementById('upCRLV')) document.getElementById('upCRLV').style.display = 'none';
+        if (document.getElementById('upCNH')) document.getElementById('upCNH').style.display = 'none';
+        // upCPF is used as Cartão CNPJ for shippers (see previous implementation or modify text)
+        if (userData.tipoDocumento === 'cnpj') {
+            const upCpfTitle = document.querySelector('#upCPF p:first-child');
+            if (upCpfTitle) upCpfTitle.innerText = "Cartão CNPJ";
+        }
     }
 
-    if (document.getElementById('profAnttGroup')) document.getElementById('profAnttGroup').style.display = 'flex';
-    if (document.getElementById('profAntt')) document.getElementById('profAntt').value = userData.antt || '';
-
-    if (document.getElementById('profCnhNumGroup')) document.getElementById('profCnhNumGroup').style.display = 'flex';
-    if (document.getElementById('profCnhNum')) document.getElementById('profCnhNum').value = userData.cnh || '';
-
-    if (document.getElementById('profPlacaGroup')) document.getElementById('profPlacaGroup').style.display = 'flex';
-    if (document.getElementById('profPlaca')) document.getElementById('profPlaca').value = userData.placa || '';
-
-    // Show driver upload options
-    if (document.getElementById('upCRLV')) document.getElementById('upCRLV').style.display = 'flex';
-    if (document.getElementById('upCPF')) document.getElementById('upCPF').style.display = 'flex';
-    if (document.getElementById('upCNH')) document.getElementById('upCNH').style.display = 'flex';
-} else {
-    if (document.getElementById('profVehicleGroup')) document.getElementById('profVehicleGroup').style.display = 'none';
-    if (document.getElementById('profAnttGroup')) document.getElementById('profAnttGroup').style.display = 'none';
-    if (document.getElementById('profCnhNumGroup')) document.getElementById('profCnhNumGroup').style.display = 'none';
-    if (document.getElementById('profPlacaGroup')) document.getElementById('profPlacaGroup').style.display = 'none';
-
-    // Hide driver upload options (Shippers only need Comprovante Residencia and CNPJ/CPF which is handled below)
-    if (document.getElementById('upCRLV')) document.getElementById('upCRLV').style.display = 'none';
-    if (document.getElementById('upCNH')) document.getElementById('upCNH').style.display = 'none';
-    // upCPF is used as Cartão CNPJ for shippers (see previous implementation or modify text)
-    if (userData.tipoDocumento === 'cnpj') {
-        const upCpfTitle = document.querySelector('#upCPF p:first-child');
-        if (upCpfTitle) upCpfTitle.innerText = "Cartão CNPJ";
+    const avatarUrl = userData.foto || 'https://i.imgur.com/vnYcevV.png';
+    if (document.getElementById('profileAvatar')) {
+        document.getElementById('profileAvatar').style.backgroundImage = `url('${avatarUrl}')`;
     }
-}
+    if (document.getElementById('driverHomeAvatar')) {
+        document.getElementById('driverHomeAvatar').style.backgroundImage = `url('${avatarUrl}')`;
+    }
 
-const avatarUrl = userData.foto || 'https://i.imgur.com/vnYcevV.png';
-if (document.getElementById('profileAvatar')) {
-    document.getElementById('profileAvatar').style.backgroundImage = `url('${avatarUrl}')`;
-}
-if (document.getElementById('driverHomeAvatar')) {
-    document.getElementById('driverHomeAvatar').style.backgroundImage = `url('${avatarUrl}')`;
-}
+    // Atualizar status dos documentos anexados
+    const checkUploadStatus = (id, baseKey) => {
+        const el = document.getElementById(id);
+        if (!el) return;
 
-// Atualizar status dos documentos anexados
-const checkUploadStatus = (id, baseKey) => {
-    const el = document.getElementById(id);
-    if (!el) return;
+        // Verifica se há pelomenos um arquivo (seja o base, ou o Frente, ou o Verso)
+        const hasDoc = userData.documentUrls && (
+            userData.documentUrls[baseKey] ||
+            userData.documentUrls[baseKey + 'Frente'] ||
+            userData.documentUrls[baseKey + 'Verso']
+        );
 
-    // Verifica se há pelomenos um arquivo (seja o base, ou o Frente, ou o Verso)
-    const hasDoc = userData.documentUrls && (
-        userData.documentUrls[baseKey] ||
-        userData.documentUrls[baseKey + 'Frente'] ||
-        userData.documentUrls[baseKey + 'Verso']
-    );
+        const subtitle = el.querySelector('p:last-child');
+        const iconRight = el.querySelector('i.ph-upload-simple') || el.querySelector('i.ph-check-circle') || el.querySelector('i.ph-clock') || el.querySelector('i.ph-warning-circle') || el.querySelector('i.ph-x-circle');
 
-    const subtitle = el.querySelector('p:last-child');
-    const iconRight = el.querySelector('i.ph-upload-simple') || el.querySelector('i.ph-check-circle') || el.querySelector('i.ph-clock') || el.querySelector('i.ph-warning-circle') || el.querySelector('i.ph-x-circle');
+        if (hasDoc) {
+            el.classList.add('uploaded');
 
-    if (hasDoc) {
-        el.classList.add('uploaded');
+            // Pega o status individual: primeiro tenta o exato, depois Frente, depois cai pro global
+            const indStatus = (userData.documentStatuses && userData.documentStatuses[baseKey])
+                ? userData.documentStatuses[baseKey]
+                : (userData.documentStatuses && userData.documentStatuses[baseKey + 'Frente'])
+                    ? userData.documentStatuses[baseKey + 'Frente']
+                    : (userData.docStatus || 'Pendente');
 
-        // Pega o status individual: primeiro tenta o exato, depois Frente, depois cai pro global
-        const indStatus = (userData.documentStatuses && userData.documentStatuses[baseKey])
-            ? userData.documentStatuses[baseKey]
-            : (userData.documentStatuses && userData.documentStatuses[baseKey + 'Frente'])
-                ? userData.documentStatuses[baseKey + 'Frente']
-                : (userData.docStatus || 'Pendente');
-
-        if (indStatus === 'Aprovado') {
-            if (subtitle) subtitle.innerText = "Verificado";
-            if (iconRight) {
-                iconRight.className = 'ph-fill ph-check-circle';
-                iconRight.style.color = '#10b981'; // green
-            }
-        } else if (indStatus === 'Reprovado' || indStatus === 'Bloqueado') {
-            if (subtitle) subtitle.innerText = "Documento recusado";
-            if (iconRight) {
-                iconRight.className = 'ph-fill ph-x-circle';
-                iconRight.style.color = '#ef4444'; // red
+            if (indStatus === 'Aprovado') {
+                if (subtitle) subtitle.innerText = "Verificado";
+                if (iconRight) {
+                    iconRight.className = 'ph-fill ph-check-circle';
+                    iconRight.style.color = '#10b981'; // green
+                }
+            } else if (indStatus === 'Reprovado' || indStatus === 'Bloqueado') {
+                if (subtitle) subtitle.innerText = "Documento recusado";
+                if (iconRight) {
+                    iconRight.className = 'ph-fill ph-x-circle';
+                    iconRight.style.color = '#ef4444'; // red
+                }
+            } else {
+                if (subtitle) subtitle.innerText = "Em análise";
+                if (iconRight) {
+                    iconRight.className = 'ph-fill ph-clock';
+                    iconRight.style.color = '#d97706'; // yellow/orange
+                }
             }
         } else {
-            if (subtitle) subtitle.innerText = "Em análise";
+            el.classList.remove('uploaded');
+            if (subtitle) subtitle.innerText = "Toque para enviar";
             if (iconRight) {
-                iconRight.className = 'ph-fill ph-clock';
-                iconRight.style.color = '#d97706'; // yellow/orange
+                iconRight.className = 'ph ph-upload-simple';
+                iconRight.style.color = 'var(--text-muted)';
             }
         }
+    };
+
+    if (userData.role === 'shipper') {
+        checkUploadStatus('upCNPJ', 'cnpj');
+        checkUploadStatus('upEnderecoEmpresa', 'enderecoEmpresa');
     } else {
-        el.classList.remove('uploaded');
-        if (subtitle) subtitle.innerText = "Toque para enviar";
-        if (iconRight) {
-            iconRight.className = 'ph ph-upload-simple';
-            iconRight.style.color = 'var(--text-muted)';
+        checkUploadStatus('upCRLV', 'crlv');
+        checkUploadStatus('upResidencia', 'residencia');
+        checkUploadStatus('upCPF', 'cpf');
+        checkUploadStatus('upCNH', 'cnh');
+    }
+
+    // Update Security Documents menu item
+    if (document.getElementById('profileDocsStatusText')) {
+        let docsStatusText = "Verificar status dos documentos";
+        let showDot = false;
+
+        if (userData.docStatus === 'Aprovado') {
+            docsStatusText = "Todos os documentos verificados";
+        } else if (userData.docStatus === 'Reprovado' || userData.docStatus === 'Bloqueado') {
+            docsStatusText = "Ação necessária: Documento recusado";
+            showDot = true;
+        } else if (userData.docStatus === 'Pendente' || userData.docStatus === 'Em Análise') {
+            docsStatusText = "Documentos em análise";
+            showDot = true;
+        } else {
+            docsStatusText = "Envio de documentos pendente";
+            showDot = true;
+        }
+
+        document.getElementById('profileDocsStatusText').innerText = docsStatusText;
+        if (document.getElementById('profileDocsAlertDot')) {
+            document.getElementById('profileDocsAlertDot').style.display = showDot ? 'block' : 'none';
         }
     }
-};
-
-if (userData.role === 'shipper') {
-    checkUploadStatus('upCNPJ', 'cnpj');
-    checkUploadStatus('upEnderecoEmpresa', 'enderecoEmpresa');
-} else {
-    checkUploadStatus('upCRLV', 'crlv');
-    checkUploadStatus('upResidencia', 'residencia');
-    checkUploadStatus('upCPF', 'cpf');
-    checkUploadStatus('upCNH', 'cnh');
-}
-
-// Update Security Documents menu item
-if (document.getElementById('profileDocsStatusText')) {
-    let docsStatusText = "Verificar status dos documentos";
-    let showDot = false;
-
-    if (userData.docStatus === 'Aprovado') {
-        docsStatusText = "Todos os documentos verificados";
-    } else if (userData.docStatus === 'Reprovado' || userData.docStatus === 'Bloqueado') {
-        docsStatusText = "Ação necessária: Documento recusado";
-        showDot = true;
-    } else if (userData.docStatus === 'Pendente' || userData.docStatus === 'Em Análise') {
-        docsStatusText = "Documentos em análise";
-        showDot = true;
-    } else {
-        docsStatusText = "Envio de documentos pendente";
-        showDot = true;
-    }
-
-    document.getElementById('profileDocsStatusText').innerText = docsStatusText;
-    if (document.getElementById('profileDocsAlertDot')) {
-        document.getElementById('profileDocsAlertDot').style.display = showDot ? 'block' : 'none';
-    }
-}
 }
 
 function openPhotoActionSheet() {
@@ -3584,31 +3626,138 @@ window.addEventListener('error', event => {
 
 
 
-// Toggles visibility of CPF/CNPJ
+// Masking helper for document values
+function getMaskedDoc(doc) {
+    if (!doc) return 'Não cadastrado';
+    const clean = doc.replace(/\D/g, '');
+    if (clean.length === 11) {
+        return clean.substring(0, 3) + '.***.***-' + clean.substring(9);
+    } else if (clean.length === 14) {
+        return clean.substring(0, 2) + '.***.***/****-' + clean.substring(12);
+    } else {
+        if (doc.length > 5) {
+            return doc.substring(0, 3) + '***' + doc.substring(doc.length - 2);
+        }
+        return '***';
+    }
+}
+window.getMaskedDoc = getMaskedDoc;
+
 window.docVisibilityState = false;
 window.toggleDocVisibility = function () {
     const docEl = document.getElementById('pdDoc');
     const eyeIcon = document.getElementById('toggleDocVisibility');
     if (!docEl || !eyeIcon) return;
 
-    // Fallback to empty string if not loaded yet
-    const fullDoc = window.currentLoadedDoc || '***';
+    const fullDoc = window.currentLoadedDoc || '';
+    if (!fullDoc) {
+        docEl.innerText = 'Não cadastrado';
+        return;
+    }
 
     if (window.docVisibilityState) {
         // Hide
-        if (fullDoc && fullDoc.length > 5) {
-            docEl.innerText = fullDoc.substring(0, 3) + '.***.***-' + fullDoc.substring(fullDoc.length - 2);
-        } else {
-            docEl.innerText = '***';
-        }
+        docEl.innerText = getMaskedDoc(fullDoc);
         eyeIcon.classList.remove('ph-eye-slash');
         eyeIcon.classList.add('ph-eye');
         window.docVisibilityState = false;
     } else {
         // Show
-        docEl.innerText = fullDoc;
+        const clean = fullDoc.replace(/\D/g, '');
+        if (clean.length === 11) {
+            docEl.innerText = clean.substring(0, 3) + '.' + clean.substring(3, 6) + '.' + clean.substring(6, 9) + '-' + clean.substring(9);
+        } else if (clean.length === 14) {
+            docEl.innerText = clean.substring(0, 2) + '.' + clean.substring(2, 5) + '.' + clean.substring(5, 8) + '/' + clean.substring(8, 12) + '-' + clean.substring(12);
+        } else {
+            docEl.innerText = fullDoc;
+        }
         eyeIcon.classList.remove('ph-eye');
         eyeIcon.classList.add('ph-eye-slash');
         window.docVisibilityState = true;
+    }
+};
+
+window.editarSobrenome = async function () {
+    const parts = (userData.nome || 'Usuário').split(' ');
+    const firstName = parts[0];
+    const currentLastName = parts.length > 1 ? parts.slice(1).join(' ') : '';
+    const novoSobrenome = prompt("Editar Sobrenome:", currentLastName);
+    if (novoSobrenome === null) return; // Cancelado
+    
+    const novoNomeCompleto = (firstName + ' ' + novoSobrenome.trim()).trim();
+    if (!novoNomeCompleto) {
+        showToast('O nome completo não pode ficar vazio.', 'error');
+        return;
+    }
+    
+    try {
+        const user = auth.currentUser;
+        if (!user) {
+            showToast('Usuário não autenticado.', 'error');
+            return;
+        }
+        
+        await db.collection('users').doc(user.uid).update({
+            nome: novoNomeCompleto,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        userData.nome = novoNomeCompleto;
+        preencherPerfil();
+        showToast('Sobrenome atualizado com sucesso!');
+    } catch (e) {
+        console.error(e);
+        showToast('Erro ao atualizar sobrenome.', 'error');
+    }
+};
+
+window.abrirTermosCategoria = function (titulo) {
+    const modal = document.getElementById('termsCategoryModal');
+    const titleEl = document.getElementById('termsCategoryTitle');
+    const contentEl = document.getElementById('termsCategoryContent');
+    if (!modal || !titleEl || !contentEl) return;
+
+    let content = "";
+    switch (titulo) {
+        case 'Aceitação e Objeto':
+            content = "<p>Estes termos regem o uso do aplicativo PegaFrete. A plataforma atua exclusivamente como facilitadora de conexões logísticas entre prestadores de serviço de transporte (Transportadores) e solicitantes de envio de cargas (Embarcadores).</p>";
+            break;
+        case 'Requisitos de Acesso e Cadastro':
+            content = "<ul style='margin-bottom: 0; padding-left: 20px;'><li style='margin-bottom: 8px;'>O usuário é responsável por fornecer informações precisas, completas e atualizadas durante o cadastro.</li><li style='margin-bottom: 8px;'>A segurança da senha é de inteira responsabilidade do usuário, devendo esta ser pessoal e intransmissível.</li><li style='margin-bottom: 8px;'>Apenas maiores de 18 anos ou empresas legalmente constituídas e com registros válidos podem utilizar a plataforma.</li><li style='margin-bottom: 8px;'>Os transportadores cadastrados declaram estar com todos os registros exigidos pela ANTT (Agência Nacional de Transportes Terrestres) ativos e regulares.</li></ul>";
+            break;
+        case 'Deveres e Obrigações do Transportador':
+            content = "<p>O Transportador deve garantir a conformidade e integridade física de seu veículo, possuir habilitação regular compatível e realizar o transporte de forma segura, cumprindo os prazos combinados diretamente com o Embarcador.</p>";
+            break;
+        case 'Deveres e Obrigações do Embarcador':
+            content = "<p>O Embarcador deve descrever fielmente a natureza da carga, peso, cubagem e riscos envolvidos. É expressamente proibida a publicação de cargas de cunho ilícito, inflamável, perigoso ou proibido por leis vigentes.</p>";
+            break;
+        case 'Isenção de Responsabilidade':
+            content = "<p>O PegaFrete não assume nenhuma responsabilidade pela qualidade do transporte, extravios, sinistros, avarias ou pelo pagamento acordado entre as partes. A plataforma não participa das negociações financeiras e operacionais.</p>";
+            break;
+        case 'Segurança, Conduta e Moderação':
+            content = "<p>Os usuários devem zelar pela ética e respeito no chat da plataforma. Qualquer tentativa de fraude, difamação, roubo de dados ou violação de segurança do aplicativo acarretará na suspensão imediata e irrevogável da conta do infrator, sem prejuízo das sanções legais cabíveis.</p>";
+            break;
+        case 'Alterações nos Termos':
+            content = "<p>O PegaFrete reserva-se o direito de alterar estes termos a qualquer momento. A continuação da utilização do aplicativo após a publicação de novos termos constitui aceitação tácita das alterações.</p>";
+            break;
+        default:
+            content = "";
+    }
+
+    titleEl.innerText = titulo;
+    contentEl.innerHTML = content;
+    
+    modal.style.display = 'flex';
+    modal.offsetHeight; // force reflow
+    modal.style.opacity = '1';
+};
+
+window.fecharTermosCategoryModal = function () {
+    const modal = document.getElementById('termsCategoryModal');
+    if (modal) {
+        modal.style.opacity = '0';
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
     }
 };
