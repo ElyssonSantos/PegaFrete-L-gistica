@@ -3577,3 +3577,32 @@ window.prevPublishStep = prevPublishStep;
     });
 
 
+
+// Toggles visibility of CPF/CNPJ
+window.docVisibilityState = false;
+window.toggleDocVisibility = function() {
+    const docEl = document.getElementById('pdDoc');
+    const eyeIcon = document.getElementById('toggleDocVisibility');
+    if (!docEl || !eyeIcon) return;
+    
+    // Fallback to empty string if not loaded yet
+    const fullDoc = window.currentLoadedDoc || '***';
+    
+    if (window.docVisibilityState) {
+        // Hide
+        if (fullDoc && fullDoc.length > 5) {
+            docEl.innerText = fullDoc.substring(0, 3) + '.***.***-' + fullDoc.substring(fullDoc.length - 2);
+        } else {
+            docEl.innerText = '***';
+        }
+        eyeIcon.classList.remove('ph-eye-slash');
+        eyeIcon.classList.add('ph-eye');
+        window.docVisibilityState = false;
+    } else {
+        // Show
+        docEl.innerText = fullDoc;
+        eyeIcon.classList.remove('ph-eye');
+        eyeIcon.classList.add('ph-eye-slash');
+        window.docVisibilityState = true;
+    }
+};

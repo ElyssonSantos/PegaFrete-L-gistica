@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
@@ -121,7 +121,7 @@
             <span>Mensagens</span>
             <div class="notification-badge" style="display: none;">0</div>
         </div>
-        <div class="nav-item" data-target="profile" onclick="navTo('profile')">
+        <div class="nav-item" data-target="profile" onclick="goBack()">
             <i class="ph ph-user"></i>
             <span>Perfil</span>
         </div>
@@ -861,7 +861,7 @@
                 <h1 id="shipperCompanyName" style="font-size: 24px; color: var(--primary);">Distribuidora XPTO</h1>
                 <p style="color: var(--text-muted); font-size: 14px;">Gerencie seus envios de forma inteligente.</p>
             </div>
-            <div class="profile-avatar" id="shipperAvatarInitials" onclick="navTo('profile')">XP</div>
+            <div class="profile-avatar" id="shipperAvatarInitials" onclick="goBack()">XP</div>
         </div>
 
         <div class="card"
@@ -1208,6 +1208,70 @@
         </div>
     </section>
 
+    
+    <section id="terms_screen" class="screen" style="padding-bottom: 120px; background: #fdfaf6;">
+        <div class="topbar">
+            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
+            <h1 style="font-size: 20px; font-weight: 800;">Termos de Uso</h1>
+            <div style="width: 44px;"></div>
+        </div>
+        <div style="padding: 0; margin: 0 -24px;">
+            <p style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 24px 20px 8px 20px;">Informações Legais</p>
+            <div style="padding: 16px 20px; background: #ffffff; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+                <p style="font-size: 14px; color: var(--text-main); line-height: 1.6; margin-bottom: 16px;">
+                    Bem-vindo ao PegaFrete. Ao utilizar nosso aplicativo, você concorda com nossos termos e condições de uso. O PegaFrete atua como um intermediário logístico, conectando embarcadores a transportadores.
+                </p>
+                <p style="font-size: 14px; color: var(--text-main); line-height: 1.6;">
+                    Para visualizar a versão completa dos Termos de Uso, acesse nosso site oficial.
+                </p>
+                <button class="btn btn-outline" style="margin-top: 24px; width: 100%;" onclick="window.open('https://pegafrete.com.br/termos', '_blank')">Ler no site oficial</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="privacy_screen" class="screen" style="padding-bottom: 120px; background: #fdfaf6;">
+        <div class="topbar">
+            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
+            <h1 style="font-size: 20px; font-weight: 800;">Privacidade</h1>
+            <div style="width: 44px;"></div>
+        </div>
+        <div style="padding: 0; margin: 0 -24px;">
+            <p style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 24px 20px 8px 20px;">Política de Dados</p>
+            <div style="padding: 16px 20px; background: #ffffff; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+                <p style="font-size: 14px; color: var(--text-main); line-height: 1.6; margin-bottom: 16px;">
+                    O PegaFrete respeita a sua privacidade. Seus dados cadastrais, como CPF/CNPJ, CNH e placa do veículo, são utilizados exclusivamente para homologação de segurança e prestação dos serviços logísticos.
+                </p>
+                <p style="font-size: 14px; color: var(--text-main); line-height: 1.6;">
+                    Nós não vendemos nem compartilhamos suas informações com terceiros não autorizados.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="about_screen" class="screen" style="padding-bottom: 120px; background: #fdfaf6;">
+        <div class="topbar">
+            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
+            <h1 style="font-size: 20px; font-weight: 800;">Sobre</h1>
+            <div style="width: 44px;"></div>
+        </div>
+        <div style="padding: 0; margin: 0 -24px;">
+            <div style="display: flex; flex-direction: column; align-items: center; padding: 32px 20px;">
+                <div style="width: 80px; height: 80px; background: var(--orange); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);">
+                    <i class="ph-fill ph-truck" style="font-size: 40px; color: white;"></i>
+                </div>
+                <h2 style="font-size: 24px; font-weight: 800; color: var(--primary); margin-bottom: 8px;">PegaFrete</h2>
+                <p style="font-size: 14px; color: var(--text-muted); font-weight: 600;">Versão 1.0.0</p>
+            </div>
+            
+            <p style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 24px 20px 8px 20px;">Informações</p>
+            <div style="padding: 16px 20px; background: #ffffff; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+                <p style="font-size: 14px; color: var(--text-main); line-height: 1.6;">
+                    O aplicativo definitivo para conectar motoristas autônomos e transportadoras a cargas disponíveis em todo o Brasil de forma rápida, segura e transparente.
+                </p>
+            </div>
+        </div>
+    </section>
+
     <!-- TELA: PERFIL / CONFIGURAÇÕES -->
     <section id="profile" class="screen" style="padding-bottom: 120px;">
         <div class="topbar">
@@ -1227,10 +1291,8 @@
                     <span id="profileStatusTagText" style="font-size: 13px; font-weight: 700; color: var(--orange);">Homologado</span>
                 </div>
             </div>
-            <i class="ph ph-caret-right" style="font-size: 20px; color: var(--text-muted);"></i>
-        </div>
-
-        <div style="padding: 0;">
+            </div>
+        <div style="padding: 0; margin: 0 -24px;">
             <!-- Preferências -->
             <p style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 24px 20px 8px 20px;">Preferências</p>
             
@@ -1239,7 +1301,7 @@
                     <i class="ph ph-user" style="font-size: 24px; color: var(--primary);"></i>
                     <span style="font-size: 16px; font-weight: 600; color: var(--primary);">Dados Pessoais</span>
                 </div>
-                <i class="ph ph-caret-right" style="font-size: 20px; color: var(--text-muted);"></i>
+                
             </div>
 
             <div onclick="navTo('profile_update_email')" style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
@@ -1283,7 +1345,7 @@
             <!-- Mais -->
             <p style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 24px 20px 8px 20px;">Mais</p>
 
-            <div style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
+            <div onclick="navTo('privacy_screen')" style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
                 <div style="display: flex; align-items: center; gap: 16px;">
                     <i class="ph ph-lock-key" style="font-size: 24px; color: var(--primary);"></i>
                     <span style="font-size: 16px; font-weight: 600; color: var(--primary);">Privacidade</span>
@@ -1291,7 +1353,7 @@
                 <i class="ph ph-caret-right" style="font-size: 20px; color: var(--text-muted);"></i>
             </div>
 
-            <div onclick="window.open('https://pegafrete.com.br/termos', '_blank')" style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
+            <div onclick="navTo('terms_screen')" style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
                 <div style="display: flex; align-items: center; gap: 16px;">
                     <i class="ph ph-file-text" style="font-size: 24px; color: var(--primary);"></i>
                     <span style="font-size: 16px; font-weight: 600; color: var(--primary);">Termos de Uso</span>
@@ -1307,7 +1369,7 @@
                 <i class="ph ph-caret-right" style="font-size: 20px; color: var(--text-muted);"></i>
             </div>
 
-            <div style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
+            <div onclick="navTo('about_screen')" style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
                 <div style="display: flex; align-items: center; gap: 16px;">
                     <i class="ph ph-info" style="font-size: 24px; color: var(--primary);"></i>
                     <span style="font-size: 16px; font-weight: 600; color: var(--primary);">Sobre</span>
@@ -1457,12 +1519,12 @@
     <!-- TELA: DADOS PESSOAIS -->
     <section id="profile_personal_data" class="screen" style="padding-bottom: 120px; background: #fdfaf6;">
         <div class="topbar">
-            <button class="back-btn" onclick="navTo('profile')"><i class="ph ph-arrow-left"></i></button>
+            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
             <h1 style="font-size: 20px; font-weight: 800;">Dados Pessoais</h1>
             <div style="width: 44px;"></div>
         </div>
 
-        <div style="padding: 0;">
+        <div style="padding: 0; margin: 0 -24px;">
             <div style="display: flex; flex-direction: column; align-items: center; padding: 24px 20px; border-bottom: 1px solid var(--border);">
                 <div class="profile-avatar" id="pdAvatar"
                     style="width: 80px; height: 80px; border-radius: 50%; background: url('https://i.imgur.com/vnYcevV.png') center/cover; margin-bottom: 12px; border: 2px solid var(--orange);">
@@ -1486,7 +1548,10 @@
 
             <div style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s;" class="hover-bg-surface">
                 <span style="font-size: 16px; font-weight: 600; color: var(--primary);" id="pdDocLabel">CPF / CNPJ</span>
-                <span style="font-size: 15px; color: var(--text-muted);" id="pdDoc">***</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 15px; color: var(--text-muted);" id="pdDoc">***</span>
+                    <i class="ph ph-eye" id="toggleDocVisibility" onclick="toggleDocVisibility()" style="font-size: 18px; color: var(--text-muted); cursor: pointer;"></i>
+                </div>
             </div>
 
             <p style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 24px 20px 8px 20px;">Contato e Acesso</p>
@@ -1499,16 +1564,16 @@
                 </div>
             </div>
 
-            <div onclick="navTo('profile_update_email')" style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
+            <div style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
                 <span style="font-size: 16px; font-weight: 600; color: var(--primary);">E-mail</span>
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span style="font-size: 15px; color: var(--text-muted);" id="pdEmail">...</span>
-                    <i class="ph ph-caret-right" style="font-size: 18px; color: var(--text-muted);"></i>
+                    
                 </div>
             </div>
 
             <div style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
-                <span style="font-size: 16px; font-weight: 600; color: var(--primary);">Senha</span>
+                <span style="font-size: 16px; font-weight: 600; color: var(--primary);">Alterar Senha</span>
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span style="font-size: 15px; color: var(--text-muted);">Em breve</span>
                     <i class="ph ph-caret-right" style="font-size: 18px; color: var(--text-muted);"></i>
@@ -1541,24 +1606,23 @@
         </div>
     </section>
     <!-- TELA: ATUALIZAR E-MAIL -->
-    <section id="profile_update_email" class="screen">
+    <section id="profile_update_email" class="screen" style="padding-bottom: 120px; background: #fdfaf6;">
         <div class="topbar">
-            <button class="back-btn" onclick="navTo('profile')"><i class="ph ph-arrow-left"></i></button>
+            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
             <h1 style="font-size: 20px; font-weight: 800;">Endereço de E-mail</h1>
             <div style="width: 44px;"></div>
         </div>
 
-        <div style="padding: 16px;">
-            <div class="glass-card" style="padding: 24px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); border: 1px solid var(--border); background: white;">
-                <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5;">Atualize o endereço de e-mail usado para acessar a sua conta do PegaFrete.</p>
-                
-                <div style="background: #f8fafc; border-radius: 16px; border: 1.5px solid var(--primary); overflow: hidden; display: flex; flex-direction: column;">
-                    <div style="display: flex; align-items: center; padding: 16px;">
-                        <input type="email" id="updateEmailInput" placeholder="Seu novo e-mail" style="border: none; background: transparent; padding: 0; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 15px; flex: 1; text-align: center;" />
-                    </div>
-                </div>
+        <div style="padding: 0; margin: 0 -24px;">
+            <p style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 24px 20px 8px 20px;">Atualização</p>
+            <p style="font-size: 13px; color: var(--text-muted); margin: 0 20px 16px 20px; line-height: 1.45;">Atualize o endereço de e-mail usado para acessar a sua conta do PegaFrete.</p>
 
-                <button class="btn btn-orange" id="btnSaveEmail" style="margin-top: 24px; margin-bottom: 0; border-radius: 14px; padding: 14px; font-weight: 700; width: 100%;" onclick="salvarNovoEmail()">
+            <div style="padding: 16px 20px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: #ffffff;">
+                <input type="email" id="updateEmailInput" placeholder="Seu novo e-mail" style="border: none; background: transparent; padding: 0; margin: 0; box-shadow: none; font-weight: 600; color: var(--text-main); font-size: 15px; width: 100%;" />
+            </div>
+
+            <div style="padding: 24px 20px;">
+                <button class="btn btn-orange" id="btnSaveEmail" style="margin: 0; border-radius: 14px; padding: 14px; font-weight: 700; width: 100%;" onclick="salvarNovoEmail()">
                     Atualizar E-mail
                 </button>
             </div>
@@ -1566,145 +1630,118 @@
     </section>
 
     <!-- TELA: DOCUMENTOS DE SEGURANÇA -->
-    <section id="profile_security_docs" class="screen">
+    <section id="profile_security_docs" class="screen" style="padding-bottom: 120px; background: #fdfaf6;">
         <div class="topbar">
-            <button class="back-btn" onclick="navTo('profile')"><i class="ph ph-arrow-left"></i></button>
+            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
             <h1 style="font-size: 20px; font-weight: 800;">Documentos</h1>
             <div style="width: 44px;"></div>
         </div>
         
-        <div style="padding: 16px; padding-bottom: 120px;">
-            <div class="glass-card" id="shipperHomologationCard" style="padding: 24px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 24px; background: white;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
-                    <div>
-                        <h3 style="font-size: 16px; margin: 0 0 6px 0; color: var(--primary); font-weight: 800;">Homologação de Segurança</h3>
-                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 0; line-height: 1.45; font-weight: 500;">
-                            Envie a documentação de sua empresa para obter o selo ouro e prioridade de atendimento dos motoristas.
-                        </p>
+        <div style="padding: 0; margin: 0 -24px;">
+            <p style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 24px 20px 8px 20px;">Homologação de Segurança</p>
+            <p style="font-size: 13px; color: var(--text-muted); margin: 0 20px 16px 20px; line-height: 1.45;">Envie a documentação de sua empresa para obter o selo ouro e prioridade de atendimento dos motoristas.</p>
+
+            <div class="upload-list" id="profileUploadList" style="display: flex; flex-direction: column; gap: 0;">
+                <div class="hover-bg-surface" id="upCRLV" onclick="handleUpload('upCRLV', 'CRLV')" style="padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <i class="ph-fill ph-file-text" style="font-size: 24px; color: var(--orange);"></i>
+                        <div style="text-align: left;">
+                            <p style="font-weight: 600; font-size: 15px; color: var(--primary); margin: 0;">CRLV</p>
+                            <p style="font-size: 13px; color: var(--text-muted); margin: 0;" id="status_upCRLV">Toque para enviar</p>
+                        </div>
                     </div>
+                    <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
                 </div>
 
-                <div class="upload-list" id="profileUploadList" style="display: flex; flex-direction: column; gap: 12px;">
-                    <!-- CRLV -->
-                    <div class="upload-item" id="upCRLV" onclick="handleUpload('upCRLV', 'CRLV')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
-                        <div style="display: flex; align-items: center; gap: 14px;">
-                            <i class="ph-fill ph-file-text" style="font-size: 24px; color: var(--orange);"></i>
-                            <div style="text-align: left;">
-                                <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">CRLV</p>
-                                <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;" id="status_upCRLV">Toque para enviar</p>
-                            </div>
+                <div class="hover-bg-surface" id="upResidencia" onclick="handleUpload('upResidencia', 'Comprovante de Residência')" style="padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <i class="ph-fill ph-house-line" style="font-size: 24px; color: var(--orange);"></i>
+                        <div style="text-align: left;">
+                            <p style="font-weight: 600; font-size: 15px; color: var(--primary); margin: 0;">Comprovante de Residência</p>
+                            <p style="font-size: 13px; color: var(--text-muted); margin: 0;" id="status_upResidencia">Toque para enviar</p>
                         </div>
-                        <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
                     </div>
+                    <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
+                </div>
 
-                    <!-- Comprovante de Residência -->
-                    <div class="upload-item" id="upResidencia" onclick="handleUpload('upResidencia', 'Comprovante de Residência')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
-                        <div style="display: flex; align-items: center; gap: 14px;">
-                            <i class="ph-fill ph-house-line" style="font-size: 24px; color: var(--orange);"></i>
-                            <div style="text-align: left;">
-                                <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">Comprovante de Residência</p>
-                                <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;" id="status_upResidencia">Toque para enviar</p>
-                            </div>
+                <div class="hover-bg-surface" id="upCPF" onclick="handleUpload('upCPF', 'CPF')" style="padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <i class="ph-fill ph-identification-card" style="font-size: 24px; color: var(--orange);"></i>
+                        <div style="text-align: left;">
+                            <p style="font-weight: 600; font-size: 15px; color: var(--primary); margin: 0;">CPF</p>
+                            <p style="font-size: 13px; color: var(--text-muted); margin: 0;" id="status_upCPF">Toque para enviar</p>
                         </div>
-                        <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
                     </div>
+                    <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
+                </div>
 
-                    <!-- CPF -->
-                    <div class="upload-item" id="upCPF" onclick="handleUpload('upCPF', 'CPF')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
-                        <div style="display: flex; align-items: center; gap: 14px;">
-                            <i class="ph-fill ph-identification-card" style="font-size: 24px; color: var(--orange);"></i>
-                            <div style="text-align: left;">
-                                <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">CPF</p>
-                                <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;" id="status_upCPF">Toque para enviar</p>
-                            </div>
+                <div class="hover-bg-surface" id="upCNH" onclick="handleUpload('upCNH', 'CNH')" style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <i class="ph-fill ph-identification-badge" style="font-size: 24px; color: var(--orange);"></i>
+                        <div style="text-align: left;">
+                            <p style="font-weight: 600; font-size: 15px; color: var(--primary); margin: 0;">CNH</p>
+                            <p style="font-size: 13px; color: var(--text-muted); margin: 0;" id="status_upCNH">Toque para enviar</p>
                         </div>
-                        <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
                     </div>
-
-                    <!-- CNH -->
-                    <div class="upload-item" id="upCNH" onclick="handleUpload('upCNH', 'CNH')" style="border-radius: 16px; padding: 14px 18px; border: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: #fafafa; margin: 0;">
-                        <div style="display: flex; align-items: center; gap: 14px;">
-                            <i class="ph-fill ph-identification-badge" style="font-size: 24px; color: var(--orange);"></i>
-                            <div style="text-align: left;">
-                                <p style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 0 0 2px 0;">CNH</p>
-                                <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin: 0;" id="status_upCNH">Toque para enviar</p>
-                            </div>
-                        </div>
-                        <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
-                    </div>
+                    <i class="ph ph-upload-simple" style="font-size: 18px; color: var(--text-muted);"></i>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- TELA: GERENCIAMENTO DE CONTA -->
-    <section id="profile_account" class="screen">
+    <section id="profile_account" class="screen" style="padding-bottom: 120px; background: #fdfaf6;">
         <div class="topbar">
-            <button class="back-btn" onclick="navTo('profile')"><i class="ph ph-arrow-left"></i></button>
+            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
             <h1 style="font-size: 20px; font-weight: 800;">Conta</h1>
             <div style="width: 44px;"></div>
         </div>
         
-        <div style="padding: 16px; padding-bottom: 120px;">
-            <div class="glass-card" style="padding: 8px 16px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 24px; background: white;">
-                <div style="display: flex; flex-direction: column;">
-                    
-                    <div onclick="logout()" style="padding: 16px 8px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;">
-                        <div style="display: flex; align-items: center; gap: 14px;">
-                            <i class="ph ph-sign-out" style="font-size: 22px; color: #3b82f6;"></i>
-                            <span style="font-weight: 600; font-size: 14.5px; color: #3b82f6;">Sair do aplicativo</span>
-                        </div>
-                        <i class="ph ph-caret-right" style="font-size: 16px; color: var(--text-muted);"></i>
-                    </div>
+        <div style="padding: 0; margin: 0 -24px;">
+            <p style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 24px 20px 8px 20px;">Sessão</p>
 
-                    <div onclick="abrirModalDeleteAccount()" style="padding: 16px 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;">
-                        <div style="display: flex; align-items: center; gap: 14px;">
-                            <i class="ph ph-x-circle" style="font-size: 22px; color: #ef4444;"></i>
-                            <span style="font-weight: 600; font-size: 14.5px; color: #ef4444;">Excluir minha conta</span>
-                        </div>
-                        <i class="ph ph-caret-right" style="font-size: 16px; color: var(--text-muted);"></i>
-                    </div>
+            <div onclick="abrirModalLogout()" class="hover-bg-surface" style="padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <i class="ph ph-sign-out" style="font-size: 24px; color: #ef4444;"></i>
+                    <span style="font-size: 16px; font-weight: 600; color: #ef4444;">Sair da Conta</span>
+                </div>
+            </div>
+
+            <p style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 24px 20px 8px 20px;">Zona de Perigo</p>
+
+            <div onclick="abrirModalDeleteAccount()" class="hover-bg-surface" style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <i class="ph-fill ph-warning-circle" style="font-size: 24px; color: #ef4444;"></i>
+                    <span style="font-size: 16px; font-weight: 600; color: #ef4444;">Excluir Conta Permanentemente</span>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- TELA: AJUDA E SUPORTE -->
-    <section id="profile_support" class="screen">
+    <section id="profile_support" class="screen" style="padding-bottom: 120px; background: #fdfaf6;">
         <div class="topbar">
-            <button class="back-btn" onclick="navTo('profile')"><i class="ph ph-arrow-left"></i></button>
-            <h1 style="font-size: 20px; font-weight: 800;">Suporte</h1>
+            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
+            <h1 style="font-size: 20px; font-weight: 800;">Suporte e Dúvidas</h1>
             <div style="width: 44px;"></div>
         </div>
-        
-        <div style="padding: 16px; padding-bottom: 120px;">
-            <div class="glass-card" style="padding: 8px 16px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 24px; background: white;">
-                <div style="display: flex; flex-direction: column;">
-                    
-                    <div onclick="navTo('support')" style="padding: 16px 8px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;">
-                        <div style="display: flex; align-items: center; gap: 14px;">
-                            <i class="ph ph-headset" style="font-size: 22px; color: var(--text-main);"></i>
-                            <span style="font-weight: 600; font-size: 14.5px; color: var(--primary);">Atendimento PegaFrete</span>
-                        </div>
-                        <i class="ph ph-caret-right" style="font-size: 16px; color: var(--text-muted);"></i>
-                    </div>
+        <div style="padding: 0; margin: 0 -24px;">
+            <p style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 24px 20px 8px 20px;">Canais de Atendimento</p>
 
-                    <div onclick="navTo('faq')" style="padding: 16px 8px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;">
-                        <div style="display: flex; align-items: center; gap: 14px;">
-                            <i class="ph ph-question" style="font-size: 22px; color: var(--text-main);"></i>
-                            <span style="font-weight: 600; font-size: 14.5px; color: var(--primary);">Perguntas Frequentes (FAQ)</span>
-                        </div>
-                        <i class="ph ph-caret-right" style="font-size: 16px; color: var(--text-muted);"></i>
-                    </div>
-
-                    <div onclick="navTo('about_app')" style="padding: 16px 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;">
-                        <div style="display: flex; align-items: center; gap: 14px;">
-                            <i class="ph ph-device-mobile" style="font-size: 22px; color: var(--text-main);"></i>
-                            <span style="font-weight: 600; font-size: 14.5px; color: var(--primary);">Sobre o aplicativo</span>
-                        </div>
-                        <i class="ph ph-caret-right" style="font-size: 16px; color: var(--text-muted);"></i>
-                    </div>
+            <div onclick="window.open('https://wa.me/5511999999999', '_blank')" class="hover-bg-surface" style="padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <i class="ph ph-whatsapp-logo" style="font-size: 24px; color: #25D366;"></i>
+                    <span style="font-size: 16px; font-weight: 600; color: var(--primary);">WhatsApp</span>
                 </div>
+                <i class="ph ph-caret-right" style="font-size: 20px; color: var(--text-muted);"></i>
+            </div>
+            
+            <div onclick="window.open('mailto:suporte@pegafrete.com.br', '_blank')" class="hover-bg-surface" style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <i class="ph ph-envelope" style="font-size: 24px; color: var(--primary);"></i>
+                    <span style="font-size: 16px; font-weight: 600; color: var(--primary);">E-mail</span>
+                </div>
+                <i class="ph ph-caret-right" style="font-size: 20px; color: var(--text-muted);"></i>
             </div>
         </div>
     </section>
@@ -1836,7 +1873,7 @@
     <!-- TELA: ATENDIMENTO -->
     <section id="support" class="screen">
         <div class="topbar">
-            <button class="back-btn" onclick="navTo('profile')"><i class="ph ph-arrow-left"></i></button>
+            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
             <h1 style="font-size: 20px; font-weight: 800;">Fale com a gente</h1>
             <div style="width: 44px;"></div>
         </div>
@@ -1863,7 +1900,7 @@
     <!-- TELA: SOBRE O APP -->
     <section id="about_app" class="screen">
         <div class="topbar">
-            <button class="back-btn" onclick="navTo('profile')"><i class="ph ph-arrow-left"></i></button>
+            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
             <h1 style="font-size: 20px; font-weight: 800;">Sobre o aplicativo</h1>
             <div style="width: 44px;"></div>
         </div>
