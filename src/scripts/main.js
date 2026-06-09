@@ -3742,24 +3742,37 @@ window.abrirTermosCategoria = function (titulo) {
 
     let content = "";
     switch (titulo) {
-        case 'Termos de Uso - Embarcador':
-            content = `<p>Como Embarcador no PegaFrete, você concorda em:</p>
-            <ul style='margin-bottom: 0; padding-left: 20px;'>
-                <li style='margin-bottom: 8px;'>Fornecer informações exatas e reais sobre a carga (peso, cubagem, tipo, origem e destino).</li>
-                <li style='margin-bottom: 8px;'>Não publicar cargas ilegais, inflamáveis, perigosas ou que violem a legislação brasileira.</li>
-                <li style='margin-bottom: 8px;'>Ser o único responsável pela negociação, contratação e pagamento do frete diretamente ao Transportador.</li>
-                <li style='margin-bottom: 8px;'>Garantir que a documentação da sua empresa (CNPJ, Razão Social) seja autêntica e válida.</li>
-            </ul>`;
-            break;
-        case 'Termos de Uso - Transportador':
-            content = `<p>Como Transportador (Motorista) no PegaFrete, você concorda em:</p>
-            <ul style='margin-bottom: 0; padding-left: 20px;'>
-                <li style='margin-bottom: 8px;'>Possuir habilitação (CNH) válida e compatível com o veículo utilizado.</li>
-                <li style='margin-bottom: 8px;'>Manter o veículo em perfeitas condições de tráfego, segurança e com o CRLV regularizado.</li>
-                <li style='margin-bottom: 8px;'>Possuir registro ativo e regular na ANTT para a realização do transporte de cargas.</li>
-                <li style='margin-bottom: 8px;'>Cumprir os prazos e condições de entrega acordados diretamente com o Embarcador.</li>
-                <li style='margin-bottom: 8px;'>Agir com ética, profissionalismo e respeito nas interações dentro da plataforma.</li>
-            </ul>`;
+        case 'Termos de Uso':
+            content = `
+            <p>Estes termos regem o uso do aplicativo PegaFrete. A plataforma atua exclusivamente como facilitadora de conexões logísticas entre prestadores de serviço de transporte (Transportadores) e solicitantes de envio de cargas (Embarcadores).</p>
+            
+            <h4 style="margin-top: 16px; margin-bottom: 8px; font-weight: 700; color: var(--primary);">1. Cadastro e Requisitos</h4>
+            <ul style="margin-bottom: 12px; padding-left: 20px;">
+                <li style="margin-bottom: 6px;">O usuário deve fornecer informações precisas e mantê-las atualizadas.</li>
+                <li style="margin-bottom: 6px;">Apenas maiores de 18 anos ou empresas legalmente constituídas podem utilizar o sistema.</li>
+            </ul>
+
+            <h4 style="margin-top: 16px; margin-bottom: 8px; font-weight: 700; color: var(--primary);">2. Regras para Embarcadores</h4>
+            <ul style="margin-bottom: 12px; padding-left: 20px;">
+                <li style="margin-bottom: 6px;">Descrever fielmente a natureza, peso, cubagem e riscos da carga.</li>
+                <li style="margin-bottom: 6px;">É proibido anunciar cargas ilícitas, inflamáveis ou proibidas por lei.</li>
+                <li style="margin-bottom: 6px;">O Embarcador é o único responsável pela contratação e pagamento do frete diretamente ao Transportador.</li>
+            </ul>
+
+            <h4 style="margin-top: 16px; margin-bottom: 8px; font-weight: 700; color: var(--primary);">3. Regras para Transportadores</h4>
+            <ul style="margin-bottom: 12px; padding-left: 20px;">
+                <li style="margin-bottom: 6px;">Possuir habilitação (CNH) válida e compatível com o veículo.</li>
+                <li style="margin-bottom: 6px;">Manter o veículo em perfeitas condições e com o CRLV em dia.</li>
+                <li style="margin-bottom: 6px;">Possuir registro ativo e regular na ANTT.</li>
+                <li style="margin-bottom: 6px;">Cumprir os prazos e condições pactuados.</li>
+            </ul>
+
+            <h4 style="margin-top: 16px; margin-bottom: 8px; font-weight: 700; color: var(--primary);">4. Isenção de Responsabilidade</h4>
+            <p>O PegaFrete não assume nenhuma responsabilidade pela qualidade do transporte, extravios, sinistros, avarias ou pelo pagamento acordado entre as partes. A plataforma não participa das negociações financeiras e operacionais.</p>
+
+            <h4 style="margin-top: 16px; margin-bottom: 8px; font-weight: 700; color: var(--primary);">5. Segurança e Conduta</h4>
+            <p>Qualquer tentativa de fraude, difamação, roubo de dados ou violação de conduta no chat ou aplicativo acarretará na suspensão imediata e irrevogável da conta do infrator.</p>
+            `;
             break;
         case 'Política de Privacidade':
             content = `<p>A sua privacidade é extremamente importante para nós. Coletamos e tratamos seus dados de acordo com as seguintes diretrizes:</p>
