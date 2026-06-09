@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PegaFrete - Dashboard Administrativo</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+  
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              light: '#f8fafc',
+              DEFAULT: '#0f172a',
+              blue: '#1e40af',
+              accent: '#3b82f6'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style data-purpose="custom-shadows">
+    .card-shadow { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1); }
+    .sidebar-border { border-right: 1px solid #e2e8f0; }
+    
+    /* Section toggling */
+    .dashboard-section { display: none; animation: fadeIn 0.4s ease-in-out; }
+    .dashboard-section.active { display: block; }
+    
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    
+    /* Sidebar Mobile Toggle */
+    @media (max-width: 768px) {
+      .sidebar-wrapper {
+        position: fixed;
+        left: -100%;
+        top: 0;
+        bottom: 0;
+        z-index: 50;
+        transition: left 0.3s ease;
+      }
+      .sidebar-wrapper.active {
+        left: 0;
+        box-shadow: 10px 0 25px rgba(0,0,0,0.1);
+      }
+    }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    /* Toast */
+    .toast {
+      position: fixed; top: 24px; right: 24px; background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); transform: translateY(-20px); opacity: 0; pointer-events: none; transition: all 0.3s ease; z-index: 1000;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    
+    /* Modal */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-content {
+      background: white; border-radius: 20px; width: 100%; max-width: 800px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px rgba(0,0,0,0.2); transform: scale(0.95); transition: transform 0.3s; overflow: hidden;
+    }
+    .modal-overlay.active .modal-content { transform: scale(1); }
+  </style>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+</head>
+
+<body class="bg-brand-light text-brand h-screen flex overflow-hidden">
+  <div id="toast" class="toast"></div>
+
+  <!-- BEGIN: Sidebar -->
+  <aside class="w-64 sidebar-border bg-white flex flex-col flex-shrink-0 sidebar-wrapper" id="sidebar">
+    <!-- Logo Section -->
+    <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+      <div class="w-10 h-10 bg-brand-blue rounded-lg flex items-center justify-center shadow-md text-white">
+        <i class="ph-fill ph-shield-checkered text-xl"></i>
+      </div>
+      <span class="text-xl font-bold tracking-tight text-brand">PegaFrete</span>
+      <!-- Mobile Close Btn -->
+      <button class="md:hidden ml-auto text-slate-500" onclick="toggleSidebar()"><i class="ph ph-x text-xl"></i></button>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+      <a class="nav-link flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand rounded-lg transition-colors font-medium" href="#stats" onclick="switchSection('stats')">
+        <i class="ph ph-squares-four text-lg"></i> Visão Geral
+      </a>
+      <a class="nav-link flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand rounded-lg transition-colors font-medium" href="#users" onclick="switchSection('users')">
+        <i class="ph ph-users text-lg"></i> Usuários
+      </a>
+      <a class="nav-link flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand rounded-lg transition-colors font-medium" href="#freights" onclick="switchSection('freights')">
+        <i class="ph ph-truck text-lg"></i> Fretes
+      </a>
+      
+      <div class="relative">
+        <a class="nav-link flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand rounded-lg transition-colors font-medium" href="#documents" onclick="switchSection('documents')">
+          <i class="ph ph-file-text text-lg"></i> Documentos
+        </a>
+        <span id="badgePending" class="absolute right-4 top-1/2 -translate-y-1/2 bg-orange-100 text-orange-600 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">0</span>
+      </div>
+
+      <a class="nav-link flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand rounded-lg transition-colors font-medium" href="#notifications" onclick="switchSection('notifications')">
+        <i class="ph ph-paper-plane-tilt text-lg"></i> Notificações
+      </a>
+      <a class="nav-link flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand rounded-lg transition-colors font-medium" href="#logs" onclick="switchSection('logs')">
+        <i class="ph ph-shield-warning text-lg"></i> Logs de Segurança
+      </a>
+      <a class="nav-link flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand rounded-lg transition-colors font-medium" href="#settings" onclick="switchSection('settings')">
+        <i class="ph ph-gear text-lg"></i> Configurações
+      </a>
+    </nav>
+
+    <!-- Sidebar Footer -->
+    <div class="p-4 border-t border-slate-100">
+      <a href="#setup" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-brand rounded-lg transition-colors font-medium mb-2" onclick="switchSection('setup')">
+        <i class="ph ph-user-plus text-lg"></i> Configurar Admin
+      </a>
+      <div class="flex items-center gap-3 px-4 py-2 mb-2">
+        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="ph ph-user"></i></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-bold text-slate-700 truncate" id="adminName">Admin</p>
+          <p class="text-[11px] text-slate-500 uppercase font-semibold tracking-wider">Super Admin</p>
+        </div>
+      </div>
+      <button class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors text-sm font-bold" onclick="logoutAdmin()">
+        <i class="ph ph-sign-out"></i> Sair
+      </button>
+    </div>
+  </aside>
+
+  <!-- BEGIN: Main Content -->
+  <main class="flex-1 overflow-y-auto flex flex-col relative w-full">
+    <!-- Header -->
+    <header class="h-20 bg-white border-b border-slate-200 px-6 md:px-8 flex items-center justify-between sticky top-0 z-10 w-full shrink-0">
+      <div class="flex items-center gap-3">
+        <button class="md:hidden text-slate-500 p-2 rounded-md hover:bg-slate-50" onclick="toggleSidebar()">
+          <i class="ph ph-list text-2xl"></i>
+        </button>
+        <h1 class="text-xl md:text-2xl font-bold text-brand" id="sectionTitle">Visão Geral</h1>
+      </div>
+      
+      <div class="flex items-center gap-3 md:gap-6">
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 text-xs md:text-sm font-medium rounded-full border border-green-100">
+          <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+          API Conectada
+        </div>
+        <button class="px-4 py-2 md:px-5 md:py-2.5 bg-brand text-white font-semibold rounded-lg hover:bg-slate-800 transition-all text-xs md:text-sm card-shadow flex items-center gap-2" onclick="refreshSection()">
+          <i class="ph ph-arrows-clockwise" id="refreshIcon"></i>
+          <span class="hidden sm:inline">Atualizar</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="p-4 md:p-8 space-y-8 max-w-7xl mx-auto w-full">
+      
+      <!-- === SECTION: STATS === -->
+      <section id="section-stats" class="dashboard-section active">
+        <!-- Summary Cards Row -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          <div class="bg-white p-6 rounded-xl border border-slate-200 card-shadow flex items-center gap-4">
+            <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600">
+              <i class="ph ph-buildings text-2xl"></i>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-slate-500">Embarcadores</p>
+              <p class="text-2xl font-bold text-brand tracking-tight" id="statShippers">0</p>
+            </div>
+          </div>
+          
+          <div class="bg-white p-6 rounded-xl border border-slate-200 card-shadow flex items-center gap-4">
+            <div class="w-12 h-12 bg-slate-50 rounded-lg flex items-center justify-center text-slate-600">
+              <i class="ph ph-steering-wheel text-2xl"></i>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-slate-500">Motoristas</p>
+              <p class="text-2xl font-bold text-brand tracking-tight" id="statDrivers">0</p>
+            </div>
+          </div>
+          
+          <div class="bg-white p-6 rounded-xl border border-slate-200 card-shadow relative overflow-hidden flex items-center gap-4">
+            <div class="absolute top-0 right-0 w-1.5 h-full bg-orange-400"></div>
+            <div class="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center text-orange-600">
+              <i class="ph ph-warning-circle text-2xl"></i>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-slate-500">Docs Pendentes</p>
+              <p class="text-2xl font-bold text-brand tracking-tight" id="statPending">0</p>
+            </div>
+          </div>
+          
+          <div class="bg-brand text-white p-6 rounded-xl card-shadow flex items-center gap-4">
+            <div class="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center text-white">
+              <i class="ph ph-package text-2xl"></i>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-slate-300">Total de Fretes</p>
+              <p class="text-2xl font-bold tracking-tight" id="statFreights">0</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+          <!-- Main Growth Chart -->
+          <div class="lg:col-span-2 bg-white p-6 md:p-8 rounded-xl border border-slate-200 card-shadow">
+            <div class="flex items-center justify-between mb-8">
+              <div>
+                <h3 class="text-lg font-bold text-brand">Crescimento Operacional</h3>
+                <p class="text-sm text-slate-500">Evolução mensal de fretes</p>
+              </div>
+              <select class="text-sm border-slate-200 rounded-md focus:ring-brand-accent focus:border-brand-accent bg-slate-50 px-3 py-1.5 outline-none">
+                <option>Últimos 5 meses</option>
+              </select>
+            </div>
+            <div class="h-64 flex items-end justify-between gap-2 md:gap-4 px-2 md:px-4 border-b border-slate-100 pb-2">
+              <div class="flex-1 flex flex-col items-center gap-3"><div class="w-full bg-slate-100 rounded-t-md hover:bg-slate-200 transition-colors" style="height: 35%"></div><span class="text-xs font-medium text-slate-500">Jan</span></div>
+              <div class="flex-1 flex flex-col items-center gap-3"><div class="w-full bg-slate-100 rounded-t-md hover:bg-slate-200 transition-colors" style="height: 45%"></div><span class="text-xs font-medium text-slate-500">Fev</span></div>
+              <div class="flex-1 flex flex-col items-center gap-3"><div class="w-full bg-slate-100 rounded-t-md hover:bg-slate-200 transition-colors" style="height: 60%"></div><span class="text-xs font-medium text-slate-500">Mar</span></div>
+              <div class="flex-1 flex flex-col items-center gap-3"><div class="w-full bg-slate-100 rounded-t-md hover:bg-slate-200 transition-colors" style="height: 75%"></div><span class="text-xs font-medium text-slate-500">Abr</span></div>
+              <div class="flex-1 flex flex-col items-center gap-3"><div class="w-full bg-gradient-to-t from-blue-700 to-blue-500 rounded-t-md shadow-lg" style="height: 95%"></div><span class="text-xs font-bold text-brand">Mai</span></div>
+            </div>
+          </div>
+          
+          <!-- Donut Chart -->
+          <div class="bg-white p-6 md:p-8 rounded-xl border border-slate-200 card-shadow flex flex-col items-center">
+            <div class="w-full text-left mb-6">
+              <h3 class="text-lg font-bold text-brand mb-1">Perfis</h3>
+              <p class="text-sm text-slate-500">Distribuição de usuários</p>
+            </div>
+            <div class="relative w-40 h-40 mb-6">
+              <svg class="w-full h-full -rotate-90" viewbox="0 0 36 36">
+                <circle class="stroke-blue-100" cx="18" cy="18" fill="none" r="16" stroke-width="3.5"></circle>
+                <circle class="stroke-orange-500" cx="18" cy="18" fill="none" r="16" stroke-dasharray="70, 100" stroke-linecap="round" stroke-width="3.5"></circle>
+                <circle class="stroke-brand-blue" cx="18" cy="18" fill="none" r="16" stroke-dasharray="20, 100" stroke-dashoffset="-70" stroke-linecap="round" stroke-width="3.5"></circle>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span class="text-2xl font-extrabold text-brand tracking-tighter" id="statTotal">0</span>
+                <span class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Total</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-6">
+              <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-brand-blue"></span><span class="text-xs font-bold text-slate-600">Shippers</span></div>
+              <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-orange-500"></span><span class="text-xs font-bold text-slate-600">Drivers</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- === SECTION: USERS === -->
+      <section id="section-users" class="dashboard-section">
+        <div class="bg-white rounded-xl border border-slate-200 card-shadow overflow-hidden">
+          <div class="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h3 class="text-lg font-bold text-brand">Gerenciar Usuários</h3>
+              <p class="text-sm text-slate-500">Todos os usuários cadastrados</p>
+            </div>
+            <select id="roleFilter" onchange="loadUsers()" class="text-sm border-slate-200 rounded-md focus:ring-brand-accent px-3 py-2 bg-slate-50 outline-none">
+              <option value="">Todos os perfis</option>
+              <option value="driver">Motoristas</option>
+              <option value="shipper">Embarcadores</option>
+            </select>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left whitespace-nowrap">
+              <thead>
+                <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase font-bold tracking-wider">
+                  <th class="px-6 py-4">Usuário</th>
+                  <th class="px-6 py-4">E-mail</th>
+                  <th class="px-6 py-4">Telefone</th>
+                  <th class="px-6 py-4">Role</th>
+                  <th class="px-6 py-4">Status Doc</th>
+                  <th class="px-6 py-4">Ações</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-sm" id="usersTableBody">
+                <tr><td colspan="6" class="text-center py-8 text-slate-500"><i class="ph ph-spinner ph-spin text-2xl"></i></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- === SECTION: FREIGHTS === -->
+      <!-- === SECTION: FREIGHTS === -->
+      <section id="section-freights" class="dashboard-section h-[calc(100vh-120px)]">
+        <div class="flex-1 flex overflow-hidden gap-6 h-full">
+          <!-- BEGIN: Condensed List (Left Column) -->
+          <section class="w-1/3 flex flex-col bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex-shrink-0">
+            <div class="p-4 border-b border-slate-100 flex flex-col gap-1">
+              <h2 class="font-bold text-slate-800">Fretes Cadastrados</h2>
+              <p class="text-xs text-slate-500">Gerencie status e operações</p>
+            </div>
+            <div class="flex-1 overflow-y-auto" id="freightsListContainer">
+              <div class="text-center py-8 text-slate-500"><i class="ph ph-spinner ph-spin text-2xl"></i></div>
+            </div>
+          </section>
+          
+          <!-- BEGIN: Detailed View (Right Column) -->
+          <section class="flex-1 flex flex-col bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden" id="freightDetailsContainer" style="display: none;">
+             <!-- Details Header -->
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center">
+                  <i class="ph ph-truck text-2xl"></i>
+                </div>
+                <div>
+                  <h2 class="text-lg font-bold text-slate-900" id="detailRoute">Origem → Destino</h2>
+                  <p class="text-sm text-slate-500 font-medium" id="detailRef">Ref: ---</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="editFreight()" class="p-2 text-slate-400 hover:bg-slate-50 rounded-lg border border-slate-200" title="Editar Frete">
+                  <i class="ph ph-pencil-simple text-lg"></i>
+                </button>
+                <button onclick="deleteSelectedFreight()" class="p-2 text-red-400 hover:bg-red-50 rounded-lg border border-slate-200" title="Apagar Frete">
+                  <i class="ph ph-trash text-lg"></i>
+                </button>
+              </div>
+            </div>
+            <div class="flex-1 overflow-y-auto p-6 space-y-8">
+              <!-- Section: Logistics Info -->
+              <div class="grid grid-cols-3 gap-6">
+                <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/30">
+                  <span class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Valor do Frete</span>
+                  <span class="text-lg font-bold text-slate-900" id="detailValue">R$ 0,00</span>
+                </div>
+                <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/30">
+                  <span class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Veículo</span>
+                  <span class="text-lg font-bold text-slate-900" id="detailVehicle">---</span>
+                </div>
+                <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/30">
+                  <span class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Modalidade</span>
+                  <span class="text-lg font-bold text-slate-900" id="detailType">---</span>
+                </div>
+              </div>
+              
+              <!-- Section: Route Map Simulation -->
+              <div class="space-y-3">
+                <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Trajeto & Logística</h3>
+                <div class="relative w-full h-48 bg-slate-100 rounded-xl overflow-hidden border border-slate-200">
+                  <div class="absolute inset-0 bg-slate-200 opacity-20" style="background-image: radial-gradient(#64748b 1px, transparent 1px); background-size: 20px 20px;"></div>
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="w-2/3 h-px bg-blue-400 relative">
+                      <div class="absolute -left-2 -top-2 w-4 h-4 bg-blue-600 rounded-full border-4 border-white shadow"></div>
+                      <div class="absolute -right-2 -top-2 w-4 h-4 bg-indigo-600 rounded-full border-4 border-white shadow"></div>
+                      <div class="absolute left-1/2 -top-6 -translate-x-1/2 bg-white px-2 py-1 rounded text-[10px] font-bold shadow-sm border border-slate-100" id="detailDistance">--- km</div>
+                    </div>
+                  </div>
+                  <div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur p-2 rounded border border-slate-200 shadow-sm">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Origem</p>
+                    <p class="text-xs font-semibold text-slate-800" id="detailOrigin">---</p>
+                  </div>
+                  <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur p-2 rounded border border-slate-200 shadow-sm text-right">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Destino</p>
+                    <p class="text-xs font-semibold text-slate-800" id="detailDestination">---</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section: Additional Details -->
+              <div class="grid grid-cols-2 gap-8">
+                <div class="space-y-4">
+                  <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Carga</h3>
+                  <div class="space-y-3">
+                    <div class="flex justify-between border-b border-slate-50 pb-2">
+                      <span class="text-sm text-slate-500">Tipo de Mercadoria</span>
+                      <span class="text-sm font-medium text-slate-800" id="detailCommodity">Diversos</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-50 pb-2">
+                      <span class="text-sm text-slate-500">Peso Estimado</span>
+                      <span class="text-sm font-medium text-slate-800" id="detailWeight">---</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-50 pb-2">
+                      <span class="text-sm text-slate-500">Volume</span>
+                      <span class="text-sm font-medium text-slate-800" id="detailVolume">---</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="space-y-4">
+                  <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Prazos</h3>
+                  <div class="space-y-3">
+                    <div class="flex justify-between border-b border-slate-50 pb-2">
+                      <span class="text-sm text-slate-500">Coleta</span>
+                      <span class="text-sm font-medium text-slate-800" id="detailCollection">---</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-50 pb-2">
+                      <span class="text-sm text-slate-500">Previsão Entrega</span>
+                      <span class="text-sm font-medium text-slate-800" id="detailDelivery">---</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-50 pb-2">
+                      <span class="text-sm text-slate-500">Urgência</span>
+                      <span class="text-xs px-2 py-0.5 rounded font-bold" id="detailUrgency">---</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Details Footer Action -->
+            <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+              <button onclick="changeFreightStatus()" id="btnChangeFreightStatus" class="px-6 py-2 rounded-lg bg-indigo-600 text-white font-bold text-sm hover:bg-indigo-700 transition-shadow shadow-md">
+                Alterar Status
+              </button>
+            </div>
+          </section>
+          
+          <section id="freightEmptyState" class="flex-1 flex flex-col items-center justify-center bg-white rounded-xl border border-slate-200 shadow-sm text-slate-400">
+             <i class="ph ph-truck text-6xl mb-4 text-slate-200"></i>
+             <p>Selecione um frete na lista para ver os detalhes</p>
+          </section>
+        </div>
+      </section>
+
+      <!-- === SECTION: DOCUMENTS === -->
+      <section id="section-documents" class="dashboard-section bg-[#f8f9fb] p-0 md:p-0 relative h-full">
+        
+        <!-- === LIST VIEW === -->
+        <div id="docsListView" class="p-4 md:p-8">
+          <!-- Barra de Ações -->
+          <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
+            <div class="relative w-full md:w-96">
+              <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
+              <input type="text" id="docSearchInput" oninput="filterDocsTable()" placeholder="Buscar por ID, nome ou placa..." class="w-full pl-10 pr-4 py-2 bg-white border border-[#DFE1E6] rounded text-sm text-[#172B4D] focus:outline-none focus:border-[#003d9b] focus:ring-1 focus:ring-[#003d9b] transition-all">
+            </div>
+            
+            <div class="flex items-center gap-3">
+              <button onclick="showDocsHelp()" title="Ajuda" class="w-10 h-10 flex items-center justify-center rounded border border-[#DFE1E6] bg-white text-[#172B4D] hover:bg-gray-50 transition-colors"><i class="ph ph-question text-lg"></i></button>
+              <button onclick="switchSection('settings')" title="Configurações" class="w-10 h-10 flex items-center justify-center rounded border border-[#DFE1E6] bg-white text-[#172B4D] hover:bg-gray-50 transition-colors"><i class="ph ph-gear text-lg"></i></button>
+            </div>
+          </div>
+
+          <!-- Abas & Filtros -->
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+            <div class="flex bg-white rounded border border-[#DFE1E6] p-1 shadow-sm" id="docTabsContainer">
+              <button onclick="setDocTab('all')" id="docTabAll" class="px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded text-[#003d9b] bg-blue-50 border-b-2 border-[#003d9b] transition-all">Todos</button>
+              <button onclick="setDocTab('pending')" id="docTabPending" class="px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded text-[#737685] hover:text-[#172B4D] hover:bg-gray-50 transition-all">Pendentes</button>
+              <button onclick="setDocTab('verified')" id="docTabVerified" class="px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded text-[#737685] hover:text-[#172B4D] hover:bg-gray-50 transition-all">Verificados</button>
+            </div>
+            
+            <div class="flex items-center gap-4 text-sm font-medium text-[#737685]">
+              <div class="flex items-center gap-2">
+                <span class="uppercase text-[11px] font-bold">Filtrar:</span>
+                <select id="docDateFilter" onchange="filterDocsTable()" class="text-[#172B4D] text-xs font-bold bg-white border border-[#DFE1E6] rounded px-2 py-1 cursor-pointer focus:outline-none focus:border-[#003d9b]">
+                  <option value="all">Todas as datas</option>
+                  <option value="today">Hoje</option>
+                  <option value="week">Esta semana</option>
+                  <option value="month">Este mês</option>
+                </select>
+              </div>
+              <div class="flex items-center gap-2">
+                <select id="docRoleFilter" onchange="filterDocsTable()" class="text-[#172B4D] text-xs font-bold bg-white border border-[#DFE1E6] rounded px-2 py-1 cursor-pointer focus:outline-none focus:border-[#003d9b]">
+                  <option value="all">Todos os tipos</option>
+                  <option value="driver">Motoristas</option>
+                  <option value="shipper">Embarcadores</option>
+                </select>
+              </div>
+              <button onclick="exportDocsCSV()" class="ml-2 px-4 py-2 bg-white border border-[#DFE1E6] rounded text-xs font-bold text-[#172B4D] flex items-center gap-2 shadow-sm hover:bg-gray-50 transition-colors">
+                <i class="ph ph-download-simple"></i> EXPORTAR CSV
+              </button>
+              <button onclick="refreshSection()" title="Atualizar" class="w-8 h-8 flex items-center justify-center bg-white border border-[#DFE1E6] rounded shadow-sm hover:bg-gray-50 text-[#172B4D] transition-colors">
+                <i class="ph ph-arrows-clockwise"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Cartões de Estatísticas -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white border border-[#DFE1E6] rounded p-4 shadow-sm flex items-center gap-4">
+              <div class="w-10 h-10 rounded bg-[#f3f4f6] text-[#003d9b] flex items-center justify-center border border-[#DFE1E6]">
+                <i class="ph ph-files text-xl"></i>
+              </div>
+              <div>
+                <p class="text-[10px] font-bold text-[#737685] uppercase tracking-wider">Total de Documentos</p>
+                <p class="text-xl font-bold text-[#172B4D]" id="docsTotalActive">0</p>
+              </div>
+            </div>
+            <div class="bg-white border border-[#DFE1E6] rounded p-4 shadow-sm flex items-center gap-4">
+              <div class="w-10 h-10 rounded bg-orange-50 text-orange-500 flex items-center justify-center border border-orange-100">
+                <i class="ph ph-hourglass-high text-xl"></i>
+              </div>
+              <div>
+                <p class="text-[10px] font-bold text-[#737685] uppercase tracking-wider">Aguardando Aprovação</p>
+                <p class="text-xl font-bold text-[#172B4D]" id="docsPendingCount">0</p>
+              </div>
+            </div>
+            <div class="bg-white border border-[#DFE1E6] rounded p-4 shadow-sm flex items-center gap-4">
+              <div class="w-10 h-10 rounded bg-green-50 text-[#36B37E] flex items-center justify-center border border-green-100">
+                <i class="ph ph-seal-check text-xl"></i>
+              </div>
+              <div>
+                <p class="text-[10px] font-bold text-[#737685] uppercase tracking-wider">Verificados</p>
+                <p class="text-xl font-bold text-[#172B4D]" id="docsVerifiedToday">0</p>
+              </div>
+            </div>
+            <div class="bg-white border border-[#DFE1E6] rounded p-4 shadow-sm flex items-center gap-4">
+              <div class="w-10 h-10 rounded bg-red-50 text-[#ba1a1a] flex items-center justify-center border border-red-100">
+                <i class="ph ph-warning-circle text-xl"></i>
+              </div>
+              <div>
+                <p class="text-[10px] font-bold text-[#737685] uppercase tracking-wider">Reprovados</p>
+                <p class="text-xl font-bold text-[#172B4D]" id="docsFlagged">0</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabela -->
+          <div class="bg-white rounded border border-[#DFE1E6] shadow-sm overflow-hidden flex flex-col">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left whitespace-nowrap">
+                <thead class="bg-[#f3f4f6] sticky top-0 border-b border-[#DFE1E6]">
+                  <tr class="text-[#434654] text-[11px] uppercase font-bold tracking-wider">
+                    <th class="pl-6 pr-3 py-4 w-10"><input type="checkbox" id="docSelectAll" onchange="toggleAllDocCheckboxes(this)" class="rounded border-[#DFE1E6] text-[#003d9b] focus:ring-[#003d9b]"></th>
+                    <th class="px-3 py-4">Doc ID</th>
+                    <th class="px-3 py-4">Tipo</th>
+                    <th class="px-3 py-4">Transportador / Motorista</th>
+                    <th class="px-3 py-4">Placa</th>
+                    <th class="px-3 py-4">Data</th>
+                    <th class="px-3 py-4">Status</th>
+                    <th class="px-6 py-4 text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-[#DFE1E6] text-[13px] text-[#172B4D] font-medium" id="docsTableBody">
+                  <tr><td colspan="8" class="text-center py-12 text-[#737685]"><i class="ph ph-spinner ph-spin text-2xl"></i></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- Rodapé de Paginação -->
+            <div class="p-4 border-t border-[#DFE1E6] bg-[#f8f9fb] flex justify-between items-center text-xs font-bold text-[#737685] uppercase tracking-wider">
+              <span id="docsShowingCount">Exibindo 0 documentos</span>
+              <div class="flex items-center gap-1" id="docsPagination"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- === DETAIL VIEW (NEW) === -->
+        <div id="docsDetailView" style="display: none;" class="p-4 md:p-8 bg-slate-50 min-h-full">
+          <button onclick="closeDocDetail()" class="mb-6 flex items-center gap-2 text-slate-500 hover:text-blue-700 font-medium transition-colors">
+            <i class="ph ph-arrow-left text-lg"></i> Voltar para a lista
+          </button>
+          
+          <!-- Page Header & Status -->
+          <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+            <div>
+              <h2 class="text-xl md:text-2xl font-bold text-blue-800">Verificar Documento</h2>
+              <p class="text-sm text-slate-500 mt-1" id="detailDocProtocol">Protocolo: #DOC-0000 • Motorista: ---</p>
+            </div>
+            <div class="flex items-center gap-4">
+              <div id="detailDocStatusBadge" class="px-4 py-1.5 bg-blue-50 border border-blue-200 text-blue-700 rounded-full flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+                <span class="text-xs font-bold tracking-wider" id="detailDocStatusText">EM ANÁLISE</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <!-- Document View Area (8/12) -->
+            <section class="lg:col-span-8 flex flex-col gap-6">
+              <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                  <span class="text-xs font-bold text-slate-600 uppercase tracking-wider" id="currentDocLabel">DOCUMENTO SELECIONADO</span>
+                  <div class="flex items-center gap-2">
+                    <button class="p-1.5 hover:bg-slate-200 text-slate-500 rounded transition-colors" onclick="zoomDoc(0.2)"><i class="ph ph-magnifying-glass-plus text-xl"></i></button>
+                    <button class="p-1.5 hover:bg-slate-200 text-slate-500 rounded transition-colors" onclick="zoomDoc(-0.2)"><i class="ph ph-magnifying-glass-minus text-xl"></i></button>
+                    <button class="p-1.5 hover:bg-slate-200 text-slate-500 rounded transition-colors" onclick="rotateDoc()"><i class="ph ph-arrow-clockwise text-xl"></i></button>
+                    <button class="p-1.5 hover:bg-slate-200 text-slate-500 rounded transition-colors" onclick="downloadCurrentDoc()"><i class="ph ph-download-simple text-xl"></i></button>
+                  </div>
+                </div>
+                <div class="relative bg-slate-200 p-6 min-h-[500px] flex items-center justify-center overflow-hidden" id="docImageContainer">
+                  <img id="mainDocImage" src="" alt="Documento" class="max-w-full max-h-[600px] object-contain transition-transform duration-200 shadow-lg" style="transform: scale(1) rotate(0deg);">
+                  <div id="noDocState" class="hidden flex-col items-center justify-center text-slate-400">
+                    <i class="ph ph-file-dashed text-6xl mb-4 text-slate-300"></i>
+                    <p class="font-medium">Nenhum documento para exibir</p>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Thumbnails/Tabs -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="docThumbnailsContainer">
+                <!-- Generated dynamically in JS -->
+              </div>
+            </section>
+            
+            <!-- Evaluation Form Area (4/12) -->
+            <section class="lg:col-span-4 sticky top-24">
+              <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+                <div class="p-5 border-b border-slate-200 bg-blue-50/30">
+                  <h3 class="text-lg font-bold text-blue-800">Avaliação de Dados</h3>
+                  <p class="text-sm text-slate-500 mt-1">Confirme se os dados lidos correspondem ao documento físico.</p>
+                </div>
+                <form class="p-5 space-y-6" id="evalForm">
+                  <div id="evalFieldsContainer" class="space-y-4">
+                    <!-- Dynamic fields -->
+                  </div>
+                  
+                  <div id="rejectAreaNew" class="hidden p-4 bg-red-50 border border-red-100 rounded-lg animate-fadeIn">
+                     <label class="block text-xs font-bold text-red-700 mb-2">Motivo da Rejeição (Enviado ao usuário)</label>
+                     <textarea id="rejectReasonNew" class="w-full border border-red-200 rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 bg-white" rows="2" placeholder="Ex: CNH vencida, imagem ilegível, dados não conferem..."></textarea>
+                  </div>
+                  
+                  <div class="pt-5 border-t border-slate-100 space-y-5">
+                    <div class="bg-slate-50 p-4 rounded-lg flex items-start gap-3 border border-slate-100">
+                      <i class="ph ph-info text-slate-400 mt-0.5 text-lg"></i>
+                      <p class="text-xs text-slate-600 leading-relaxed">Aprovar o documento liberará o motorista para assumir novas cargas no sistema PegaFrete.</p>
+                    </div>
+                    <div class="flex gap-3">
+                      <button class="flex-1 py-3 border border-slate-300 text-slate-700 rounded-lg text-sm font-bold hover:bg-slate-50 transition-colors" type="button" onclick="rejectVerification()">REPROVAR</button>
+                      <button class="flex-[2] py-3 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 shadow-md transition-all transform active:scale-95" type="button" onclick="approveVerification()">SALVAR AVALIAÇÃO</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <!-- === SECTION: NOTIFICATIONS === -->
+      <section id="section-notifications" class="dashboard-section">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-white rounded-xl border border-slate-200 card-shadow p-6">
+            <h3 class="text-lg font-bold text-brand mb-1">Enviar Notificação</h3>
+            <p class="text-sm text-slate-500 mb-6">Dispara mensagens no app principal</p>
+            
+            <form id="notifForm" onsubmit="handleSendNotification(event)" class="space-y-4">
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Destinatário</label>
+                <select id="notifyTarget" class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-brand-accent outline-none" required>
+                  <option value="all">Todos os Usuários</option>
+                  <option value="shippers">Todos os Embarcadores</option>
+                  <option value="drivers">Todos os Transportadores</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Título</label>
+                <input type="text" id="notifyTitle" class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-brand-accent outline-none" placeholder="Ex: Aviso importante (Opcional)">
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Mensagem</label>
+                <textarea id="notifyMessage" class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-brand-accent outline-none min-h-[100px]" placeholder="Detalhes da mensagem... (Opcional)"></textarea>
+              </div>
+              <button type="submit" id="btnSendNotif" class="w-full bg-brand-accent hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg flex justify-center items-center gap-2 transition-colors">
+                <i class="ph ph-paper-plane-tilt text-lg"></i> Enviar Mensagem
+              </button>
+            </form>
+          </div>
+          
+          <div class="bg-white rounded-xl border border-slate-200 card-shadow p-6 flex flex-col">
+            <h3 class="text-lg font-bold text-brand mb-1">Histórico de Envios</h3>
+            <p class="text-sm text-slate-500 mb-6">Mensagens enviadas pelo sistema administrativo</p>
+            <div class="flex-1 overflow-y-auto space-y-3 max-h-[400px]" id="notifHistory">
+              <div class="p-4 bg-slate-50 rounded-lg border border-slate-100 flex gap-3">
+                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0"><i class="ph ph-info"></i></div>
+                <div>
+                  <h4 class="text-sm font-bold text-slate-800">Sistema</h4>
+                  <p class="text-xs text-slate-600 mt-1">Carregando histórico...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- === SECTION: LOGS === -->
+      <section id="section-logs" class="dashboard-section">
+        <div class="bg-white rounded-xl border border-slate-200 card-shadow overflow-hidden">
+          <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-bold text-brand">Logs de Segurança</h3>
+              <p class="text-sm text-slate-500">Auditoria do sistema</p>
+            </div>
+            <span class="bg-red-50 text-red-600 px-3 py-1 rounded-full text-xs font-bold border border-red-100">Últimos 100</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left whitespace-nowrap">
+              <thead>
+                <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase font-bold tracking-wider">
+                  <th class="px-6 py-4">Data/Hora</th>
+                  <th class="px-6 py-4">UID</th>
+                  <th class="px-6 py-4">Evento</th>
+                  <th class="px-6 py-4">Detalhes</th>
+                  <th class="px-6 py-4">Origem</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-sm" id="logsTableBody">
+                <tr><td colspan="5" class="text-center py-8 text-slate-500"><i class="ph ph-spinner ph-spin text-2xl"></i></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- === SECTION: SETTINGS === -->
+      <section id="section-settings" class="dashboard-section">
+        <div class="bg-white rounded-xl border border-slate-200 card-shadow max-w-2xl mx-auto overflow-hidden">
+          <div class="px-6 py-5 border-b border-slate-100 bg-slate-50">
+            <h3 class="text-lg font-bold text-brand flex items-center gap-2">
+              <i class="ph ph-gear text-blue-600"></i> Configurações do Sistema
+            </h3>
+            <p class="text-sm text-slate-500">Gerenciamento global de parâmetros da plataforma</p>
+          </div>
+          <div class="p-6 space-y-6">
+            <div class="flex items-start justify-between">
+              <div>
+                <h4 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                  Aprovação Automática de Transportadores
+                  <span id="autoApprovalBadge" class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">Desativado</span>
+                </h4>
+                <p class="text-sm text-slate-500 mt-1 max-w-lg">Quando ativado, os motoristas recebem aprovação automática no momento do cadastro. O envio de documentos CNH/RNTRC se torna opcional e as funcionalidades são liberadas imediatamente. <strong class="text-brand">Use com cuidado apenas em ambientes de teste ou homologação.</strong></p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer mt-1">
+                <input type="checkbox" id="toggleAutoApproval" class="sr-only peer" onchange="updateAutoApproval(this.checked)">
+                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- === SECTION: SETUP === -->
+      <section id="section-setup" class="dashboard-section">
+        <div class="bg-white rounded-xl border border-slate-200 card-shadow max-w-xl mx-auto overflow-hidden">
+          <div class="px-6 py-5 border-b border-slate-100 bg-slate-50">
+            <h3 class="text-lg font-bold text-brand flex items-center gap-2">
+              <i class="ph ph-shield-check text-blue-600"></i> Configurar Novo Admin
+            </h3>
+            <p class="text-sm text-slate-500">Fluxo seguro seguindo padrão Zero Trust</p>
+          </div>
+          <div class="p-6 space-y-6 text-slate-600">
+            <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 flex gap-3 text-sm text-blue-800">
+              <i class="ph-fill ph-info text-lg shrink-0 mt-0.5"></i>
+              <div>
+                <p class="font-semibold">Rota pública desativada por segurança</p>
+                <p class="mt-1 text-xs text-blue-700 leading-relaxed">
+                  Para impedir ataques de escalação de privilégios, a API pública de promoção de administradores foi completamente desativada. As promoções agora devem ser feitas diretamente no terminal local usando as credenciais privadas do servidor.
+                </p>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <h4 class="text-sm font-bold text-slate-800">Como promover um usuário:</h4>
+              <p class="text-xs">Abra o terminal na pasta do projeto administrativo e execute o script local:</p>
+              
+              <div class="bg-slate-950 text-slate-200 p-4 rounded-lg font-mono text-xs overflow-x-auto shadow-inner">
+                <code>node set_admin.js "usuario@email.com"</code>
+              </div>
+              
+              <p class="text-xs text-slate-400">Ou use o UID do Firebase:</p>
+              <div class="bg-slate-950 text-slate-200 p-4 rounded-lg font-mono text-xs overflow-x-auto shadow-inner">
+                <code>node set_admin.js "UID_DO_USUARIO"</code>
+              </div>
+            </div>
+            
+            <div class="border-t border-slate-100 pt-4 flex items-center justify-between text-xs text-slate-400">
+              <span>Arquivo de automação: <code>set_admin.js</code></span>
+              <span class="text-green-600 font-medium">● Execução Local</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+  
+
+
+  <script src="js/admin.js"></script>
+  <script>
+    // Adjust logic to update active nav links properly in Tailwind
+    const originalSwitchSection = switchSection;
+    window.switchSection = function(id) {
+      originalSwitchSection(id);
+      
+      // Update Tailwind styling for nav links
+      document.querySelectorAll('.nav-link').forEach(l => {
+        if(l.getAttribute('href') === `#${id}`) {
+           l.classList.remove('text-slate-500', 'hover:bg-slate-50', 'hover:text-brand');
+           l.classList.add('text-brand-blue', 'bg-blue-50', 'font-semibold');
+        } else {
+           l.classList.add('text-slate-500', 'hover:bg-slate-50', 'hover:text-brand');
+           l.classList.remove('text-brand-blue', 'bg-blue-50', 'font-semibold');
+        }
+      });
+    };
+  </script>
+</body>
+</html>

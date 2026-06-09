@@ -1651,6 +1651,12 @@ function preencherPerfil() {
         if (document.getElementById('upCRLV')) document.getElementById('upCRLV').style.display = 'flex';
         if (document.getElementById('upCPF')) document.getElementById('upCPF').style.display = 'flex';
         if (document.getElementById('upCNH')) document.getElementById('upCNH').style.display = 'flex';
+
+        const upCpfTitle = document.querySelector('#upCPF p:first-child');
+        if (upCpfTitle) upCpfTitle.innerText = "CPF";
+
+        const upResidenciaTitle = document.querySelector('#upResidencia p:first-child');
+        if (upResidenciaTitle) upResidenciaTitle.innerText = "Comprovante de Residência";
     } else {
         if (document.getElementById('profVehicleGroup')) document.getElementById('profVehicleGroup').style.display = 'none';
         if (document.getElementById('profAnttGroup')) document.getElementById('profAnttGroup').style.display = 'none';
@@ -1660,11 +1666,13 @@ function preencherPerfil() {
         // Hide driver upload options (Shippers only need Comprovante Residencia and CNPJ/CPF which is handled below)
         if (document.getElementById('upCRLV')) document.getElementById('upCRLV').style.display = 'none';
         if (document.getElementById('upCNH')) document.getElementById('upCNH').style.display = 'none';
-        // upCPF is used as Cartão CNPJ for shippers (see previous implementation or modify text)
-        if (userData.tipoDocumento === 'cnpj') {
-            const upCpfTitle = document.querySelector('#upCPF p:first-child');
-            if (upCpfTitle) upCpfTitle.innerText = "Cartão CNPJ";
-        }
+        
+        // upCPF is used as Cartão CNPJ for shippers
+        const upCpfTitle = document.querySelector('#upCPF p:first-child');
+        if (upCpfTitle) upCpfTitle.innerText = "Cartão CNPJ";
+
+        const upResidenciaTitle = document.querySelector('#upResidencia p:first-child');
+        if (upResidenciaTitle) upResidenciaTitle.innerText = "Comprovante de Residência / Comercial";
     }
 
     const avatarUrl = userData.foto || 'https://i.imgur.com/vnYcevV.png';
@@ -1693,12 +1701,27 @@ function preencherPerfil() {
         if (hasDoc) {
             el.classList.add('uploaded');
 
-            // Pega o status individual: primeiro tenta o exato, depois Frente, depois cai pro global
-            const indStatus = (userData.documentStatuses && userData.documentStatuses[baseKey])
-                ? userData.documentStatuses[baseKey]
-                : (userData.documentStatuses && userData.documentStatuses[baseKey + 'Frente'])
-                    ? userData.documentStatuses[baseKey + 'Frente']
-                    : (userData.docStatus || 'Pendente');
+            // Determinar status individual resolvendo sub-documentos (Frente/Verso) se for duplo para motoristas
+            let indStatus = 'Pendente';
+            const isDoubleKey = (baseKey === 'cpf' || baseKey === 'cnh') && userData.role !== 'shipper';
+
+            if (userData.documentStatuses) {
+                if (isDoubleKey) {
+                    const statusFrente = userData.documentStatuses[baseKey + 'Frente'] || 'Pendente';
+                    const statusVerso = userData.documentStatuses[baseKey + 'Verso'] || 'Pendente';
+                    if (statusFrente === 'Aprovado' && statusVerso === 'Aprovado') {
+                        indStatus = 'Aprovado';
+                    } else if (statusFrente === 'Reprovado' || statusVerso === 'Reprovado' || statusFrente === 'Bloqueado' || statusVerso === 'Bloqueado') {
+                        indStatus = 'Reprovado';
+                    } else {
+                        indStatus = 'Pendente';
+                    }
+                } else {
+                    indStatus = userData.documentStatuses[baseKey] || (userData.docStatus || 'Pendente');
+                }
+            } else {
+                indStatus = userData.docStatus || 'Pendente';
+            }
 
             if (indStatus === 'Aprovado') {
                 if (subtitle) subtitle.innerText = "Verificado";
@@ -1730,8 +1753,8 @@ function preencherPerfil() {
     };
 
     if (userData.role === 'shipper') {
-        checkUploadStatus('upCNPJ', 'cnpj');
-        checkUploadStatus('upEnderecoEmpresa', 'enderecoEmpresa');
+        checkUploadStatus('upCPF', 'cpf');
+        checkUploadStatus('upResidencia', 'residencia');
     } else {
         checkUploadStatus('upCRLV', 'crlv');
         checkUploadStatus('upResidencia', 'residencia');
@@ -2103,7 +2126,7 @@ function handleUpload(elementId, type) {
 
     document.getElementById('docUploadTitle').innerText = type;
 
-    const isDouble = type === 'CPF' || type === 'CNH';
+    const isDouble = (type === 'CPF' || type === 'CNH') && userData.role !== 'shipper';
 
     const singleContainer = document.getElementById('docUploadSingleContainer');
     const doubleContainer = document.getElementById('docUploadDoubleContainer');
@@ -3719,26 +3742,32 @@ window.abrirTermosCategoria = function (titulo) {
 
     let content = "";
     switch (titulo) {
-        case 'Aceitação e Objeto':
-            content = "<p>Estes termos regem o uso do aplicativo PegaFrete. A plataforma atua exclusivamente como facilitadora de conexões logísticas entre prestadores de serviço de transporte (Transportadores) e solicitantes de envio de cargas (Embarcadores).</p>";
+        case 'Termos de Uso - Embarcador':
+            content = `<p>Como Embarcador no PegaFrete, você concorda em:</p>
+            <ul style='margin-bottom: 0; padding-left: 20px;'>
+                <li style='margin-bottom: 8px;'>Fornecer informações exatas e reais sobre a carga (peso, cubagem, tipo, origem e destino).</li>
+                <li style='margin-bottom: 8px;'>Não publicar cargas ilegais, inflamáveis, perigosas ou que violem a legislação brasileira.</li>
+                <li style='margin-bottom: 8px;'>Ser o único responsável pela negociação, contratação e pagamento do frete diretamente ao Transportador.</li>
+                <li style='margin-bottom: 8px;'>Garantir que a documentação da sua empresa (CNPJ, Razão Social) seja autêntica e válida.</li>
+            </ul>`;
             break;
-        case 'Requisitos de Acesso e Cadastro':
-            content = "<ul style='margin-bottom: 0; padding-left: 20px;'><li style='margin-bottom: 8px;'>O usuário é responsável por fornecer informações precisas, completas e atualizadas durante o cadastro.</li><li style='margin-bottom: 8px;'>A segurança da senha é de inteira responsabilidade do usuário, devendo esta ser pessoal e intransmissível.</li><li style='margin-bottom: 8px;'>Apenas maiores de 18 anos ou empresas legalmente constituídas e com registros válidos podem utilizar a plataforma.</li><li style='margin-bottom: 8px;'>Os transportadores cadastrados declaram estar com todos os registros exigidos pela ANTT (Agência Nacional de Transportes Terrestres) ativos e regulares.</li></ul>";
+        case 'Termos de Uso - Transportador':
+            content = `<p>Como Transportador (Motorista) no PegaFrete, você concorda em:</p>
+            <ul style='margin-bottom: 0; padding-left: 20px;'>
+                <li style='margin-bottom: 8px;'>Possuir habilitação (CNH) válida e compatível com o veículo utilizado.</li>
+                <li style='margin-bottom: 8px;'>Manter o veículo em perfeitas condições de tráfego, segurança e com o CRLV regularizado.</li>
+                <li style='margin-bottom: 8px;'>Possuir registro ativo e regular na ANTT para a realização do transporte de cargas.</li>
+                <li style='margin-bottom: 8px;'>Cumprir os prazos e condições de entrega acordados diretamente com o Embarcador.</li>
+                <li style='margin-bottom: 8px;'>Agir com ética, profissionalismo e respeito nas interações dentro da plataforma.</li>
+            </ul>`;
             break;
-        case 'Deveres e Obrigações do Transportador':
-            content = "<p>O Transportador deve garantir a conformidade e integridade física de seu veículo, possuir habilitação regular compatível e realizar o transporte de forma segura, cumprindo os prazos combinados diretamente com o Embarcador.</p>";
-            break;
-        case 'Deveres e Obrigações do Embarcador':
-            content = "<p>O Embarcador deve descrever fielmente a natureza da carga, peso, cubagem e riscos envolvidos. É expressamente proibida a publicação de cargas de cunho ilícito, inflamável, perigoso ou proibido por leis vigentes.</p>";
-            break;
-        case 'Isenção de Responsabilidade':
-            content = "<p>O PegaFrete não assume nenhuma responsabilidade pela qualidade do transporte, extravios, sinistros, avarias ou pelo pagamento acordado entre as partes. A plataforma não participa das negociações financeiras e operacionais.</p>";
-            break;
-        case 'Segurança, Conduta e Moderação':
-            content = "<p>Os usuários devem zelar pela ética e respeito no chat da plataforma. Qualquer tentativa de fraude, difamação, roubo de dados ou violação de segurança do aplicativo acarretará na suspensão imediata e irrevogável da conta do infrator, sem prejuízo das sanções legais cabíveis.</p>";
-            break;
-        case 'Alterações nos Termos':
-            content = "<p>O PegaFrete reserva-se o direito de alterar estes termos a qualquer momento. A continuação da utilização do aplicativo após a publicação de novos termos constitui aceitação tácita das alterações.</p>";
+        case 'Política de Privacidade':
+            content = `<p>A sua privacidade é extremamente importante para nós. Coletamos e tratamos seus dados de acordo com as seguintes diretrizes:</p>
+            <ul style='margin-bottom: 0; padding-left: 20px;'>
+                <li style='margin-bottom: 8px;'><strong>Dados Coletados:</strong> Informações de cadastro (Nome, CPF/CNPJ, Telefone), dados de documentação (CNH, CRLV, Comprovante de Residência) e geolocalização do veículo quando ativo.</li>
+                <li style='margin-bottom: 8px;'><strong>Finalidade:</strong> A geolocalização e os documentos são tratados estritamente para segurança da plataforma, homologação de cadastro e para permitir o rastreio e matching de fretes.</li>
+                <li style='margin-bottom: 8px;'><strong>Compartilhamento:</strong> Seus dados não são vendidos ou compartilhados com terceiros, exceto os estritamente necessários para viabilizar o contato de fretes aceitos.</li>
+            </ul>`;
             break;
         default:
             content = "";
