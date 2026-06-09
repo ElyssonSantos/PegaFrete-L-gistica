@@ -1304,6 +1304,13 @@
                 
             </div>
 
+            <div id="menuBusinessData" onclick="navTo('profile_business_data')" style="display: none; padding: 16px 20px; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <i class="ph ph-buildings" style="font-size: 24px; color: var(--primary);"></i>
+                    <span style="font-size: 16px; font-weight: 600; color: var(--primary);">Dados Empresariais</span>
+                </div>
+            </div>
+
             <div onclick="navTo('profile_update_email')" style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
                 <div style="display: flex; align-items: center; gap: 16px;">
                     <i class="ph ph-envelope" style="font-size: 24px; color: var(--primary);"></i>
@@ -1541,9 +1548,12 @@
                 <span style="font-size: 15px; color: var(--text-muted);" id="pdFirstName">Carregando</span>
             </div>
 
-            <div style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s;" class="hover-bg-surface">
+            <div style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; cursor: pointer;" class="hover-bg-surface" onclick="editarSobrenome()">
                 <span style="font-size: 16px; font-weight: 600; color: var(--primary);">Sobrenome</span>
-                <span style="font-size: 15px; color: var(--text-muted);" id="pdLastName">...</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 15px; color: var(--text-muted);" id="pdLastName">...</span>
+                    <i class="ph ph-pencil-simple" style="font-size: 18px; color: var(--text-muted);"></i>
+                </div>
             </div>
 
             <div style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s;" class="hover-bg-surface">
@@ -1602,6 +1612,34 @@
                     <span style="font-size: 16px; font-weight: 600; color: var(--primary);">ANTT</span>
                     <span style="font-size: 15px; color: var(--text-muted);" id="pdAntt">...</span>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TELA: DADOS EMPRESARIAIS -->
+    <section id="profile_business_data" class="screen" style="padding-bottom: 120px; background: #fdfaf6;">
+        <div class="topbar">
+            <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
+            <h1 style="font-size: 20px; font-weight: 800;">Dados Empresariais</h1>
+            <div style="width: 44px;"></div>
+        </div>
+
+        <div style="padding: 0; margin: 0 -24px;">
+            <p style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 24px 20px 8px 20px;">Informações da Empresa</p>
+
+            <div style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s;" class="hover-bg-surface">
+                <span style="font-size: 16px; font-weight: 600; color: var(--primary);">Razão Social</span>
+                <span style="font-size: 15px; color: var(--text-muted);" id="bdCompanyName">Carregando</span>
+            </div>
+
+            <div style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s;" class="hover-bg-surface">
+                <span style="font-size: 16px; font-weight: 600; color: var(--primary);">CNPJ</span>
+                <span style="font-size: 15px; color: var(--text-muted);" id="bdCNPJ">...</span>
+            </div>
+
+            <div style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s;" class="hover-bg-surface">
+                <span style="font-size: 16px; font-weight: 600; color: var(--primary);">Endereço</span>
+                <span style="font-size: 15px; color: var(--text-muted); text-align: right; max-width: 60%;" id="bdAddress">...</span>
             </div>
         </div>
     </section>
@@ -2030,33 +2068,26 @@
     <section id="terms_screen" class="screen">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
-            <h1 style="font-size: 20px; font-weight: 800;">Termos de Uso</h1>
+            <h1 style="font-size: 20px; font-weight: 800;">Políticas e Termos</h1>
             <div style="width: 44px;"></div>
         </div>
         
-        <div style="padding: 16px; max-width: 600px; margin: 0 auto; padding-bottom: 40px;">
-            <div class="glass-card" style="padding: 24px; border-radius: 24px; border: 1px solid var(--border); background: white; font-size: 14px; line-height: 1.6; color: var(--text-muted);">
-                <h2 style="font-size: 18px; color: var(--primary); font-weight: 800; margin-bottom: 12px;">Termos e Condições de Uso</h2>
-                <p style="margin-bottom: 12px; font-size: 12px; color: var(--text-muted);">Última atualização: 26 de Maio de 2026</p>
-                <p style="margin-bottom: 16px; font-weight: 500;">Ao utilizar a plataforma <strong>PegaFrete</strong>, você concorda de maneira livre, expressa e informada com todos os termos, obrigações e diretrizes descritos a seguir. Por favor, leia atentamente antes de prosseguir com seu cadastro.</p>
-                
-                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">1. Aceitação e Objeto</h3>
-                <p style="margin-bottom: 16px;">Estes termos regem o uso do aplicativo PegaFrete. A plataforma atua exclusivamente como facilitadora de conexões logísticas entre prestadores de serviço de transporte (Transportadores) e solicitantes de envio de cargas (Embarcadores).</p>
-                
-                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">2. Requisitos de Acesso e Cadastro</h3>
-                <p style="margin-bottom: 16px;">Para utilizar a plataforma, os usuários declaram ter capacidade legal e estar com toda a documentação em conformidade com as legislações brasileiras e a ANTT. O usuário assume total responsabilidade pela veracidade dos dados informados e pela segurança da sua senha de acesso.</p>
-                
-                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">3. Deveres e Obrigações do Transportador</h3>
-                <p style="margin-bottom: 16px;">O Transportador deve garantir a conformidade e integridade física de seu veículo, possuir habilitação regular compatível e realizar o transporte de forma segura, cumprindo os prazos combinados diretamente com o Embarcador.</p>
-                
-                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">4. Deveres e Obrigações do Embarcador</h3>
-                <p style="margin-bottom: 16px;">O Embarcador deve descrever fielmente a natureza da carga, peso, cubagem e riscos envolvidos. É° expressamente proibida a publicação de cargas de cunho ilícito, inflamável, perigoso ou proibido por leis vigentes.</p>
-                
-                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">5. Isenção de Responsabilidade do PegaFrete</h3>
-                <p style="margin-bottom: 16px;">O PegaFrete não assume nenhuma responsabilidade pela qualidade do transporte, extravios, sinistros, avarias ou pelo pagamento acordado entre as partes. A plataforma não participa das negociações financeiras e operacionais.</p>
-
-                <h3 style="font-size: 15px; color: var(--primary); font-weight: 700; margin-top: 20px; margin-bottom: 8px;">6. Segurança e Conduta</h3>
-                <p style="margin-bottom: 16px;">Os usuários devem zelar pela ética e respeito no chat da plataforma. Qualquer tentativa de fraude, difamação ou violação de segurança do aplicativo acarretará na suspensão imediata e irrevogável da conta do infrator.</p>
+        <div style="padding: 0;">
+            <div onclick="window.open('https://pegafrete.com.br/termos-embarcador', '_blank')" style="padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
+                <span style="font-size: 15px; font-weight: 600; color: var(--text-main);">Termos de Uso - Embarcadores</span>
+                <i class="ph ph-caret-right" style="font-size: 18px; color: var(--text-muted);"></i>
+            </div>
+            <div onclick="window.open('https://pegafrete.com.br/termos-transportador', '_blank')" style="padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
+                <span style="font-size: 15px; font-weight: 600; color: var(--text-main);">Termos de Uso - Transportadores</span>
+                <i class="ph ph-caret-right" style="font-size: 18px; color: var(--text-muted);"></i>
+            </div>
+            <div onclick="window.open('https://pegafrete.com.br/politica-privacidade', '_blank')" style="padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
+                <span style="font-size: 15px; font-weight: 600; color: var(--text-main);">Política de Privacidade do App</span>
+                <i class="ph ph-caret-right" style="font-size: 18px; color: var(--text-muted);"></i>
+            </div>
+            <div onclick="window.open('https://pegafrete.com.br/politica-cookies', '_blank')" style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;" class="hover-bg-surface">
+                <span style="font-size: 15px; font-weight: 600; color: var(--text-main);">Política de Cookies</span>
+                <i class="ph ph-caret-right" style="font-size: 18px; color: var(--text-muted);"></i>
             </div>
         </div>
     </section>

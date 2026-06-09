@@ -1490,7 +1490,15 @@ function preencherPerfil() {
         
         let docStr = userData.tipoDocumento === 'cnpj' ? (userData.cnpj || userData.documento || '') : (userData.cpf || userData.documento || '');
         if(docStr) {
-            document.getElementById('pdDoc').innerText = docStr;
+            window.currentLoadedDoc = docStr;
+            window.docVisibilityState = false;
+            document.getElementById('pdDoc').innerText = docStr.length > 5 ? docStr.substring(0, 3) + '.***.***-' + docStr.substring(docStr.length - 2) : '***';
+            
+            const eyeIcon = document.getElementById('toggleDocVisibility');
+            if(eyeIcon) {
+                eyeIcon.classList.remove('ph-eye-slash');
+                eyeIcon.classList.add('ph-eye');
+            }
         }
         
         document.getElementById('pdPhone').innerText = userData.telefone || 'Adicionar';
@@ -1507,32 +1515,44 @@ function preencherPerfil() {
             emailEl.innerText = 'Adicionar';
         }
 
+        if (userData.role === 'shipper') {
+            const menuBusinessData = document.getElementById('menuBusinessData');
+            if (menuBusinessData) menuBusinessData.style.display = 'flex';
+            
+            if (document.getElementById('pdDocLabel')) {
+                document.getElementById('pdDocLabel').innerText = 'CPF';
+            }
+            
+            if (document.getElementById('bdCompanyName')) {
+                document.getElementById('bdCompanyName').innerText = userData.razao || '-';
+                document.getElementById('bdCNPJ').innerText = userData.cnpj || '-';
+                document.getElementById('bdAddress').innerText = userData.endereco || '-';
+            }
+        } else {
+            const menuBusinessData = document.getElementById('menuBusinessData');
+            if (menuBusinessData) menuBusinessData.style.display = 'none';
+            if (document.getElementById('pdDocLabel')) {
+                document.getElementById('pdDocLabel').innerText = 'CPF / CNPJ';
+            }
+        }
+
+        const pdTagWrap = document.getElementById('pdStatusTagWrapper');
+        if (pdTagWrap) {
+            let docStat = userData.docStatus || 'Pendente';
+            if (docStat === 'Aprovado') {
+                pdTagWrap.innerHTML = `<i class="ph-fill ph-seal-check" style="color: #10b981; font-size: 16px;"></i> <span style="font-size: 13px; font-weight: 700; color: #10b981;">Documentação: Homologado</span>`;
+            } else if (docStat === 'Em análise') {
+                pdTagWrap.innerHTML = `<i class="ph-fill ph-clock" style="color: #d97706; font-size: 16px;"></i> <span style="font-size: 13px; font-weight: 700; color: #d97706;">Documentação: Em análise</span>`;
+            } else if (docStat === 'Rejeitado') {
+                pdTagWrap.innerHTML = `<i class="ph-fill ph-warning-circle" style="color: #ef4444; font-size: 16px;"></i> <span style="font-size: 13px; font-weight: 700; color: #ef4444;">Documentação: Rejeitado</span>`;
+            } else {
+                pdTagWrap.innerHTML = `<span style="font-size: 13px; font-weight: 700; color: #64748b;">Documentação: Pendente</span>`;
+            }
+        }
+
         const avatarUrl = userData.foto || 'https://i.imgur.com/vnYcevV.png';
         if(document.getElementById('pdAvatar')) {
             document.getElementById('pdAvatar').style.backgroundImage = `url('${avatarUrl}')`;
-        }
-
-        const pdTagText = document.getElementById('pdStatusTagText');
-        const pdTagWrap = document.getElementById('pdStatusTagWrapper');
-        if (pdTagText && pdTagWrap) {
-            let docStat = userData.docStatus || 'Documentação Incompleta';
-            if (docStat === 'Aprovado') {
-                pdTagText.innerText = "Homologado";
-                pdTagText.style.color = "#10b981";
-                pdTagWrap.style.borderColor = "#d1fae5";
-            } else if (docStat === 'Recusado') {
-                pdTagText.innerText = "Recusado";
-                pdTagText.style.color = "#ef4444";
-                pdTagWrap.style.borderColor = "#fecaca";
-            } else if (docStat === 'Não Verificado') {
-                pdTagText.innerText = "Não Verificado";
-                pdTagText.style.color = "#64748b";
-                pdTagWrap.style.borderColor = "#e2e8f0";
-            } else {
-                pdTagText.innerText = "Pendente";
-                pdTagText.style.color = "#d97706";
-                pdTagWrap.style.borderColor = "#fde68a";
-            }
         }
 
         if (userData.role === 'driver') {
@@ -3604,5 +3624,25 @@ window.toggleDocVisibility = function() {
         eyeIcon.classList.remove('ph-eye');
         eyeIcon.classList.add('ph-eye-slash');
         window.docVisibilityState = true;
+    }
+};
+
+window.editarSobrenome = async function() {
+    const currentLastName = document.getElementById('pdLastName').innerText !== '-' ? document.getElementById('pdLastName').innerText : '';
+    const lastName = prompt("Digite o novo sobrenome:", currentLastName);
+    if (lastName !== null) {
+        const parts = (userData.nome || userData.razao || 'Usuário').split(' ');
+        const newName = parts[0] + ' ' + lastName.trim();
+        try {
+            await db.collection("users").doc(auth.currentUser.uid).update({
+                nome: newName
+            });
+            userData.nome = newName;
+            document.getElementById('pdLastName').innerText = lastName.trim() || '-';
+            showToast("Sobrenome atualizado com sucesso!");
+        } catch(e) {
+            console.error(e);
+            showToast("Erro ao atualizar sobrenome.", "error");
+        }
     }
 };
