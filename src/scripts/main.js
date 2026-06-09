@@ -1,4 +1,4 @@
-import firebase from 'firebase/compat/app';
+﻿import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import 'firebase/compat/storage';
@@ -7,20 +7,20 @@ import 'firebase/compat/storage';
 // Prevenção de vazamento de dados em Produção
 if (import.meta.env?.PROD || window.location.hostname !== 'localhost') {
     // Sobrescreve métodos de console para evitar vazamento de tokens e logs na rede
-    console.log = function() {};
-    console.warn = function() {};
-    console.info = function() {};
-    console.debug = function() {};
+    console.log = function () { };
+    console.warn = function () { };
+    console.info = function () { };
+    console.debug = function () { };
     // Mantém apenas console.error genérico (opcional, ou pode desativar também)
     const originalError = console.error;
-    console.error = function() {
+    console.error = function () {
         originalError("[Security] Application Error");
     };
-    
+
     // Desativa DevTools Debugger
     setInterval(() => {
         const devtools = /./;
-        devtools.toString = function() {
+        devtools.toString = function () {
             debugger;
         }
     }, 1000);
@@ -168,13 +168,13 @@ async function validateFile(file, isProfilePhoto = false) {
     try {
         const magic = await readMagicBytes(file);
         let isValidMagic = false;
-        
+
         // Assinaturas Hexadecimais Conhecidas
         if (magic.startsWith('ffd8ffe0') || magic.startsWith('ffd8ffe1') || magic.startsWith('ffd8ffe2')) isValidMagic = true; // JPEG/JPG
         if (magic.startsWith('89504e47')) isValidMagic = true; // PNG
         if (magic.startsWith('52494646') && magic.substring(16, 24) === '57454250') isValidMagic = true; // WEBP
         if (!isProfilePhoto && magic.startsWith('25504446')) isValidMagic = true; // PDF
-        
+
         if (!isValidMagic) {
             logSecurityEvent('MAGIC_BYTES_MISMATCH', `MIME falsificado detectado. Arquivo: ${file.name}, Assinatura: ${magic}`);
             return { valid: false, error: 'Assinatura de arquivo inválida. Possível falsificação de formato detectada.' };
@@ -191,7 +191,7 @@ async function validateFile(file, isProfilePhoto = false) {
 function readMagicBytes(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onloadend = function(e) {
+        reader.onloadend = function (e) {
             if (e.target.readyState === FileReader.DONE) {
                 const arr = (new Uint8Array(e.target.result)).subarray(0, 4);
                 let hex = '';
@@ -201,10 +201,10 @@ function readMagicBytes(file) {
                 // Adicionalmente para WEBP, precisamos ler até o byte 12 (4+4+4)
                 if (hex === '52494646' && file.size > 12) {
                     const reader2 = new FileReader();
-                    reader2.onloadend = function(e2) {
+                    reader2.onloadend = function (e2) {
                         const arr2 = new Uint8Array(e2.target.result);
                         let hex2 = hex;
-                        for(let j = 4; j < 12; j++) hex2 += arr2[j].toString(16).padStart(2, '0');
+                        for (let j = 4; j < 12; j++) hex2 += arr2[j].toString(16).padStart(2, '0');
                         resolve(hex2);
                     };
                     reader2.readAsArrayBuffer(file.slice(0, 12));
@@ -318,7 +318,7 @@ let systemMessagesListener = null;
 window.onload = () => {
     renderChats();
     navTo('splash');
-    
+
     // Inicializa Mapa Leaflet e Autocomplete do IBGE (100% Gratuito)
     if (typeof window.initLeafletMap === 'function') window.initLeafletMap();
     if (typeof window.setupIBGEAutocomplete === 'function') window.setupIBGEAutocomplete();
@@ -352,7 +352,7 @@ window.onload = () => {
                 }
 
                 const userRef = db.collection("users").doc(user.uid);
-                
+
                 // Add a global variable to store the unubscribe function so we can clean it up
                 if (window.userDocListener) {
                     window.userDocListener();
@@ -367,7 +367,7 @@ window.onload = () => {
                         }
                         preencherPerfil();
                         setRole(userData.role || 'driver');
-                        
+
                         // Start these only once, not on every user update, to avoid duplicate listeners
                         if (!window.freightListenerStarted) {
                             startFreightListener();
@@ -383,7 +383,7 @@ window.onload = () => {
                 }, (error) => {
                     console.error("Erro no listener do usuário:", error);
                 });
-                
+
             } catch (error) {
                 console.error("Erro ao verificar documento do usuário:", error);
                 showToast(`Erro na validação do perfil: ${error.message}`, 'error');
@@ -410,12 +410,12 @@ window.onload = () => {
 
 async function verificarEmailDisponivel(email) {
     const emailKey = email.toLowerCase().trim();
-    
+
     // Se o usuário logado no Firebase Auth tem o mesmo e-mail, está tudo bem (ele está apenas completando o perfil)
     if (auth.currentUser && auth.currentUser.email && auth.currentUser.email.toLowerCase().trim() === emailKey) {
         return { disponivel: true };
     }
-    
+
     try {
         const doc = await db.collection('public_emails').doc(emailKey).get();
         if (doc.exists) {
@@ -442,10 +442,10 @@ async function verificarEmailDisponivel(email) {
 
 function preencherCamposCadastroGoogle(user) {
     if (!user) return;
-    
+
     const regShipperNameEl = document.getElementById('regShipperName');
     if (regShipperNameEl) regShipperNameEl.value = user.displayName || '';
-    
+
     const regShipperEmailEl = document.getElementById('regShipperEmail');
     if (regShipperEmailEl) {
         regShipperEmailEl.value = user.email || '';
@@ -454,7 +454,7 @@ function preencherCamposCadastroGoogle(user) {
 
     const regDriverNameEl = document.getElementById('regDriverName');
     if (regDriverNameEl) regDriverNameEl.value = user.displayName || '';
-    
+
     const regDriverEmailEl = document.getElementById('regDriverEmail');
     if (regDriverEmailEl) {
         regDriverEmailEl.value = user.email || '';
@@ -500,7 +500,7 @@ function restaurarBotoesCadastroPadrao() {
     if (btnAvancarVehicle) {
         btnAvancarVehicle.innerHTML = `Avançar para Senha <i class="ph ph-arrow-right"></i>`;
     }
-    
+
     const regShipperEmailEl = document.getElementById('regShipperEmail');
     if (regShipperEmailEl) regShipperEmailEl.disabled = false;
     const regDriverEmailEl = document.getElementById('regDriverEmail');
@@ -528,7 +528,7 @@ async function finalizarCadastroGoogle() {
     cleanUserData.role = tempRole;
     cleanUserData.rating = 5.0;
     cleanUserData.entregas = 0;
-    
+
     if (!cleanUserData.email) {
         cleanUserData.email = user.email;
     }
@@ -572,7 +572,7 @@ async function handleContinuar(btn) {
 
         // Verifica se o e-mail já possui conta vinculada
         const check = await verificarEmailDisponivel(email);
-        
+
         btn.innerHTML = original;
         btn.disabled = false;
 
@@ -621,7 +621,7 @@ function startFreightListener() {
         freightListenerUnsubscribe(); // Previne múltiplos listeners
     }
     let isInitialLoad = true;
-    
+
     freightListenerUnsubscribe = db.collection("freights").orderBy("createdAt", "desc").limit(20).onSnapshot((snapshot) => {
         const novosDados = [];
         snapshot.forEach(doc => novosDados.push({ id: doc.id, ...doc.data() }));
@@ -1002,7 +1002,7 @@ async function fazerLogin(btn) {
 
     const original = btn.innerHTML;
     btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Autenticando...`;
-    
+
     lastLoginAttemptTime = now;
     loginAttempts++;
 
@@ -1273,13 +1273,13 @@ async function finalizarCadastro(btn) {
                             const reader = new FileReader();
                             reader.onload = e => resolve(e.target.result);
                             reader.onerror = error => reject(error);
-                            if(file) reader.readAsDataURL(file); else resolve(null);
+                            if (file) reader.readAsDataURL(file); else resolve(null);
                             return;
                         }
                         const reader = new FileReader();
-                        reader.onload = function(event) {
+                        reader.onload = function (event) {
                             const img = new Image();
-                            img.onload = function() {
+                            img.onload = function () {
                                 const canvas = document.createElement('canvas');
                                 let width = img.width;
                                 let height = img.height;
@@ -1301,12 +1301,12 @@ async function finalizarCadastro(btn) {
                 };
 
                 const uploads = userData.filesToUpload;
-                
+
                 const cnhFrenteUrl = await compressImageToBase64(uploads.cnhFrente);
                 const cnhVersoUrl = await compressImageToBase64(uploads.cnhVerso);
                 const cpfFrenteUrl = await compressImageToBase64(uploads.cpfFrente);
                 const cpfVersoUrl = await compressImageToBase64(uploads.cpfVerso);
-                
+
                 cleanUserData.documentUrls = {
                     cnhFrente: cnhFrenteUrl,
                     cnhVerso: cnhVersoUrl,
@@ -1402,12 +1402,12 @@ async function salvarNovoEmail() {
         // Atualizar no public_emails (Remover antigo e adicionar novo)
         const oldEmailKey = userData.email.toLowerCase().trim();
         const newEmailKey = novoEmail.toLowerCase().trim();
-        await db.collection("public_emails").doc(oldEmailKey).delete().catch(()=>console.warn("old email public_emails delete err"));
-        await db.collection("public_emails").doc(newEmailKey).set({ provider: 'password' }, { merge: true }).catch(()=>console.warn("new email public_emails err"));
+        await db.collection("public_emails").doc(oldEmailKey).delete().catch(() => console.warn("old email public_emails delete err"));
+        await db.collection("public_emails").doc(newEmailKey).set({ provider: 'password' }, { merge: true }).catch(() => console.warn("new email public_emails err"));
 
         userData.email = novoEmail;
         preencherPerfil();
-        
+
         showToast('E-mail atualizado com sucesso!', 'success');
         setTimeout(() => navTo('profile'), 1500);
 
@@ -1444,7 +1444,7 @@ function preencherPerfil() {
     }
 
     if (document.getElementById('profileDisplayName')) document.getElementById('profileDisplayName').innerText = userData.nome || userData.razao || 'Usuário';
-    
+
     // New fields for the redesigned profile layout
     if (document.getElementById('profileEmailDisplay')) document.getElementById('profileEmailDisplay').innerText = userData.email || 'Email não cadastrado';
     if (document.getElementById('updateEmailInput')) document.getElementById('updateEmailInput').value = userData.email || '';
@@ -1457,9 +1457,9 @@ function preencherPerfil() {
     if (profileTagContainer && profileTagText) {
         let tagTitle = "";
         let colorMain = "#10b981";
-        
+
         let docStat = userData.docStatus || 'Documentação Incompleta';
-        
+
         if (docStat === 'Aprovado') {
             tagTitle = "Homologado";
             colorMain = "#10b981";
@@ -1482,31 +1482,23 @@ function preencherPerfil() {
         document.getElementById('driverHomeGreeting').innerText = `Olá, ${firstName}`;
     }
 
-        // --- NEW PDDATA INJECTION ---
+    // --- NEW PDDATA INJECTION ---
     if (document.getElementById('pdFirstName')) {
         const parts = (userData.nome || userData.razao || 'Usuário').split(' ');
         document.getElementById('pdFirstName').innerText = parts[0];
         document.getElementById('pdLastName').innerText = parts.length > 1 ? parts.slice(1).join(' ') : '-';
-        
+
         let docStr = userData.tipoDocumento === 'cnpj' ? (userData.cnpj || userData.documento || '') : (userData.cpf || userData.documento || '');
-        if(docStr) {
-            window.currentLoadedDoc = docStr;
-            window.docVisibilityState = false;
-            document.getElementById('pdDoc').innerText = docStr.length > 5 ? docStr.substring(0, 3) + '.***.***-' + docStr.substring(docStr.length - 2) : '***';
-            
-            const eyeIcon = document.getElementById('toggleDocVisibility');
-            if(eyeIcon) {
-                eyeIcon.classList.remove('ph-eye-slash');
-                eyeIcon.classList.add('ph-eye');
-            }
+        if (docStr) {
+            document.getElementById('pdDoc').innerText = docStr;
         }
-        
+
         document.getElementById('pdPhone').innerText = userData.telefone || 'Adicionar';
-        
+
         const emailEl = document.getElementById('pdEmail');
         if (userData.email) {
             const emParts = userData.email.split('@');
-            if(emParts.length === 2 && emParts[0].length > 1) {
+            if (emParts.length === 2 && emParts[0].length > 1) {
                 emailEl.innerText = emParts[0].charAt(0) + '***@' + emParts[1];
             } else {
                 emailEl.innerText = userData.email;
@@ -1515,225 +1507,219 @@ function preencherPerfil() {
             emailEl.innerText = 'Adicionar';
         }
 
-        if (userData.role === 'shipper') {
-            const menuBusinessData = document.getElementById('menuBusinessData');
-            if (menuBusinessData) menuBusinessData.style.display = 'flex';
-            
-            if (document.getElementById('pdDocLabel')) {
-                document.getElementById('pdDocLabel').innerText = 'CPF';
-            }
-            
-            if (document.getElementById('bdCompanyName')) {
-                document.getElementById('bdCompanyName').innerText = userData.razao || '-';
-                document.getElementById('bdCNPJ').innerText = userData.cnpj || '-';
-                document.getElementById('bdAddress').innerText = userData.endereco || '-';
-            }
-        } else {
-            const menuBusinessData = document.getElementById('menuBusinessData');
-            if (menuBusinessData) menuBusinessData.style.display = 'none';
-            if (document.getElementById('pdDocLabel')) {
-                document.getElementById('pdDocLabel').innerText = 'CPF / CNPJ';
-            }
-        }
-
-        const pdTagWrap = document.getElementById('pdStatusTagWrapper');
-        if (pdTagWrap) {
-            let docStat = userData.docStatus || 'Pendente';
-            if (docStat === 'Aprovado') {
-                pdTagWrap.innerHTML = `<i class="ph-fill ph-seal-check" style="color: #10b981; font-size: 16px;"></i> <span style="font-size: 13px; font-weight: 700; color: #10b981;">Documentação: Homologado</span>`;
-            } else if (docStat === 'Em análise') {
-                pdTagWrap.innerHTML = `<i class="ph-fill ph-clock" style="color: #d97706; font-size: 16px;"></i> <span style="font-size: 13px; font-weight: 700; color: #d97706;">Documentação: Em análise</span>`;
-            } else if (docStat === 'Rejeitado') {
-                pdTagWrap.innerHTML = `<i class="ph-fill ph-warning-circle" style="color: #ef4444; font-size: 16px;"></i> <span style="font-size: 13px; font-weight: 700; color: #ef4444;">Documentação: Rejeitado</span>`;
-            } else {
-                pdTagWrap.innerHTML = `<span style="font-size: 13px; font-weight: 700; color: #64748b;">Documentação: Pendente</span>`;
-            }
-        }
-
         const avatarUrl = userData.foto || 'https://i.imgur.com/vnYcevV.png';
-        if(document.getElementById('pdAvatar')) {
+        if (document.getElementById('pdAvatar')) {
             document.getElementById('pdAvatar').style.backgroundImage = `url('${avatarUrl}')`;
         }
 
-        if (userData.role === 'driver') {
-            document.getElementById('pdExtraBlock').style.display = 'block';
-            document.getElementById('pdVehicle').innerText = userData.veiculo || 'Adicionar';
-            document.getElementById('pdPlaca').innerText = userData.placa || 'Adicionar';
-            document.getElementById('pdCnh').innerText = userData.cnh || 'Adicionar';
-            document.getElementById('pdAntt').innerText = userData.antt || 'Adicionar';
-        } else {
-            document.getElementById('pdExtraBlock').style.display = 'none';
+        const pdTagText = document.getElementById('pdStatusTagText');
+        const pdTagWrap = document.getElementById('pdStatusTagWrapper');
+        if (pdTagText && pdTagWrap) {
+            let docStat = userData.docStatus || 'Documentação Incompleta';
+            if (docStat === 'Aprovado') {
+                pdTagText.innerText = "Homologado";
+                pdTagText.style.color = "#10b981";
+                pdTagWrap.style.borderColor = "#d1fae5";
+            } else if (docStat === 'Recusado') {
+                pdTagText.innerText = "Recusado";
+                pdTagText.style.color = "#ef4444";
+                pdTagWrap.style.borderColor = "#fecaca";
+            } else if (docStat === 'Não Verificado') {
+                pdTagText.innerText = "Não Verificado";
+                pdTagText.style.color = "#64748b";
+                pdTagWrap.style.borderColor = "#e2e8f0";
+            } else {
+                pdTagText.innerText = "Pendente";
+                pdTagText.style.color = "#d97706";
+                pdTagWrap.style.borderColor = "#fde68a";
+            }
         }
+
+        pdTagText.innerText = "Pendente";
+        pdTagText.style.color = "#d97706";
+        pdTagWrap.style.borderColor = "#fde68a";
+    }
+}
+
+if (userData.role === 'driver') {
+    document.getElementById('pdExtraBlock').style.display = 'block';
+    document.getElementById('pdVehicle').innerText = userData.veiculo || 'Adicionar';
+    document.getElementById('pdPlaca').innerText = userData.placa || 'Adicionar';
+    document.getElementById('pdCnh').innerText = userData.cnh || 'Adicionar';
+    document.getElementById('pdAntt').innerText = userData.antt || 'Adicionar';
+} else {
+    document.getElementById('pdExtraBlock').style.display = 'none';
+}
     }
 if (document.getElementById('profEmail')) document.getElementById('profEmail').value = userData.email || '';
-    if (document.getElementById('profPhone')) document.getElementById('profPhone').value = userData.telefone || '';
-    if (document.getElementById('profAddress')) document.getElementById('profAddress').value = userData.endereco || '';
+if (document.getElementById('profPhone')) document.getElementById('profPhone').value = userData.telefone || '';
+if (document.getElementById('profAddress')) document.getElementById('profAddress').value = userData.endereco || '';
 
-    // Estrelas (Rating)
-    if (document.getElementById('profileRating')) {
-        const rating = userData.rating !== undefined ? Number(userData.rating).toFixed(1) : '5.0';
-        document.getElementById('profileRating').innerText = rating;
-    }
+// Estrelas (Rating)
+if (document.getElementById('profileRating')) {
+    const rating = userData.rating !== undefined ? Number(userData.rating).toFixed(1) : '5.0';
+    document.getElementById('profileRating').innerText = rating;
+}
 
-    // Entregas enviadas / concluídas
-    if (document.getElementById('profileDeliveries')) {
-        const deliveries = userData.entregas !== undefined ? userData.entregas : 0;
-        document.getElementById('profileDeliveries').innerText = deliveries;
-    }
-    
-    if (document.getElementById('profileDeliveriesLabel')) {
-        document.getElementById('profileDeliveriesLabel').innerText = userData.role === 'shipper' ? 'Enviadas' : 'Concluídas';
-    }
-    if (userData.role === 'shipper') {
-        const companyName = userData.razao || userData.nome || 'Distribuidora XPTO';
-        if (document.getElementById('shipperCompanyName')) {
-            document.getElementById('shipperCompanyName').innerText = companyName;
-        }
-        if (document.getElementById('shipperAvatarInitials')) {
-            if (userData.foto) {
-                document.getElementById('shipperAvatarInitials').style.backgroundImage = `url('${userData.foto}')`;
-                document.getElementById('shipperAvatarInitials').style.backgroundSize = 'cover';
-                document.getElementById('shipperAvatarInitials').style.backgroundPosition = 'center';
-                document.getElementById('shipperAvatarInitials').innerText = '';
-            } else {
-                document.getElementById('shipperAvatarInitials').style.backgroundImage = 'none';
-                document.getElementById('shipperAvatarInitials').innerText = companyName.substring(0, 2).toUpperCase();
-            }
-        }
-    }
+// Entregas enviadas / concluídas
+if (document.getElementById('profileDeliveries')) {
+    const deliveries = userData.entregas !== undefined ? userData.entregas : 0;
+    document.getElementById('profileDeliveries').innerText = deliveries;
+}
 
-    if (userData.role === 'driver') {
-        if (userData.veiculo) {
-            if (document.getElementById('profVehicleGroup')) document.getElementById('profVehicleGroup').style.display = 'flex';
-            if (document.getElementById('profVehicle')) document.getElementById('profVehicle').value = userData.veiculo;
+if (document.getElementById('profileDeliveriesLabel')) {
+    document.getElementById('profileDeliveriesLabel').innerText = userData.role === 'shipper' ? 'Enviadas' : 'Concluídas';
+}
+if (userData.role === 'shipper') {
+    const companyName = userData.razao || userData.nome || 'Distribuidora XPTO';
+    if (document.getElementById('shipperCompanyName')) {
+        document.getElementById('shipperCompanyName').innerText = companyName;
+    }
+    if (document.getElementById('shipperAvatarInitials')) {
+        if (userData.foto) {
+            document.getElementById('shipperAvatarInitials').style.backgroundImage = `url('${userData.foto}')`;
+            document.getElementById('shipperAvatarInitials').style.backgroundSize = 'cover';
+            document.getElementById('shipperAvatarInitials').style.backgroundPosition = 'center';
+            document.getElementById('shipperAvatarInitials').innerText = '';
         } else {
-            if (document.getElementById('profVehicleGroup')) document.getElementById('profVehicleGroup').style.display = 'none';
+            document.getElementById('shipperAvatarInitials').style.backgroundImage = 'none';
+            document.getElementById('shipperAvatarInitials').innerText = companyName.substring(0, 2).toUpperCase();
         }
-        
-        if (document.getElementById('profAnttGroup')) document.getElementById('profAnttGroup').style.display = 'flex';
-        if (document.getElementById('profAntt')) document.getElementById('profAntt').value = userData.antt || '';
-        
-        if (document.getElementById('profCnhNumGroup')) document.getElementById('profCnhNumGroup').style.display = 'flex';
-        if (document.getElementById('profCnhNum')) document.getElementById('profCnhNum').value = userData.cnh || '';
-        
-        if (document.getElementById('profPlacaGroup')) document.getElementById('profPlacaGroup').style.display = 'flex';
-        if (document.getElementById('profPlaca')) document.getElementById('profPlaca').value = userData.placa || '';
-        
-        // Show driver upload options
-        if (document.getElementById('upCRLV')) document.getElementById('upCRLV').style.display = 'flex';
-        if (document.getElementById('upCPF')) document.getElementById('upCPF').style.display = 'flex';
-        if (document.getElementById('upCNH')) document.getElementById('upCNH').style.display = 'flex';
+    }
+}
+
+if (userData.role === 'driver') {
+    if (userData.veiculo) {
+        if (document.getElementById('profVehicleGroup')) document.getElementById('profVehicleGroup').style.display = 'flex';
+        if (document.getElementById('profVehicle')) document.getElementById('profVehicle').value = userData.veiculo;
     } else {
         if (document.getElementById('profVehicleGroup')) document.getElementById('profVehicleGroup').style.display = 'none';
-        if (document.getElementById('profAnttGroup')) document.getElementById('profAnttGroup').style.display = 'none';
-        if (document.getElementById('profCnhNumGroup')) document.getElementById('profCnhNumGroup').style.display = 'none';
-        if (document.getElementById('profPlacaGroup')) document.getElementById('profPlacaGroup').style.display = 'none';
-        
-        // Hide driver upload options (Shippers only need Comprovante Residencia and CNPJ/CPF which is handled below)
-        if (document.getElementById('upCRLV')) document.getElementById('upCRLV').style.display = 'none';
-        if (document.getElementById('upCNH')) document.getElementById('upCNH').style.display = 'none';
-        // upCPF is used as Cartão CNPJ for shippers (see previous implementation or modify text)
-        if (userData.tipoDocumento === 'cnpj') {
-            const upCpfTitle = document.querySelector('#upCPF p:first-child');
-            if (upCpfTitle) upCpfTitle.innerText = "Cartão CNPJ";
-        }
     }
 
-    const avatarUrl = userData.foto || 'https://i.imgur.com/vnYcevV.png';
-    if (document.getElementById('profileAvatar')) {
-        document.getElementById('profileAvatar').style.backgroundImage = `url('${avatarUrl}')`;
-    }
-    if (document.getElementById('driverHomeAvatar')) {
-        document.getElementById('driverHomeAvatar').style.backgroundImage = `url('${avatarUrl}')`;
-    }
+    if (document.getElementById('profAnttGroup')) document.getElementById('profAnttGroup').style.display = 'flex';
+    if (document.getElementById('profAntt')) document.getElementById('profAntt').value = userData.antt || '';
 
-    // Atualizar status dos documentos anexados
-    const checkUploadStatus = (id, baseKey) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        
-        // Verifica se há pelomenos um arquivo (seja o base, ou o Frente, ou o Verso)
-        const hasDoc = userData.documentUrls && (
-            userData.documentUrls[baseKey] || 
-            userData.documentUrls[baseKey + 'Frente'] || 
-            userData.documentUrls[baseKey + 'Verso']
-        );
-        
-        const subtitle = el.querySelector('p:last-child');
-        const iconRight = el.querySelector('i.ph-upload-simple') || el.querySelector('i.ph-check-circle') || el.querySelector('i.ph-clock') || el.querySelector('i.ph-warning-circle') || el.querySelector('i.ph-x-circle');
-        
-        if (hasDoc) {
-            el.classList.add('uploaded');
-            
-            // Pega o status individual: primeiro tenta o exato, depois Frente, depois cai pro global
-            const indStatus = (userData.documentStatuses && userData.documentStatuses[baseKey])
-                            ? userData.documentStatuses[baseKey]
-                            : (userData.documentStatuses && userData.documentStatuses[baseKey + 'Frente'])
-                                ? userData.documentStatuses[baseKey + 'Frente']
-                                : (userData.docStatus || 'Pendente');
-            
-            if (indStatus === 'Aprovado') {
-                if (subtitle) subtitle.innerText = "Verificado";
-                if (iconRight) {
-                    iconRight.className = 'ph-fill ph-check-circle';
-                    iconRight.style.color = '#10b981'; // green
-                }
-            } else if (indStatus === 'Reprovado' || indStatus === 'Bloqueado') {
-                if (subtitle) subtitle.innerText = "Documento recusado";
-                if (iconRight) {
-                    iconRight.className = 'ph-fill ph-x-circle';
-                    iconRight.style.color = '#ef4444'; // red
-                }
-            } else {
-                if (subtitle) subtitle.innerText = "Em análise";
-                if (iconRight) {
-                    iconRight.className = 'ph-fill ph-clock';
-                    iconRight.style.color = '#d97706'; // yellow/orange
-                }
-            }
-        } else {
-            el.classList.remove('uploaded');
-            if (subtitle) subtitle.innerText = "Toque para enviar";
+    if (document.getElementById('profCnhNumGroup')) document.getElementById('profCnhNumGroup').style.display = 'flex';
+    if (document.getElementById('profCnhNum')) document.getElementById('profCnhNum').value = userData.cnh || '';
+
+    if (document.getElementById('profPlacaGroup')) document.getElementById('profPlacaGroup').style.display = 'flex';
+    if (document.getElementById('profPlaca')) document.getElementById('profPlaca').value = userData.placa || '';
+
+    // Show driver upload options
+    if (document.getElementById('upCRLV')) document.getElementById('upCRLV').style.display = 'flex';
+    if (document.getElementById('upCPF')) document.getElementById('upCPF').style.display = 'flex';
+    if (document.getElementById('upCNH')) document.getElementById('upCNH').style.display = 'flex';
+} else {
+    if (document.getElementById('profVehicleGroup')) document.getElementById('profVehicleGroup').style.display = 'none';
+    if (document.getElementById('profAnttGroup')) document.getElementById('profAnttGroup').style.display = 'none';
+    if (document.getElementById('profCnhNumGroup')) document.getElementById('profCnhNumGroup').style.display = 'none';
+    if (document.getElementById('profPlacaGroup')) document.getElementById('profPlacaGroup').style.display = 'none';
+
+    // Hide driver upload options (Shippers only need Comprovante Residencia and CNPJ/CPF which is handled below)
+    if (document.getElementById('upCRLV')) document.getElementById('upCRLV').style.display = 'none';
+    if (document.getElementById('upCNH')) document.getElementById('upCNH').style.display = 'none';
+    // upCPF is used as Cartão CNPJ for shippers (see previous implementation or modify text)
+    if (userData.tipoDocumento === 'cnpj') {
+        const upCpfTitle = document.querySelector('#upCPF p:first-child');
+        if (upCpfTitle) upCpfTitle.innerText = "Cartão CNPJ";
+    }
+}
+
+const avatarUrl = userData.foto || 'https://i.imgur.com/vnYcevV.png';
+if (document.getElementById('profileAvatar')) {
+    document.getElementById('profileAvatar').style.backgroundImage = `url('${avatarUrl}')`;
+}
+if (document.getElementById('driverHomeAvatar')) {
+    document.getElementById('driverHomeAvatar').style.backgroundImage = `url('${avatarUrl}')`;
+}
+
+// Atualizar status dos documentos anexados
+const checkUploadStatus = (id, baseKey) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    // Verifica se há pelomenos um arquivo (seja o base, ou o Frente, ou o Verso)
+    const hasDoc = userData.documentUrls && (
+        userData.documentUrls[baseKey] ||
+        userData.documentUrls[baseKey + 'Frente'] ||
+        userData.documentUrls[baseKey + 'Verso']
+    );
+
+    const subtitle = el.querySelector('p:last-child');
+    const iconRight = el.querySelector('i.ph-upload-simple') || el.querySelector('i.ph-check-circle') || el.querySelector('i.ph-clock') || el.querySelector('i.ph-warning-circle') || el.querySelector('i.ph-x-circle');
+
+    if (hasDoc) {
+        el.classList.add('uploaded');
+
+        // Pega o status individual: primeiro tenta o exato, depois Frente, depois cai pro global
+        const indStatus = (userData.documentStatuses && userData.documentStatuses[baseKey])
+            ? userData.documentStatuses[baseKey]
+            : (userData.documentStatuses && userData.documentStatuses[baseKey + 'Frente'])
+                ? userData.documentStatuses[baseKey + 'Frente']
+                : (userData.docStatus || 'Pendente');
+
+        if (indStatus === 'Aprovado') {
+            if (subtitle) subtitle.innerText = "Verificado";
             if (iconRight) {
-                iconRight.className = 'ph ph-upload-simple';
-                iconRight.style.color = 'var(--text-muted)';
+                iconRight.className = 'ph-fill ph-check-circle';
+                iconRight.style.color = '#10b981'; // green
+            }
+        } else if (indStatus === 'Reprovado' || indStatus === 'Bloqueado') {
+            if (subtitle) subtitle.innerText = "Documento recusado";
+            if (iconRight) {
+                iconRight.className = 'ph-fill ph-x-circle';
+                iconRight.style.color = '#ef4444'; // red
+            }
+        } else {
+            if (subtitle) subtitle.innerText = "Em análise";
+            if (iconRight) {
+                iconRight.className = 'ph-fill ph-clock';
+                iconRight.style.color = '#d97706'; // yellow/orange
             }
         }
-    };
-
-    if (userData.role === 'shipper') {
-        checkUploadStatus('upCNPJ', 'cnpj');
-        checkUploadStatus('upEnderecoEmpresa', 'enderecoEmpresa');
     } else {
-        checkUploadStatus('upCRLV', 'crlv');
-        checkUploadStatus('upResidencia', 'residencia');
-        checkUploadStatus('upCPF', 'cpf');
-        checkUploadStatus('upCNH', 'cnh');
+        el.classList.remove('uploaded');
+        if (subtitle) subtitle.innerText = "Toque para enviar";
+        if (iconRight) {
+            iconRight.className = 'ph ph-upload-simple';
+            iconRight.style.color = 'var(--text-muted)';
+        }
+    }
+};
+
+if (userData.role === 'shipper') {
+    checkUploadStatus('upCNPJ', 'cnpj');
+    checkUploadStatus('upEnderecoEmpresa', 'enderecoEmpresa');
+} else {
+    checkUploadStatus('upCRLV', 'crlv');
+    checkUploadStatus('upResidencia', 'residencia');
+    checkUploadStatus('upCPF', 'cpf');
+    checkUploadStatus('upCNH', 'cnh');
+}
+
+// Update Security Documents menu item
+if (document.getElementById('profileDocsStatusText')) {
+    let docsStatusText = "Verificar status dos documentos";
+    let showDot = false;
+
+    if (userData.docStatus === 'Aprovado') {
+        docsStatusText = "Todos os documentos verificados";
+    } else if (userData.docStatus === 'Reprovado' || userData.docStatus === 'Bloqueado') {
+        docsStatusText = "Ação necessária: Documento recusado";
+        showDot = true;
+    } else if (userData.docStatus === 'Pendente' || userData.docStatus === 'Em Análise') {
+        docsStatusText = "Documentos em análise";
+        showDot = true;
+    } else {
+        docsStatusText = "Envio de documentos pendente";
+        showDot = true;
     }
 
-    // Update Security Documents menu item
-    if (document.getElementById('profileDocsStatusText')) {
-        let docsStatusText = "Verificar status dos documentos";
-        let showDot = false;
-        
-        if (userData.docStatus === 'Aprovado') {
-            docsStatusText = "Todos os documentos verificados";
-        } else if (userData.docStatus === 'Reprovado' || userData.docStatus === 'Bloqueado') {
-            docsStatusText = "Ação necessária: Documento recusado";
-            showDot = true;
-        } else if (userData.docStatus === 'Pendente' || userData.docStatus === 'Em Análise') {
-            docsStatusText = "Documentos em análise";
-            showDot = true;
-        } else {
-            docsStatusText = "Envio de documentos pendente";
-            showDot = true;
-        }
-        
-        document.getElementById('profileDocsStatusText').innerText = docsStatusText;
-        if (document.getElementById('profileDocsAlertDot')) {
-            document.getElementById('profileDocsAlertDot').style.display = showDot ? 'block' : 'none';
-        }
+    document.getElementById('profileDocsStatusText').innerText = docsStatusText;
+    if (document.getElementById('profileDocsAlertDot')) {
+        document.getElementById('profileDocsAlertDot').style.display = showDot ? 'block' : 'none';
     }
+}
 }
 
 function openPhotoActionSheet() {
@@ -1758,9 +1744,9 @@ function closePhotoActionSheet() {
 function compressImageToBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             const img = new Image();
-            img.onload = function() {
+            img.onload = function () {
                 const canvas = document.createElement('canvas');
                 const MAX_WIDTH = 150;
                 const MAX_HEIGHT = 150;
@@ -1788,10 +1774,10 @@ function compressImageToBase64(file) {
                 const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
                 resolve(dataUrl);
             };
-            img.onerror = function() { reject(new Error('Erro ao processar imagem')); };
+            img.onerror = function () { reject(new Error('Erro ao processar imagem')); };
             img.src = e.target.result;
         };
-        reader.onerror = function() { reject(new Error('Erro ao ler arquivo')); };
+        reader.onerror = function () { reject(new Error('Erro ao ler arquivo')); };
         reader.readAsDataURL(file);
     });
 }
@@ -1806,14 +1792,14 @@ async function handleProfilePhoto(event) {
     }
 
     showToast('Processando foto de perfil...', 'info');
-    
+
     try {
         // Otimização: Para evitar erros de CORS e requisições falhas de Storage no console do navegador,
         // salvamos a imagem comprimida em Base64 diretamente no Firestore do usuário.
         const base64Url = await compressImageToBase64(file);
-        await db.collection("users").doc(auth.currentUser.uid).update({ 
-            foto: base64Url, 
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
+        await db.collection("users").doc(auth.currentUser.uid).update({
+            foto: base64Url,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         userData.foto = base64Url;
         preencherPerfil();
@@ -1874,12 +1860,12 @@ async function confirmDeleteAccount() {
 
         // Attempt to delete user doc in Firestore
         await db.collection('users').doc(user.uid).delete();
-        
+
         // Delete auth user
         await user.delete();
 
         showToast('Sua conta foi excluída permanentemente.', 'success');
-        
+
         setTimeout(() => {
             window.location.reload();
         }, 1500);
@@ -1917,14 +1903,14 @@ async function confirmarLogoutExec() {
         currentUserRole = null;
         userData = {};
         window.isDriverOnline = false;
-        
+
         showToast('Você saiu da conta com segurança.', 'info');
-        
+
         // Timeout to allow the toast to show briefly before reloading
         setTimeout(() => {
             window.location.reload();
         }, 800);
-        
+
     } catch (error) {
         showToast('Erro ao sair.', 'error');
         if (btn) {
@@ -1979,13 +1965,13 @@ function toggleEditProfile() {
         btnSave.style.display = 'none';
         // Restaurar dados originais
         if (userData) {
-            if(document.getElementById('profName')) document.getElementById('profName').value = userData.nome || '';
-            if(document.getElementById('profRazao')) document.getElementById('profRazao').value = userData.razao || '';
-            if(document.getElementById('profPhone')) document.getElementById('profPhone').value = userData.telefone || '';
-            if(document.getElementById('profAddress')) document.getElementById('profAddress').value = userData.endereco || '';
-            if(document.getElementById('profAntt')) document.getElementById('profAntt').value = userData.antt || '';
-            if(document.getElementById('profCnhNum')) document.getElementById('profCnhNum').value = userData.cnh || '';
-            if(document.getElementById('profPlaca')) document.getElementById('profPlaca').value = userData.placa || '';
+            if (document.getElementById('profName')) document.getElementById('profName').value = userData.nome || '';
+            if (document.getElementById('profRazao')) document.getElementById('profRazao').value = userData.razao || '';
+            if (document.getElementById('profPhone')) document.getElementById('profPhone').value = userData.telefone || '';
+            if (document.getElementById('profAddress')) document.getElementById('profAddress').value = userData.endereco || '';
+            if (document.getElementById('profAntt')) document.getElementById('profAntt').value = userData.antt || '';
+            if (document.getElementById('profCnhNum')) document.getElementById('profCnhNum').value = userData.cnh || '';
+            if (document.getElementById('profPlaca')) document.getElementById('profPlaca').value = userData.placa || '';
         }
     }
 }
@@ -2011,7 +1997,7 @@ async function salvarPerfil(btn) {
             telefone: sanitizeInput(document.getElementById('profPhone').value.trim(), 20),
             endereco: sanitizeInput(document.getElementById('profAddress').value.trim(), 300)
         };
-        
+
         const profRazao = document.getElementById('profRazao');
         if (profRazao && profRazao.value) {
             updatedData.razao = sanitizeInput(profRazao.value.trim(), 200);
@@ -2020,10 +2006,10 @@ async function salvarPerfil(btn) {
         if (userData.role === 'driver') {
             const profAntt = document.getElementById('profAntt');
             if (profAntt) updatedData.antt = sanitizeInput(profAntt.value.trim(), 50);
-            
+
             const profCnhNum = document.getElementById('profCnhNum');
             if (profCnhNum) updatedData.cnh = sanitizeInput(profCnhNum.value.trim(), 50);
-            
+
             const profPlaca = document.getElementById('profPlaca');
             if (profPlaca) updatedData.placa = sanitizeInput(profPlaca.value.trim(), 20);
         }
@@ -2060,10 +2046,10 @@ function handleUpload(elementId, type) {
     else baseKey = elementId;
 
     const indStatus = (userData.documentStatuses && userData.documentStatuses[baseKey])
-                    ? userData.documentStatuses[baseKey]
-                    : (userData.documentStatuses && userData.documentStatuses[baseKey + 'Frente'])
-                        ? userData.documentStatuses[baseKey + 'Frente']
-                        : null;
+        ? userData.documentStatuses[baseKey]
+        : (userData.documentStatuses && userData.documentStatuses[baseKey + 'Frente'])
+            ? userData.documentStatuses[baseKey + 'Frente']
+            : null;
 
     if (indStatus === 'Aprovado') {
         showToast('Este documento já foi verificado e aprovado.', 'info');
@@ -2072,21 +2058,21 @@ function handleUpload(elementId, type) {
 
     const modal = document.getElementById('documentUploadModal');
     if (!modal) return;
-    
+
     document.getElementById('docUploadTitle').innerText = type;
-    
+
     const isDouble = type === 'CPF' || type === 'CNH';
-    
+
     const singleContainer = document.getElementById('docUploadSingleContainer');
     const doubleContainer = document.getElementById('docUploadDoubleContainer');
-    
+
     document.getElementById('docUploadSingleFile').value = '';
     document.getElementById('docUploadFrenteFile').value = '';
     document.getElementById('docUploadVersoFile').value = '';
     document.getElementById('docUploadSinglePreview').style.display = 'none';
     document.getElementById('docUploadFrentePreview').style.display = 'none';
     document.getElementById('docUploadVersoPreview').style.display = 'none';
-    
+
     if (isDouble) {
         singleContainer.style.display = 'none';
         doubleContainer.style.display = 'flex';
@@ -2094,11 +2080,11 @@ function handleUpload(elementId, type) {
         singleContainer.style.display = 'block';
         doubleContainer.style.display = 'none';
     }
-    
+
     window.currentUploadElementId = elementId;
     window.currentUploadType = type;
     window.currentUploadIsDouble = isDouble;
-    
+
     modal.style.display = 'flex';
     modal.offsetHeight; // reflow
     modal.style.opacity = '1';
@@ -2118,13 +2104,13 @@ function previewDocUpload(previewType) {
         inputId = 'docUploadVersoFile';
         previewId = 'docUploadVersoPreview';
     }
-    
+
     const file = document.getElementById(inputId).files[0];
     const preview = document.getElementById(previewId);
     if (file) {
         if (file.type.startsWith('image/')) {
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 preview.src = e.target.result;
                 preview.style.display = 'block';
             }
@@ -2150,7 +2136,7 @@ window.confirmDocUpload = confirmDocUpload;
 async function confirmDocUpload() {
     const isDouble = window.currentUploadIsDouble;
     const btn = document.getElementById('btnConfirmDocUpload');
-    
+
     let files = {};
     if (isDouble) {
         files.frente = document.getElementById('docUploadFrenteFile').files[0];
@@ -2166,29 +2152,29 @@ async function confirmDocUpload() {
             return;
         }
     }
-    
+
     const originalText = btn.innerHTML;
     btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Enviando...`;
     btn.disabled = true;
-    
+
     try {
         const uid = auth.currentUser.uid;
         let updates = { docStatus: 'Pendente', updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
         let docUrls = userData.documentUrls || {};
-        
+
         const compressImageToBase64 = (file, maxWidth = 800) => {
             return new Promise((resolve, reject) => {
                 if (!file || !file.type.match(/image.*/)) {
                     const reader = new FileReader();
                     reader.onload = e => resolve(e.target.result);
                     reader.onerror = error => reject(error);
-                    if(file) reader.readAsDataURL(file); else resolve(null);
+                    if (file) reader.readAsDataURL(file); else resolve(null);
                     return;
                 }
                 const reader = new FileReader();
-                reader.onload = function(event) {
+                reader.onload = function (event) {
                     const img = new Image();
-                    img.onload = function() {
+                    img.onload = function () {
                         const canvas = document.createElement('canvas');
                         let width = img.width;
                         let height = img.height;
@@ -2208,7 +2194,7 @@ async function confirmDocUpload() {
                 reader.readAsDataURL(file);
             });
         };
-        
+
         let baseKey = '';
         if (window.currentUploadElementId === 'upCNH') baseKey = 'cnh';
         else if (window.currentUploadElementId === 'upCPF') baseKey = 'cpf';
@@ -2224,7 +2210,7 @@ async function confirmDocUpload() {
         } else {
             docUrls[baseKey] = await compressImageToBase64(files.single);
         }
-        
+
         updates.documentUrls = docUrls;
 
         // Ao reenviar um documento, redefinir seu status individual para Pendente
@@ -2237,11 +2223,11 @@ async function confirmDocUpload() {
         updates.documentStatuses = documentStatuses;
 
         await db.collection("users").doc(uid).update(updates);
-        
+
         userData.docStatus = 'Pendente';
         userData.documentUrls = docUrls;
         userData.documentStatuses = documentStatuses;
-        
+
         // Update UI locally
         const el = document.getElementById(window.currentUploadElementId);
         if (el) {
@@ -2254,11 +2240,11 @@ async function confirmDocUpload() {
                 iconRight.style.color = '#d97706';
             }
         }
-        
+
         preencherPerfil(); // update badges
         showToast('Documento enviado com sucesso!');
         closeDocUploadModal();
-        
+
     } catch (err) {
         console.error("Erro no upload", err);
         showToast('Erro ao enviar documento. Tente novamente.', 'error');
@@ -2345,7 +2331,7 @@ function formatTimeAgo(timestamp) {
     } else {
         date = new Date(timestamp);
     }
-    
+
     const now = new Date();
     const diffMs = now - date;
     if (isNaN(diffMs) || diffMs < 0) return 'Agora';
@@ -2624,7 +2610,7 @@ function openFreight(idOrIndex) {
     document.getElementById('detailColetaText').innerText = formatDateBR(frete.coleta);
     document.getElementById('detailPrevisaoText').innerText = formatDateBR(frete.previsao);
     document.getElementById('detailPesoText').innerText = frete.peso ? `${frete.peso} kg` : '--';
-    
+
     if (frete.volume) {
         document.getElementById('detailVolumeRow').style.display = 'flex';
         document.getElementById('detailVolumeText').innerText = `${frete.volume} mÂ³`;
@@ -2658,7 +2644,7 @@ function openFreight(idOrIndex) {
 
     const btnCall = document.getElementById('btnCall');
     const btnWhatsApp = document.getElementById('btnWhatsApp');
-    
+
     if (userData && userData.role === 'driver' && userData.docStatus !== 'Aprovado') {
         const blockMsg = "showToast('Sua documentação precisa ser aprovada para negociar cargas.', 'error');";
         btnCall.setAttribute('onclick', blockMsg);
@@ -2782,12 +2768,12 @@ async function publicarFrete(btn) {
                 const R = 6371;
                 const dLat = (p2.lat - p1.lat) * Math.PI / 180;
                 const dLon = (p2.lon - p1.lon) * Math.PI / 180;
-                const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                        Math.cos(p1.lat * Math.PI / 180) * Math.cos(p2.lat * Math.PI / 180) *
-                        Math.sin(dLon/2) * Math.sin(dLon/2);
-                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                    Math.cos(p1.lat * Math.PI / 180) * Math.cos(p2.lat * Math.PI / 180) *
+                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
                 const straightDist = R * c;
-                
+
                 distanciaKm = Math.round(straightDist * 1.3); // 30% a mais para vias reais
                 duracaoDias = Math.max(1, Math.ceil(distanciaKm / 500)); // ~500 km/dia
             }
@@ -2822,11 +2808,11 @@ async function publicarFrete(btn) {
 
         // Limpa campos e reseta steps
         resetPublishStep();
-        if(document.getElementById('pesoCarga')) document.getElementById('pesoCarga').value = '';
-        if(document.getElementById('volumeCarga')) document.getElementById('volumeCarga').value = '';
-        if(document.getElementById('coletaCarga')) document.getElementById('coletaCarga').value = '';
-        if(document.getElementById('previsaoCarga')) document.getElementById('previsaoCarga').value = '';
-        if(document.getElementById('urgenciaCarga')) document.getElementById('urgenciaCarga').value = 'Normal';
+        if (document.getElementById('pesoCarga')) document.getElementById('pesoCarga').value = '';
+        if (document.getElementById('volumeCarga')) document.getElementById('volumeCarga').value = '';
+        if (document.getElementById('coletaCarga')) document.getElementById('coletaCarga').value = '';
+        if (document.getElementById('previsaoCarga')) document.getElementById('previsaoCarga').value = '';
+        if (document.getElementById('urgenciaCarga')) document.getElementById('urgenciaCarga').value = 'Normal';
 
         btn.innerHTML = originalContent;
         btn.disabled = false;
@@ -2850,10 +2836,10 @@ function enviarMensagem() {
     if (window.activeChatName === 'Pega Frete') {
         const uid = auth.currentUser?.uid;
         if (!uid) return;
-        
+
         input.value = '';
         input.style.height = 'auto';
-        
+
         db.collection("system_messages").add({
             userUid: uid,
             text: text,
@@ -2878,7 +2864,7 @@ function enviarMensagem() {
 function openChatDetail(name, status, avatar, phone = '') {
     window.activeChatName = name;
     document.getElementById('activeChatName').textContent = name;
-    
+
     const phoneLink = document.getElementById('chatPhoneLink');
     if (phoneLink) {
         if (phone) {
@@ -2888,7 +2874,7 @@ function openChatDetail(name, status, avatar, phone = '') {
             phoneLink.style.display = 'none';
         }
     }
-    
+
     // Hide footer (input area) and menu button (three vertical dots) for administrative channel
     const chatFooter = document.getElementById('chatFooter');
     const chatMenuBtn = document.getElementById('chatMenuBtn');
@@ -2899,9 +2885,9 @@ function openChatDetail(name, status, avatar, phone = '') {
         if (chatFooter) chatFooter.style.display = 'block';
         if (chatMenuBtn) chatMenuBtn.style.display = 'flex';
     }
-    
+
     document.getElementById('activeChatStatusText').textContent = status;
-    
+
     const avatarImg = document.getElementById('activeChatAvatar');
     if (avatarImg) {
         if (name === 'Pega Frete') {
@@ -2910,20 +2896,20 @@ function openChatDetail(name, status, avatar, phone = '') {
             avatarImg.src = avatar;
         }
     }
-    
+
     if (status === 'Online') {
         document.getElementById('activeChatStatusDot').style.display = 'block';
     } else {
         document.getElementById('activeChatStatusDot').style.display = 'none';
     }
-    
+
     if (name === 'Pega Frete') {
         renderSystemMessages();
         marcarMensagensComoLidas();
     } else {
         renderChats();
     }
-    
+
     navTo('chat_detail');
 }
 
@@ -2931,13 +2917,13 @@ function startSystemMessagesListener() {
     if (systemMessagesListener) {
         systemMessagesListener();
     }
-    
+
     const uid = auth.currentUser?.uid;
     if (!uid) return;
-    
+
     const ref = db.collection("system_messages")
         .where("userUid", "==", uid);
-        
+
     systemMessagesListener = ref.onSnapshot(snapshot => {
         systemMessages = [];
         snapshot.forEach(doc => {
@@ -2947,14 +2933,14 @@ function startSystemMessagesListener() {
                 ...data
             });
         });
-        
+
         // Client-side sort to avoid composite index requirement
         systemMessages.sort((a, b) => {
             const timeA = a.createdAt ? (typeof a.createdAt.toMillis === 'function' ? a.createdAt.toMillis() : 0) : 0;
             const timeB = b.createdAt ? (typeof b.createdAt.toMillis === 'function' ? b.createdAt.toMillis() : 0) : 0;
             return timeA - timeB;
         });
-        
+
         if (systemMessages.length === 0) {
             db.collection("system_messages").add({
                 userUid: uid,
@@ -2966,9 +2952,9 @@ function startSystemMessagesListener() {
             });
             return;
         }
-        
+
         updateChatListUI();
-        
+
         const chatDetailScreen = document.getElementById('chat_detail');
         if (chatDetailScreen && chatDetailScreen.classList.contains('active') && window.activeChatName === 'Pega Frete') {
             renderSystemMessages();
@@ -2981,7 +2967,7 @@ function startSystemMessagesListener() {
 
 function updateChatListUI() {
     const unreadCount = systemMessages.filter(m => !m.isMe && !m.read).length;
-    
+
     // Atualiza o badge da barra de navegação inferior
     const bottomNavBadge = document.querySelector('#bottomNav .notification-badge');
     if (bottomNavBadge) {
@@ -2994,15 +2980,15 @@ function updateChatListUI() {
     }
 
     if (systemMessages.length === 0) return;
-    
+
     const lastMsg = systemMessages[systemMessages.length - 1];
-    
+
     const previewEl = document.getElementById('systemChatPreview');
     if (previewEl) {
         const textToPreview = lastMsg.text || lastMsg.message || lastMsg.title || '';
         previewEl.innerHTML = (lastMsg.isMe ? '<i class="ph-fill ph-check-circle" style="color: #3b82f6; margin-right: 4px; font-size: 16px;"></i>' : '') + sanitizeHTML(textToPreview);
     }
-    
+
     const timeEl = document.getElementById('systemChatTime');
     if (timeEl) {
         let timeStr = '--:--';
@@ -3012,10 +2998,10 @@ function updateChatListUI() {
         }
         timeEl.textContent = timeStr;
     }
-    
+
     const badgeEl = document.getElementById('systemChatUnreadBadge');
     const itemEl = document.getElementById('systemChatItem');
-    
+
     if (badgeEl) {
         if (unreadCount > 0) {
             badgeEl.textContent = unreadCount;
@@ -3031,7 +3017,7 @@ function updateChatListUI() {
 function marcarMensagensComoLidas() {
     const uid = auth.currentUser?.uid;
     if (!uid) return;
-    
+
     db.collection("system_messages")
         .where("userUid", "==", uid)
         .where("read", "==", false)
@@ -3050,11 +3036,11 @@ function marcarMensagensComoLidas() {
 function renderSystemMessages() {
     const area = document.getElementById('chatMessages');
     if (!area) return;
-    
+
     area.innerHTML = '';
-    
+
     let lastDateStr = '';
-    
+
     systemMessages.forEach(msg => {
         let timeStr = '12:00';
         let dateStr = 'Hoje';
@@ -3063,7 +3049,7 @@ function renderSystemMessages() {
             timeStr = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
             dateStr = date.toLocaleDateString('pt-BR');
         }
-        
+
         if (dateStr !== lastDateStr) {
             area.innerHTML += `
                 <div class="chat-date-divider">
@@ -3072,11 +3058,11 @@ function renderSystemMessages() {
             `;
             lastDateStr = dateStr;
         }
-        
+
         const isMe = msg.isMe;
         const wrapperClass = isMe ? 'msg-outgoing' : 'msg-incoming';
         const statusIcon = isMe ? '<i class="ph-fill ph-check-circle msg-status" style="color: #3b82f6;"></i>' : '';
-        
+
         const msgText = msg.text || (msg.title ? `<strong>${sanitizeHTML(msg.title)}</strong><br>${sanitizeHTML(msg.message)}` : sanitizeHTML(msg.message || ''));
         area.innerHTML += `
             <div class="msg-wrapper ${wrapperClass}">
@@ -3090,7 +3076,7 @@ function renderSystemMessages() {
             </div>
         `;
     });
-    
+
     setTimeout(() => {
         area.scrollTop = area.scrollHeight;
     }, 50);
@@ -3153,22 +3139,22 @@ window.handleContinuar = handleContinuar;
 window.fazerLogin = fazerLogin;
 window.publicarFrete = publicarFrete;
 window.salvarEdicaoFrete = salvarEdicaoFrete;
-window.concluirFrete = async function(id) {
-    if(!confirm('Tem certeza que deseja marcar esta carga como concluída?')) return;
+window.concluirFrete = async function (id) {
+    if (!confirm('Tem certeza que deseja marcar esta carga como concluída?')) return;
     try {
         await db.collection("freights").doc(id).update({ status: 'entregue' });
         showToast('Carga concluída com sucesso!');
-    } catch(err) {
+    } catch (err) {
         console.error(err);
         showToast('Erro ao concluir carga.', 'error');
     }
 };
-window.cancelarFrete = async function(id) {
-    if(!confirm('Tem certeza que deseja cancelar esta carga?')) return;
+window.cancelarFrete = async function (id) {
+    if (!confirm('Tem certeza que deseja cancelar esta carga?')) return;
     try {
         await db.collection("freights").doc(id).update({ status: 'cancelado' });
         showToast('Carga cancelada!');
-    } catch(err) {
+    } catch (err) {
         console.error(err);
         showToast('Erro ao cancelar carga.', 'error');
     }
@@ -3215,7 +3201,7 @@ function renderShipperHistory() {
     }
     const targetStatus = currentShipperHistoryTab === 'concluida' ? 'entregue' : 'cancelado';
     const historyFreites = fretes.filter(f => f.shipperUid === auth.currentUser?.uid && f.status === targetStatus);
-    
+
     let html = '';
     if (historyFreites.length === 0) {
         html = `
@@ -3230,7 +3216,7 @@ function renderShipperHistory() {
             const badgeClass = targetStatus === 'entregue' ? 'status-entregue' : 'status-pendente';
             const badgeIcon = targetStatus === 'entregue' ? 'ph-fill ph-check-circle' : 'ph-fill ph-x-circle';
             const badgeLabel = targetStatus === 'entregue' ? 'Entregue com Sucesso' : 'Cancelado';
-            
+
             html += `
                 <div class="freight-card" style="opacity: 0.9;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
@@ -3313,7 +3299,7 @@ function nextPublishStep(btn) {
         const typeSelect = document.getElementById('tipoCarga').value;
         const vehicleSelect = document.getElementById('veiculo').value;
         const priceVal = document.getElementById('valorFrete').value.trim();
-        
+
         if (!typeSelect) {
             showToast('Selecione o tipo de carga.', 'error');
             return;
@@ -3421,193 +3407,193 @@ function updatePublishStep() {
 
 // Exporta para escopo global
 window.prevPublishStep = prevPublishStep;
-    window.nextPublishStep = nextPublishStep;
-    window.resetPublishStep = resetPublishStep;
+window.nextPublishStep = nextPublishStep;
+window.resetPublishStep = resetPublishStep;
 
-    // ====== LEAFLET MAPS & IBGE AUTOCOMPLETE (100% GRATUITO) ======
+// ====== LEAFLET MAPS & IBGE AUTOCOMPLETE (100% GRATUITO) ======
 
-    let activeMap = null;
-    let routeLine = null;
-    let originMarker = null;
-    let destinationMarker = null;
+let activeMap = null;
+let routeLine = null;
+let originMarker = null;
+let destinationMarker = null;
 
-    window.initLeafletMap = function() {
-        const mapElement = document.getElementById('publishMapPreview');
-        if (!mapElement) return;
+window.initLeafletMap = function () {
+    const mapElement = document.getElementById('publishMapPreview');
+    if (!mapElement) return;
 
-        if (activeMap) {
-            activeMap.remove();
-            activeMap = null;
+    if (activeMap) {
+        activeMap.remove();
+        activeMap = null;
+    }
+
+    // Inicializa o mapa com o Leaflet focado no Brasil por padrão
+    activeMap = L.map(mapElement, {
+        zoomControl: true,
+        attributionControl: false
+    }).setView([-14.2350, -51.9253], 4);
+
+    // Adiciona camada de mapa gratuita do OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19
+    }).addTo(activeMap);
+
+    // Tenta obter a geolocalização do usuário via GPS
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                activeMap.setView([lat, lon], 12);
+
+                L.circleMarker([lat, lon], {
+                    radius: 8,
+                    fillColor: "#f97316",
+                    color: "white",
+                    weight: 2,
+                    fillOpacity: 1
+                }).addTo(activeMap).bindPopup("Você está aqui");
+            },
+            () => {
+                console.warn("Geolocalização não permitida ou indisponível.");
+            }
+        );
+    }
+};
+
+let cachedCidades = [];
+
+async function carregarCidadesIBGE() {
+    if (cachedCidades.length > 0) return cachedCidades;
+    try {
+        const response = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/municipios');
+        const data = await response.json();
+        cachedCidades = data.map(item => {
+            const uf = item.microrregiao?.mesorregiao?.UF?.sigla || '';
+            return `${item.nome}, ${uf}`;
+        }).sort();
+        return cachedCidades;
+    } catch (e) {
+        console.error("Erro ao carregar cidades do IBGE:", e);
+        return [];
+    }
+}
+
+window.setupIBGEAutocomplete = function () {
+    const inputs = ['origem', 'destino'];
+    inputs.forEach(id => {
+        const input = document.getElementById(id);
+        if (!input) return;
+
+        let datalist = document.getElementById(`${id}List`);
+        if (!datalist) {
+            datalist = document.createElement('datalist');
+            datalist.id = `${id}List`;
+            document.body.appendChild(datalist);
+            input.setAttribute('list', datalist.id);
         }
 
-        // Inicializa o mapa com o Leaflet focado no Brasil por padrão
-        activeMap = L.map(mapElement, {
-            zoomControl: true,
-            attributionControl: false
-        }).setView([-14.2350, -51.9253], 4);
+        input.addEventListener('focus', async () => {
+            await carregarCidadesIBGE();
+        });
 
-        // Adiciona camada de mapa gratuita do OpenStreetMap
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19
+        input.addEventListener('input', () => {
+            const query = input.value.toLowerCase().trim();
+            if (query.length < 2) {
+                datalist.innerHTML = '';
+                return;
+            }
+
+            const matches = cachedCidades.filter(c => c.toLowerCase().includes(query)).slice(0, 10);
+            datalist.innerHTML = matches.map(c => `<option value="${c}"></option>`).join('');
+
+            if (cachedCidades.includes(input.value)) {
+                atualizarRotaNoMapa();
+            }
+        });
+
+        input.addEventListener('blur', () => {
+            atualizarRotaNoMapa();
+        });
+    });
+};
+
+async function obterCoordenadasNominatim(cidadeEstado) {
+    try {
+        const query = encodeURIComponent(`${cidadeEstado}, Brasil`);
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`, {
+            headers: {
+                'User-Agent': 'PegaFreteApp/1.0'
+            }
+        });
+        const data = await response.json();
+        if (data && data.length > 0) {
+            return {
+                lat: parseFloat(data[0].lat),
+                lon: parseFloat(data[0].lon)
+            };
+        }
+    } catch (e) {
+        console.error("Erro no geocoding Nominatim:", e);
+    }
+    return null;
+}
+
+async function atualizarRotaNoMapa() {
+    if (!activeMap) return;
+
+    const origem = document.getElementById('origem').value.trim();
+    const destino = document.getElementById('destino').value.trim();
+
+    if (!origem || !destino) return;
+
+    const p1 = await obterCoordenadasNominatim(origem);
+    const p2 = await obterCoordenadasNominatim(destino);
+
+    if (p1 && p2) {
+        if (originMarker) activeMap.removeLayer(originMarker);
+        if (destinationMarker) activeMap.removeLayer(destinationMarker);
+        if (routeLine) activeMap.removeLayer(routeLine);
+
+        originMarker = L.marker([p1.lat, p1.lon]).addTo(activeMap).bindPopup(`Origem: ${origem}`);
+        destinationMarker = L.marker([p2.lat, p2.lon]).addTo(activeMap).bindPopup(`Destino: ${destino}`);
+
+        routeLine = L.polyline([[p1.lat, p1.lon], [p2.lat, p2.lon]], {
+            color: '#f97316',
+            weight: 4,
+            opacity: 0.8,
+            dashArray: '5, 10'
         }).addTo(activeMap);
 
-        // Tenta obter a geolocalização do usuário via GPS
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
-                    activeMap.setView([lat, lon], 12);
-
-                    L.circleMarker([lat, lon], {
-                        radius: 8,
-                        fillColor: "#f97316",
-                        color: "white",
-                        weight: 2,
-                        fillOpacity: 1
-                    }).addTo(activeMap).bindPopup("Você está aqui");
-                },
-                () => {
-                    console.warn("Geolocalização não permitida ou indisponível.");
-                }
-            );
-        }
-    };
-
-    let cachedCidades = [];
-
-    async function carregarCidadesIBGE() {
-        if (cachedCidades.length > 0) return cachedCidades;
-        try {
-            const response = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/municipios');
-            const data = await response.json();
-            cachedCidades = data.map(item => {
-                const uf = item.microrregiao?.mesorregiao?.UF?.sigla || '';
-                return `${item.nome}, ${uf}`;
-            }).sort();
-            return cachedCidades;
-        } catch (e) {
-            console.error("Erro ao carregar cidades do IBGE:", e);
-            return [];
-        }
+        const group = new L.featureGroup([originMarker, destinationMarker]);
+        activeMap.fitBounds(group.getBounds().pad(0.2));
     }
+}
 
-    window.setupIBGEAutocomplete = function() {
-        const inputs = ['origem', 'destino'];
-        inputs.forEach(id => {
-            const input = document.getElementById(id);
-            if (!input) return;
-            
-            let datalist = document.getElementById(`${id}List`);
-            if (!datalist) {
-                datalist = document.createElement('datalist');
-                datalist.id = `${id}List`;
-                document.body.appendChild(datalist);
-                input.setAttribute('list', datalist.id);
-            }
-
-            input.addEventListener('focus', async () => {
-                await carregarCidadesIBGE();
-            });
-
-            input.addEventListener('input', () => {
-                const query = input.value.toLowerCase().trim();
-                if (query.length < 2) {
-                    datalist.innerHTML = '';
-                    return;
-                }
-                
-                const matches = cachedCidades.filter(c => c.toLowerCase().includes(query)).slice(0, 10);
-                datalist.innerHTML = matches.map(c => `<option value="${c}"></option>`).join('');
-                
-                if (cachedCidades.includes(input.value)) {
-                    atualizarRotaNoMapa();
-                }
-            });
-
-            input.addEventListener('blur', () => {
-                atualizarRotaNoMapa();
-            });
-        });
-    };
-
-    async function obterCoordenadasNominatim(cidadeEstado) {
-        try {
-            const query = encodeURIComponent(`${cidadeEstado}, Brasil`);
-            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`, {
-                headers: {
-                    'User-Agent': 'PegaFreteApp/1.0'
-                }
-            });
-            const data = await response.json();
-            if (data && data.length > 0) {
-                return {
-                    lat: parseFloat(data[0].lat),
-                    lon: parseFloat(data[0].lon)
-                };
-            }
-        } catch (e) {
-            console.error("Erro no geocoding Nominatim:", e);
-        }
-        return null;
+// ====== SEGURANÇA: GLOBAL ERROR TRACKING FOR DEBUGGING ======
+window.addEventListener('unhandledrejection', event => {
+    console.error('Unhandled rejection:', event.reason);
+    if (typeof showToast === 'function') {
+        showToast(`Erro não tratado: ${event.reason?.message || event.reason}`, 'error');
     }
-
-    async function atualizarRotaNoMapa() {
-        if (!activeMap) return;
-
-        const origem = document.getElementById('origem').value.trim();
-        const destino = document.getElementById('destino').value.trim();
-
-        if (!origem || !destino) return;
-
-        const p1 = await obterCoordenadasNominatim(origem);
-        const p2 = await obterCoordenadasNominatim(destino);
-
-        if (p1 && p2) {
-            if (originMarker) activeMap.removeLayer(originMarker);
-            if (destinationMarker) activeMap.removeLayer(destinationMarker);
-            if (routeLine) activeMap.removeLayer(routeLine);
-
-            originMarker = L.marker([p1.lat, p1.lon]).addTo(activeMap).bindPopup(`Origem: ${origem}`);
-            destinationMarker = L.marker([p2.lat, p2.lon]).addTo(activeMap).bindPopup(`Destino: ${destino}`);
-
-            routeLine = L.polyline([[p1.lat, p1.lon], [p2.lat, p2.lon]], {
-                color: '#f97316',
-                weight: 4,
-                opacity: 0.8,
-                dashArray: '5, 10'
-            }).addTo(activeMap);
-
-            const group = new L.featureGroup([originMarker, destinationMarker]);
-            activeMap.fitBounds(group.getBounds().pad(0.2));
-        }
-    }
-
-    // ====== SEGURANÇA: GLOBAL ERROR TRACKING FOR DEBUGGING ======
-    window.addEventListener('unhandledrejection', event => {
-        console.error('Unhandled rejection:', event.reason);
-        if (typeof showToast === 'function') {
-            showToast(`Erro não tratado: ${event.reason?.message || event.reason}`, 'error');
-        }
-        if (typeof restaurarBotaoGoogle === 'function') restaurarBotaoGoogle();
-    });
-    window.addEventListener('error', event => {
-        console.error('Global error:', event.error);
-        if (typeof restaurarBotaoGoogle === 'function') restaurarBotaoGoogle();
-    });
+    if (typeof restaurarBotaoGoogle === 'function') restaurarBotaoGoogle();
+});
+window.addEventListener('error', event => {
+    console.error('Global error:', event.error);
+    if (typeof restaurarBotaoGoogle === 'function') restaurarBotaoGoogle();
+});
 
 
 
 // Toggles visibility of CPF/CNPJ
 window.docVisibilityState = false;
-window.toggleDocVisibility = function() {
+window.toggleDocVisibility = function () {
     const docEl = document.getElementById('pdDoc');
     const eyeIcon = document.getElementById('toggleDocVisibility');
     if (!docEl || !eyeIcon) return;
-    
+
     // Fallback to empty string if not loaded yet
     const fullDoc = window.currentLoadedDoc || '***';
-    
+
     if (window.docVisibilityState) {
         // Hide
         if (fullDoc && fullDoc.length > 5) {
@@ -3624,25 +3610,5 @@ window.toggleDocVisibility = function() {
         eyeIcon.classList.remove('ph-eye');
         eyeIcon.classList.add('ph-eye-slash');
         window.docVisibilityState = true;
-    }
-};
-
-window.editarSobrenome = async function() {
-    const currentLastName = document.getElementById('pdLastName').innerText !== '-' ? document.getElementById('pdLastName').innerText : '';
-    const lastName = prompt("Digite o novo sobrenome:", currentLastName);
-    if (lastName !== null) {
-        const parts = (userData.nome || userData.razao || 'Usuário').split(' ');
-        const newName = parts[0] + ' ' + lastName.trim();
-        try {
-            await db.collection("users").doc(auth.currentUser.uid).update({
-                nome: newName
-            });
-            userData.nome = newName;
-            document.getElementById('pdLastName').innerText = lastName.trim() || '-';
-            showToast("Sobrenome atualizado com sucesso!");
-        } catch(e) {
-            console.error(e);
-            showToast("Erro ao atualizar sobrenome.", "error");
-        }
     }
 };
