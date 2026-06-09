@@ -1,4 +1,4 @@
-﻿import firebase from 'firebase/compat/app';
+import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import 'firebase/compat/storage';
@@ -1509,7 +1509,7 @@ function preencherPerfil() {
 
         const avatarUrl = userData.foto || 'https://i.imgur.com/vnYcevV.png';
         if(document.getElementById('pdAvatar')) {
-            document.getElementById('pdAvatar').style.backgroundImage = "url('$"{avatarUrl}')";
+            document.getElementById('pdAvatar').style.backgroundImage = `url('${avatarUrl}')`;
         }
 
         const pdTagText = document.getElementById('pdStatusTagText');
