@@ -1836,20 +1836,22 @@
 }
 
 .empty-feed-card.search-empty-card {
-    padding: 40px 24px;
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-    border: 1.5px solid var(--border);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.02);
+    padding: 0 0 24px 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
 
 .empty-state-img {
-    width: 100%;
-    max-width: 200px;
+    width: calc(100% + 48px);
+    max-width: none;
+    margin-left: -24px;
+    margin-right: -24px;
     height: auto;
-    object-fit: contain;
-    margin-bottom: 8px;
-    border-radius: 16px;
-    animation: floatAnimation 4s ease-in-out infinite;
+    object-fit: cover;
+    margin-bottom: 16px;
+    border-radius: 0;
+    animation: none;
 }
 
 @keyframes floatAnimation {
