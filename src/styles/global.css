@@ -273,7 +273,7 @@
             border-color: var(--orange);
             background: #fff;
             box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15);
-            transform: translateY(-2px);
+            /* transform removido: causava layout shift e conflito com position:relative dos inputs */
         }
 
         textarea {
@@ -282,7 +282,6 @@
             resize: none;
         }
 
-        input:focus,
         select:focus,
         textarea:focus {
             border-color: var(--orange);
@@ -1836,3 +1835,124 @@
     line-height: 1.45;
 }
 
+.empty-feed-card.search-empty-card {
+    padding: 40px 24px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 1.5px solid var(--border);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.02);
+}
+
+.empty-state-img {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    object-fit: contain;
+    margin-bottom: 8px;
+    border-radius: 16px;
+    animation: floatAnimation 4s ease-in-out infinite;
+}
+
+@keyframes floatAnimation {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+/* ====== RESPONSIVIDADE MOBILE (MELHORIAS AUDITORIA) ====== */
+
+/* Firefox: accent-color para inputs range */
+input[type=range] {
+    accent-color: var(--orange);
+}
+
+/* Telas muito pequenas (< 360px) */
+@media (max-width: 360px) {
+    .screen {
+        padding: 16px;
+        padding-bottom: 110px;
+    }
+
+    .glass-card {
+        padding: 20px 16px;
+    }
+
+    .premium-freight-card {
+        padding: 16px;
+    }
+
+    .city-name {
+        font-size: 13px;
+    }
+
+    .price-value {
+        font-size: 16px;
+    }
+
+    .card-details-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .card-price-block {
+        text-align: left;
+    }
+
+    .driver-greeting-info h1 {
+        font-size: 20px;
+    }
+
+    .btn {
+        font-size: 14px;
+        padding: 14px;
+    }
+}
+
+/* Telas médias (480px) */
+@media (max-width: 480px) {
+    .topbar h1 {
+        font-size: 18px;
+    }
+
+    .auth-card-title {
+        font-size: 20px;
+    }
+
+    .toast {
+        max-width: 95%;
+        font-size: 13px;
+    }
+}
+
+/* Melhoria de acessibilidade: foco visível para teclado */
+button:focus-visible,
+a:focus-visible,
+select:focus-visible {
+    outline: 2px solid var(--orange);
+    outline-offset: 2px;
+}
+
+/* Previne overflow horizontal global */
+body, html {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+/* Loading skeleton para carregamento de conteúdo dinâmico */
+.skeleton {
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 12px;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}

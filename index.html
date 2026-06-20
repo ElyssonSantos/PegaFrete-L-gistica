@@ -97,6 +97,19 @@
     <!-- Toast (Notificações) -->
     <div id="toast" class="toast"></div>
 
+    <!-- MODAL DE CONFIRMAÇÃO DE AÇÃO (não-bloqueante, substitui confirm() nativo) -->
+    <div id="confirmActionModal" style="position:fixed;inset:0;background:rgba(15,23,42,0.6);z-index:9000;display:none;opacity:0;transition:opacity 0.3s;align-items:center;justify-content:center;padding:24px;">
+        <div style="background:#fff;border-radius:24px;padding:32px 24px;max-width:340px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.15);animation:slideUp 0.3s ease;">
+            <div style="font-size:32px;margin-bottom:16px;text-align:center;">⚠️</div>
+            <h3 id="confirmActionTitle" style="font-size:18px;font-weight:800;color:var(--primary);text-align:center;margin-bottom:8px;">Confirmar Ação</h3>
+            <p id="confirmActionDesc" style="font-size:14px;color:var(--text-muted);text-align:center;line-height:1.5;margin-bottom:24px;">Tem certeza?</p>
+            <div style="display:flex;gap:12px;">
+                <button onclick="document.getElementById('confirmActionModal').style.opacity='0'; setTimeout(()=>{document.getElementById('confirmActionModal').style.display='none'},300)" style="flex:1;padding:14px;border-radius:14px;border:1.5px solid var(--border);background:#fff;font-weight:700;font-size:14px;cursor:pointer;color:var(--text-muted);">Cancelar</button>
+                <button id="confirmActionBtn" style="flex:1;padding:14px;border-radius:14px;border:none;color:#fff;font-weight:700;font-size:14px;cursor:pointer;">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Barra de Navegação Inferior (Global e Fixa) -->
     <nav id="bottomNav" class="navbar" style="display: none;">
         <div class="nav-item" data-target="home" onclick="goHome()">
@@ -451,7 +464,7 @@
                 <div class="text-center mt-4"
                     style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
                     <button type="button" class="text-btn" style="color: var(--orange); font-weight: 700;"
-                        onclick="showToast('Recuperação de senha em manutenção')">Esqueci minha senha</button>
+                        onclick="recuperarSenha()" aria-label="Recuperar senha por e-mail">Esqueci minha senha</button>
                 </div>
             </form>
         </div>

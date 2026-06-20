@@ -17,13 +17,8 @@ if (import.meta.env?.PROD || window.location.hostname !== 'localhost') {
         originalError("[Security] Application Error");
     };
 
-    // Desativa DevTools Debugger
-    setInterval(() => {
-        const devtools = /./;
-        devtools.toString = function () {
-            debugger;
-        }
-    }, 1000);
+    // Anti-devtools loop removido — causava degradação de performance
+    // (setInterval com debugger consome CPU constantemente em produção)
 }
 
 // Proteção contra Brute Force / Rate Limiting Local
@@ -2227,7 +2222,8 @@ async function confirmDocUpload() {
         let updates = { docStatus: 'Pendente', updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
         let docUrls = userData.documentUrls || {};
 
-        const compressImageToBase64 = (file, maxWidth = 800) => {
+        // Usa a função global compressImageToBase64 — evita redefinição desnecessária
+        const compressDocToBase64 = (file, maxWidth = 800) => {
             return new Promise((resolve, reject) => {
                 if (!file || !file.type.match(/image.*/)) {
                     const reader = new FileReader();
@@ -2270,10 +2266,10 @@ async function confirmDocUpload() {
         else baseKey = window.currentUploadElementId;
 
         if (isDouble) {
-            docUrls[baseKey + 'Frente'] = await compressImageToBase64(files.frente);
-            docUrls[baseKey + 'Verso'] = await compressImageToBase64(files.verso);
+            docUrls[baseKey + 'Frente'] = await compressDocToBase64(files.frente);
+            docUrls[baseKey + 'Verso'] = await compressDocToBase64(files.verso);
         } else {
-            docUrls[baseKey] = await compressImageToBase64(files.single);
+            docUrls[baseKey] = await compressDocToBase64(files.single);
         }
 
         updates.documentUrls = docUrls;
@@ -2377,15 +2373,35 @@ function toggleStatus(btn) {
 }
 
 
-function aceitarFrete(btn) {
+async function aceitarFrete(btn) {
+    const freight = window.currentFreight;
+    if (!freight || !freight.id) {
+        showToast('Nenhuma carga selecionada.', 'error');
+        return;
+    }
+    if (!auth.currentUser) {
+        showToast('Você precisa estar autenticado.', 'error');
+        return;
+    }
+
     const originalText = btn.innerHTML;
     btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Reservando carga...`;
+    btn.disabled = true;
 
-    setTimeout(() => {
+    try {
+        await db.collection('freights').doc(freight.id).update({
+            status: 'transito',
+            driverUid: auth.currentUser.uid,
+            acceptedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
         btn.innerHTML = `<i class="ph-fill ph-check-circle"></i> Viagem Iniciada!`;
         btn.style.background = '#22c55e';
-        showToast('Carga confirmada! Acompanhe os detalhes na área de Chat.');
-    }, 1500);
+        showToast('Carga confirmada! Motorista registrado no frete.');
+    } catch (err) {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        showToast('Erro ao aceitar carga. Tente novamente.', 'error');
+    }
 }
 
 function formatTimeAgo(timestamp) {
@@ -2415,6 +2431,17 @@ function formatTimeAgo(timestamp) {
         return diffWeeks === 1 ? 'a 1 semana' : `a ${diffWeeks} semanas`;
     }
     return 'a mais de 1 ano';
+}
+
+function getDriverImageByTime() {
+    const hour = new Date().getHours();
+    // Tarde (Afternoon) ou Manhã (Dia em geral): 06h às 18h
+    // Noite: 18h às 06h
+    if (hour >= 18 || hour < 6) {
+        return '/driver_night.jpg';
+    } else {
+        return '/driver_day.jpg';
+    }
 }
 
 function renderFretes() {
@@ -2521,11 +2548,10 @@ function renderFretes() {
 
     // Render Search Feed
     if (listFretesSearch.length === 0) {
+        const driverImg = getDriverImageByTime();
         htmlSearch = `
-            <div class="empty-feed-card">
-                <div class="empty-icon-circle">
-                    <i class="ph ph-warning-circle"></i>
-                </div>
+            <div class="empty-feed-card search-empty-card">
+                <img src="${driverImg}" alt="Motorista PegaFrete" class="empty-state-img" />
                 <h3>Nenhuma carga disponível</h3>
                 <p>Não há nenhuma publicação de carga ativa no momento.</p>
             </div>
@@ -2770,16 +2796,15 @@ function openFreight(idOrIndex) {
 }
 
 function buscarFretes() {
-    const termo = document.getElementById('searchFrete').value.toLowerCase();
-    const cards = document.querySelectorAll('#dynamicFreightsSearch .freight-card');
+    const searchInput = document.getElementById('searchFrete');
+    if (!searchInput) return;
+    const termo = searchInput.value.toLowerCase().trim();
+    // Seleciona tanto o card premium quanto o card legado para garantir compatibilidade
+    const cards = document.querySelectorAll('#dynamicFreightsSearch .premium-freight-card, #dynamicFreightsSearch .freight-card');
 
     cards.forEach(card => {
         const texto = card.innerText.toLowerCase();
-        if (texto.includes(termo)) {
-            card.style.display = 'block';
-        } else {
-            card.style.display = 'none';
-        }
+        card.style.display = texto.includes(termo) ? '' : 'none';
     });
 }
 
@@ -3204,25 +3229,68 @@ window.handleContinuar = handleContinuar;
 window.fazerLogin = fazerLogin;
 window.publicarFrete = publicarFrete;
 window.salvarEdicaoFrete = salvarEdicaoFrete;
-window.concluirFrete = async function (id) {
-    if (!confirm('Tem certeza que deseja marcar esta carga como concluída?')) return;
-    try {
-        await db.collection("freights").doc(id).update({ status: 'entregue' });
-        showToast('Carga concluída com sucesso!');
-    } catch (err) {
-        console.error(err);
-        showToast('Erro ao concluir carga.', 'error');
+window.concluirFrete = function (id) {
+    // Modal de confirmação não-bloqueante em vez do confirm() nativo
+    const modal = document.getElementById('confirmActionModal');
+    const title = document.getElementById('confirmActionTitle');
+    const desc = document.getElementById('confirmActionDesc');
+    const btn = document.getElementById('confirmActionBtn');
+    if (!modal || !btn) {
+        // Fallback: executa direto se modal não existir
+        db.collection("freights").doc(id).update({ status: 'entregue' })
+            .then(() => showToast('Carga concluída com sucesso!'))
+            .catch(() => showToast('Erro ao concluir carga.', 'error'));
+        return;
     }
+    if (title) title.innerText = 'Concluir Carga';
+    if (desc) desc.innerText = 'Tem certeza que deseja marcar esta carga como concluída? Esta ação não pode ser desfeita.';
+    btn.style.background = '#22c55e';
+    btn.innerText = 'Sim, concluir';
+    btn.onclick = async () => {
+        try {
+            await db.collection("freights").doc(id).update({ status: 'entregue' });
+            showToast('Carga concluída com sucesso!');
+        } catch (err) {
+            showToast('Erro ao concluir carga.', 'error');
+        } finally {
+            modal.style.opacity = '0';
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
+        }
+    };
+    modal.style.display = 'flex';
+    modal.offsetHeight;
+    modal.style.opacity = '1';
 };
-window.cancelarFrete = async function (id) {
-    if (!confirm('Tem certeza que deseja cancelar esta carga?')) return;
-    try {
-        await db.collection("freights").doc(id).update({ status: 'cancelado' });
-        showToast('Carga cancelada!');
-    } catch (err) {
-        console.error(err);
-        showToast('Erro ao cancelar carga.', 'error');
+
+window.cancelarFrete = function (id) {
+    const modal = document.getElementById('confirmActionModal');
+    const title = document.getElementById('confirmActionTitle');
+    const desc = document.getElementById('confirmActionDesc');
+    const btn = document.getElementById('confirmActionBtn');
+    if (!modal || !btn) {
+        db.collection("freights").doc(id).update({ status: 'cancelado' })
+            .then(() => showToast('Carga cancelada!'))
+            .catch(() => showToast('Erro ao cancelar carga.', 'error'));
+        return;
     }
+    if (title) title.innerText = 'Cancelar Carga';
+    if (desc) desc.innerText = 'Tem certeza que deseja cancelar esta publicação? Esta ação não pode ser desfeita.';
+    btn.style.background = '#ef4444';
+    btn.innerText = 'Sim, cancelar';
+    btn.onclick = async () => {
+        try {
+            await db.collection("freights").doc(id).update({ status: 'cancelado' });
+            showToast('Carga cancelada!');
+        } catch (err) {
+            showToast('Erro ao cancelar carga.', 'error');
+        } finally {
+            modal.style.opacity = '0';
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
+        }
+    };
+    modal.style.display = 'flex';
+    modal.offsetHeight;
+    modal.style.opacity = '1';
 };
 window.logout = logout;
 window.fecharModalLogout = fecharModalLogout;
@@ -3239,6 +3307,34 @@ window.userData = userData;
 window.db = db;
 window.auth = auth;
 window.firebase = firebase;
+
+// ====== RECUPERAÇÃO DE SENHA (FUNCIONAL) ======
+window.recuperarSenha = async function () {
+    const emailInput = document.getElementById('loginEmail');
+    const emailVal = emailInput ? emailInput.value.trim() : '';
+
+    if (!emailVal || !validateEmail(emailVal)) {
+        showToast('Por favor, insira seu e-mail antes de solicitar a recuperação.', 'error');
+        if (emailInput) {
+            emailInput.focus();
+            emailInput.style.borderColor = '#ef4444';
+            setTimeout(() => { emailInput.style.borderColor = ''; }, 3000);
+        }
+        return;
+    }
+
+    try {
+        await auth.sendPasswordResetEmail(emailVal);
+        showToast('E-mail de recuperação enviado! Verifique sua caixa de entrada.', 'success');
+    } catch (err) {
+        if (err.code === 'auth/user-not-found') {
+            // Não revela se o e-mail existe ou não (proteção contra enumeração)
+            showToast('Se este e-mail estiver cadastrado, você receberá o link de recuperação.', 'success');
+        } else {
+            showToast('Erro ao enviar e-mail de recuperação. Tente novamente.', 'error');
+        }
+    }
+};
 
 // Implementações do Histórico do Embarcador
 function setShipperHistoryTab(tab, element) {
