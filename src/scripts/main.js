@@ -2481,7 +2481,7 @@ function renderFretes() {
                 <div class="empty-icon-circle">
                     <i class="ph ph-warning-circle"></i>
                 </div>
-                <h3>Sem cargas compatíveis</h3>
+                <h3>Sem cargas publicadas</h3>
                 <p>Não encontramos nenhuma carga publicada compatível com seu veículo no momento.</p>
             </div>
         `;

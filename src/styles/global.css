@@ -1850,7 +1850,7 @@
     height: auto;
     object-fit: cover;
     margin-bottom: 16px;
-    border-radius: 0;
+    border-radius: 10px;
     animation: none;
 }
 
