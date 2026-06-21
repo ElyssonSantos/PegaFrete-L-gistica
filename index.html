@@ -159,9 +159,36 @@
             <div class="modal-body">
                 <div class="filter-section">
                     <h3>Destino da carga (opcional)</h3>
-                    <select
-                        style="width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); background: transparent;">
-                        <option>Estado, Região ou País</option>
+                    <select id="filterDestino"
+                        style="width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main); font-weight: 600;">
+                        <option value="">Qualquer Estado (Todos)</option>
+                        <option value="AC">Acre (AC)</option>
+                        <option value="AL">Alagoas (AL)</option>
+                        <option value="AP">Amapá (AP)</option>
+                        <option value="AM">Amazonas (AM)</option>
+                        <option value="BA">Bahia (BA)</option>
+                        <option value="CE">Ceará (CE)</option>
+                        <option value="DF">Distrito Federal (DF)</option>
+                        <option value="ES">Espírito Santo (ES)</option>
+                        <option value="GO">Goiás (GO)</option>
+                        <option value="MA">Maranhão (MA)</option>
+                        <option value="MT">Mato Grosso (MT)</option>
+                        <option value="MS">Mato Grosso do Sul (MS)</option>
+                        <option value="MG">Minas Gerais (MG)</option>
+                        <option value="PA">Pará (PA)</option>
+                        <option value="PB">Paraíba (PB)</option>
+                        <option value="PR">Paraná (PR)</option>
+                        <option value="PE">Pernambuco (PE)</option>
+                        <option value="PI">Piauí (PI)</option>
+                        <option value="RJ">Rio de Janeiro (RJ)</option>
+                        <option value="RN">Rio Grande do Norte (RN)</option>
+                        <option value="RS">Rio Grande do Sul (RS)</option>
+                        <option value="RO">Rondônia (RO)</option>
+                        <option value="RR">Roraima (RR)</option>
+                        <option value="SC">Santa Catarina (SC)</option>
+                        <option value="SP">São Paulo (SP)</option>
+                        <option value="SE">Sergipe (SE)</option>
+                        <option value="TO">Tocantins (TO)</option>
                     </select>
                 </div>
                 <div class="filter-section">
@@ -374,10 +401,10 @@
             <div style="margin-bottom: 32px; display: flex; justify-content: center;">
                 <img src="/PegaFrete.png" alt="PegaFrete Logo" style="height: 120px; width: auto; object-fit: contain;">
             </div>
-            <h1 style="font-size: 28px; margin-bottom: 12px; font-weight: 800; line-height: 1.2;">
+            <h1 style="font-size: 36px; margin-bottom: 16px; font-weight: 800; line-height: 1.2;">
                 Boas-vindas ao PegaFrete
             </h1>
-            <p class="subtitle" style="font-size: 16px; max-width: 300px; margin: 0 auto; color: var(--text-muted);">
+            <p class="subtitle" style="font-size: 19px; max-width: 340px; margin: 0 auto; color: var(--text-muted); line-height: 1.4;">
                 Encontre cargas e motoristas em poucos segundos. Simples, rápido e sem burocracia.
             </p>
         </div>
@@ -1392,21 +1419,21 @@
     <section id="about_screen" class="screen" style="padding-bottom: 120px; background: #fdfaf6;">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
-            <h1 style="font-size: 20px; font-weight: 800;">Sobre</h1>
+            <h1 style="font-size: 24px; font-weight: 800;">Sobre</h1>
             <div style="width: 44px;"></div>
         </div>
         <div style="padding: 0; margin: 0 -24px;">
             <div style="display: flex; flex-direction: column; align-items: center; padding: 32px 20px;">
                 <img src="/PegaFrete.png" alt="PegaFrete Logo" style="height: 120px; width: auto; object-fit: contain; margin-bottom: 16px;">
-                <h2 style="font-size: 24px; font-weight: 800; color: var(--primary); margin-bottom: 8px;">PegaFrete</h2>
-                <p style="font-size: 14px; color: var(--text-muted); font-weight: 600;">Versão 1.0.0</p>
+                <h2 style="font-size: 32px; font-weight: 800; color: var(--primary); margin-bottom: 8px;">PegaFrete</h2>
+                <p style="font-size: 18px; color: var(--text-muted); font-weight: 600;">Versão 1.0.0</p>
             </div>
 
-            <p style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 24px 20px 8px 20px;">
+            <p style="font-size: 16px; font-weight: 600; color: var(--text-muted); margin: 24px 20px 8px 20px;">
                 Informações</p>
             <div
-                style="padding: 16px 20px; background: #ffffff; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
-                <p style="font-size: 14px; color: var(--text-main); line-height: 1.6;">
+                style="padding: 20px; background: #ffffff; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+                <p style="font-size: 16px; color: var(--text-main); line-height: 1.6;">
                     O aplicativo definitivo para conectar motoristas autônomos e transportadoras a cargas disponíveis em
                     todo o Brasil de forma rápida, segura e transparente.
                 </p>

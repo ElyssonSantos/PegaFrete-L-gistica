@@ -863,12 +863,22 @@ function openFilters() { document.getElementById('filterModal').classList.add('a
 function closeFilters() { document.getElementById('filterModal').classList.remove('active'); }
 function aplicarFiltros() {
     closeFilters();
+    renderFretes();
     showToast('Filtros aplicados com sucesso!', 'success');
 }
 function limparFiltros() {
-    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-    document.getElementById('distSlider').value = 250;
-    document.getElementById('distValue').innerText = '250 km';
+    document.querySelectorAll('#filterModal .pill').forEach(p => p.classList.remove('active'));
+    const distSlider = document.getElementById('distSlider');
+    if (distSlider) {
+        distSlider.value = 250;
+        document.getElementById('distValue').innerText = '250 km';
+    }
+    const filterDestino = document.getElementById('filterDestino');
+    if (filterDestino) {
+        filterDestino.value = '';
+    }
+    renderFretes();
+    showToast('Filtros limpos!', 'info');
 }
 function togglePill(pill) { pill.classList.toggle('active'); }
 
@@ -2507,11 +2517,107 @@ function renderFretes() {
                 listFretesHome = [];
                 listFretesSearch = [];
             } else {
+                // Home Feed: Cargas ativas compatíveis com o veículo cadastrado
                 listFretesHome = fretes.filter(f => f.status !== 'entregue' && f.status !== 'cancelado');
                 if (userData.veiculo) {
                     listFretesHome = listFretesHome.filter(f => f.veiculo && f.veiculo.toLowerCase() === userData.veiculo.toLowerCase());
                 }
-                listFretesSearch = listFretesHome;
+
+                // Search Feed: Cargas ativas filtradas dinamicamente
+                let filteredSearch = fretes.filter(f => f.status !== 'entregue' && f.status !== 'cancelado');
+
+                // 1. Filtro por Termo de Busca
+                const searchInput = document.getElementById('searchFrete');
+                if (searchInput) {
+                    const termo = searchInput.value.toLowerCase().trim();
+                    if (termo) {
+                        filteredSearch = filteredSearch.filter(f => {
+                            const origem = (f.origem || '').toLowerCase();
+                            const destino = (f.destino || '').toLowerCase();
+                            const tipo = (f.tipo || '').toLowerCase();
+                            const veiculo = (f.veiculo || '').toLowerCase();
+                            const obs = (f.obs || '').toLowerCase();
+                            return origem.includes(termo) || destino.includes(termo) || tipo.includes(termo) || veiculo.includes(termo) || obs.includes(termo);
+                        });
+                    }
+                }
+
+                // 2. Filtro por Estado (Destino)
+                const filterDestinoEl = document.getElementById('filterDestino');
+                if (filterDestinoEl && filterDestinoEl.value) {
+                    const selectedState = filterDestinoEl.value.toUpperCase();
+                    filteredSearch = filteredSearch.filter(f => {
+                        const dest = (f.destino || '').toUpperCase();
+                        return dest.endsWith(` - ${selectedState}`) || 
+                               dest.endsWith(`, ${selectedState}`) || 
+                               dest.endsWith(`-${selectedState}`) ||
+                               dest.includes(`/${selectedState}`) ||
+                               dest.includes(`(${selectedState})`) ||
+                               dest.includes(selectedState);
+                    });
+                }
+
+                // 3. Filtro por Distância Máxima
+                const distSliderEl = document.getElementById('distSlider');
+                if (distSliderEl) {
+                    const maxDist = parseInt(distSliderEl.value, 10);
+                    filteredSearch = filteredSearch.filter(f => {
+                        if (!f.distanciaKm) return true; // se não especificado, exibir
+                        const dist = parseFloat(f.distanciaKm);
+                        return isNaN(dist) || dist <= maxDist;
+                    });
+                }
+
+                // 4. Filtro por Pills de Veículos Selecionados
+                const activeVehiclePills = Array.from(document.querySelectorAll('#filterModal .pill.active'))
+                    .map(p => p.innerText.replace(/[★☆\s]/g, '').toLowerCase().trim())
+                    .filter(p => p !== 'fretes com preço' && p !== 'carga completa' && p !== 'complemento' && p !== 'com rastreamento' && p !== 'sem rastreamento');
+                
+                if (activeVehiclePills.length > 0 && !activeVehiclePills.includes('todos')) {
+                    filteredSearch = filteredSearch.filter(f => {
+                        if (!f.veiculo) return false;
+                        const v = f.veiculo.toLowerCase().trim();
+                        return activeVehiclePills.some(pill => {
+                            if (pill === '3/4') return v.includes('3/4') || v.includes('toco') || v.includes('3 quartos');
+                            return v.includes(pill);
+                        });
+                    });
+                }
+
+                // 5. Filtro Cargas com Preço
+                const pricePill = Array.from(document.querySelectorAll('#filterModal .pill.active'))
+                    .find(p => p.innerText.toLowerCase().includes('com preço'));
+                if (pricePill) {
+                    filteredSearch = filteredSearch.filter(f => {
+                        if (!f.valor) return false;
+                        const valStr = String(f.valor).toLowerCase();
+                        return valStr !== '0' && valStr !== '' && !valStr.includes('combinar');
+                    });
+                }
+
+                // 6. Filtro Tipo de Carga
+                const completePill = Array.from(document.querySelectorAll('#filterModal .pill.active'))
+                    .find(p => p.innerText.toLowerCase().includes('completa'));
+                const complementPill = Array.from(document.querySelectorAll('#filterModal .pill.active'))
+                    .find(p => p.innerText.toLowerCase().includes('complemento'));
+                if (completePill && !complementPill) {
+                    filteredSearch = filteredSearch.filter(f => (f.tipo || '').toLowerCase().includes('completa') || (f.tipo || '').toLowerCase().includes('fechada'));
+                } else if (complementPill && !completePill) {
+                    filteredSearch = filteredSearch.filter(f => (f.tipo || '').toLowerCase().includes('complemento') || (f.tipo || '').toLowerCase().includes('fracionada'));
+                }
+
+                // 7. Filtro Rastreamento
+                const traceYesPill = Array.from(document.querySelectorAll('#filterModal .pill.active'))
+                    .find(p => p.innerText.toLowerCase().includes('com rastreamento'));
+                const traceNoPill = Array.from(document.querySelectorAll('#filterModal .pill.active'))
+                    .find(p => p.innerText.toLowerCase().includes('sem rastreamento'));
+                if (traceYesPill && !traceNoPill) {
+                    filteredSearch = filteredSearch.filter(f => f.rastreamento === true || (f.obs || '').toLowerCase().includes('rastrea') || (f.obs || '').toLowerCase().includes('rastreado'));
+                } else if (traceNoPill && !traceYesPill) {
+                    filteredSearch = filteredSearch.filter(f => f.rastreamento === false || !(f.obs || '').toLowerCase().includes('rastrea'));
+                }
+
+                listFretesSearch = filteredSearch;
             }
         }
     }
@@ -2841,16 +2947,7 @@ function openFreight(idOrIndex) {
 }
 
 function buscarFretes() {
-    const searchInput = document.getElementById('searchFrete');
-    if (!searchInput) return;
-    const termo = searchInput.value.toLowerCase().trim();
-    // Seleciona tanto o card premium quanto o card legado para garantir compatibilidade
-    const cards = document.querySelectorAll('#dynamicFreightsSearch .premium-freight-card, #dynamicFreightsSearch .freight-card');
-
-    cards.forEach(card => {
-        const texto = card.innerText.toLowerCase();
-        card.style.display = texto.includes(termo) ? '' : 'none';
-    });
+    renderFretes();
 }
 
 async function publicarFrete(btn) {
