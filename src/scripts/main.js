@@ -88,6 +88,38 @@ storage.setMaxUploadRetryTime(3000);
 
 let navHistory = ['splash'];
 window.history.replaceState({ screen: 'splash' }, "", "#splash");
+
+// ====== GATE DE SINCRONIZAÇÃO DA SPLASH SCREEN ======
+let splashDone = false;
+let deferredNavigation = null;
+let minTimeElapsed = false;
+let appReady = false;
+
+function checkSplashGate() {
+    if (minTimeElapsed && appReady) {
+        splashDone = true;
+        console.log("[SPLASH] Splash conditions met. Processing navigation.");
+        if (deferredNavigation) {
+            navTo(deferredNavigation.id, deferredNavigation.pushState);
+            deferredNavigation = null;
+        } else {
+            // Default fallback se o estado de auth demorar mais de 2s para responder após o gate abrir
+            setTimeout(() => {
+                const splashEl = document.getElementById('splash');
+                if (splashEl && splashEl.classList.contains('active') && !deferredNavigation) {
+                    console.log("[SPLASH] Timeout fallback to auth_entry");
+                    navTo('auth_entry');
+                }
+            }, 2000);
+        }
+    }
+}
+
+// Inicia timer mínimo da Splash Screen (3.0s de animação + 0.8s de pausa)
+setTimeout(() => {
+    minTimeElapsed = true;
+    checkSplashGate();
+}, 3800);
 let currentUserRole = null;
 let userData = {};
 let tempPhone = '';
@@ -399,6 +431,9 @@ window.onload = () => {
             navTo('auth_entry');
         }
     });
+
+    appReady = true;
+    checkSplashGate();
 };
 
 // ====== LÓGICA DE AUTENTICAÇÃO (NOVA) ======
@@ -724,6 +759,12 @@ function showToast(message, type = 'success') {
 }
 
 function navTo(id, pushState = true) {
+    if (!splashDone && id !== 'splash') {
+        deferredNavigation = { id, pushState };
+        console.log(`[SPLASH] Deferring navigation to ${id}`);
+        return;
+    }
+
     // Gerenciamento da flag isRegisteringProcess para evitar auto-redirecionamento da sessão
     if (['choice', 'register_shipper', 'register_driver', 'register_vehicle', 'register_password'].includes(id)) {
         isRegisteringProcess = true;
