@@ -1920,6 +1920,10 @@ function logout() {
     }
 }
 
+function abrirModalLogout() {
+    logout();
+}
+
 function fecharModalLogout() {
     const sheet = document.getElementById('logoutConfirmModal');
     if (sheet) {
@@ -3334,6 +3338,7 @@ window.cancelarFrete = function (id) {
     modal.style.opacity = '1';
 };
 window.logout = logout;
+window.abrirModalLogout = abrirModalLogout;
 window.fecharModalLogout = fecharModalLogout;
 window.confirmarLogoutExec = confirmarLogoutExec;
 window.abrirModalDeleteAccount = abrirModalDeleteAccount;
