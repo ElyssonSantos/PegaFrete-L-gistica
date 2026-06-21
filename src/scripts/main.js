@@ -1471,7 +1471,7 @@ function preencherPerfil() {
         profileTagText.innerText = tagTitle;
         profileTagText.style.color = colorMain;
     }
-    
+
     if (document.getElementById('driverHomeGreeting')) {
         const firstName = (userData.nome || userData.razao || 'Usuário').split(' ')[0];
         document.getElementById('driverHomeGreeting').innerText = `Olá, ${firstName}`;
@@ -1482,12 +1482,12 @@ function preencherPerfil() {
     if (menuBusinessData) {
         if (userData.role === 'shipper') {
             menuBusinessData.style.display = 'flex';
-            
+
             // Populate business details
             const bdCompanyName = document.getElementById('bdCompanyName');
             const bdCNPJ = document.getElementById('bdCNPJ');
             const bdAddress = document.getElementById('bdAddress');
-            
+
             if (bdCompanyName) bdCompanyName.innerText = userData.razao || 'Não cadastrado';
             if (bdCNPJ) bdCNPJ.innerText = userData.cnpj || (userData.tipoDocumento === 'cnpj' ? userData.documento : '') || 'Não cadastrado';
             if (bdAddress) bdAddress.innerText = userData.endereco || 'Não cadastrado';
@@ -1661,7 +1661,7 @@ function preencherPerfil() {
         // Hide driver upload options (Shippers only need Comprovante Residencia and CNPJ/CPF which is handled below)
         if (document.getElementById('upCRLV')) document.getElementById('upCRLV').style.display = 'none';
         if (document.getElementById('upCNH')) document.getElementById('upCNH').style.display = 'none';
-        
+
         // upCPF is used as Cartão CNPJ for shippers
         const upCpfTitle = document.querySelector('#upCPF p:first-child');
         if (upCpfTitle) upCpfTitle.innerText = "Cartão CNPJ";
@@ -3802,25 +3802,25 @@ window.editarSobrenome = async function () {
     const currentLastName = parts.length > 1 ? parts.slice(1).join(' ') : '';
     const novoSobrenome = prompt("Editar Sobrenome:", currentLastName);
     if (novoSobrenome === null) return; // Cancelado
-    
+
     const novoNomeCompleto = (firstName + ' ' + novoSobrenome.trim()).trim();
     if (!novoNomeCompleto) {
         showToast('O nome completo não pode ficar vazio.', 'error');
         return;
     }
-    
+
     try {
         const user = auth.currentUser;
         if (!user) {
             showToast('Usuário não autenticado.', 'error');
             return;
         }
-        
+
         await db.collection('users').doc(user.uid).update({
             nome: novoNomeCompleto,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        
+
         userData.nome = novoNomeCompleto;
         preencherPerfil();
         showToast('Sobrenome atualizado com sucesso!');
@@ -3838,7 +3838,7 @@ window.abrirTermosCategoria = function (titulo) {
 
     let content = "";
     switch (titulo) {
-        case 'Termos de Uso':
+        case 'Termos de Uso - Gerais':
             content = `
             <p>Estes termos regem o uso do aplicativo PegaFrete. A plataforma atua exclusivamente como facilitadora de conexões logísticas entre prestadores de serviço de transporte (Transportadores) e solicitantes de envio de cargas (Embarcadores).</p>
             
@@ -3848,26 +3848,34 @@ window.abrirTermosCategoria = function (titulo) {
                 <li style="margin-bottom: 6px;">Apenas maiores de 18 anos ou empresas legalmente constituídas podem utilizar o sistema.</li>
             </ul>
 
-            <h4 style="margin-top: 16px; margin-bottom: 8px; font-weight: 700; color: var(--primary);">2. Regras para Embarcadores</h4>
-            <ul style="margin-bottom: 12px; padding-left: 20px;">
-                <li style="margin-bottom: 6px;">Descrever fielmente a natureza, peso, cubagem e riscos da carga.</li>
-                <li style="margin-bottom: 6px;">É proibido anunciar cargas ilícitas, inflamáveis ou proibidas por lei.</li>
-                <li style="margin-bottom: 6px;">O Embarcador é o único responsável pela contratação e pagamento do frete diretamente ao Transportador.</li>
-            </ul>
-
-            <h4 style="margin-top: 16px; margin-bottom: 8px; font-weight: 700; color: var(--primary);">3. Regras para Transportadores</h4>
-            <ul style="margin-bottom: 12px; padding-left: 20px;">
-                <li style="margin-bottom: 6px;">Possuir habilitação (CNH) válida e compatível com o veículo.</li>
-                <li style="margin-bottom: 6px;">Manter o veículo em perfeitas condições e com o CRLV em dia.</li>
-                <li style="margin-bottom: 6px;">Possuir registro ativo e regular na ANTT.</li>
-                <li style="margin-bottom: 6px;">Cumprir os prazos e condições pactuados.</li>
-            </ul>
-
-            <h4 style="margin-top: 16px; margin-bottom: 8px; font-weight: 700; color: var(--primary);">4. Isenção de Responsabilidade</h4>
+            <h4 style="margin-top: 16px; margin-bottom: 8px; font-weight: 700; color: var(--primary);">2. Isenção de Responsabilidade</h4>
             <p>O PegaFrete não assume nenhuma responsabilidade pela qualidade do transporte, extravios, sinistros, avarias ou pelo pagamento acordado entre as partes. A plataforma não participa das negociações financeiras e operacionais.</p>
 
-            <h4 style="margin-top: 16px; margin-bottom: 8px; font-weight: 700; color: var(--primary);">5. Segurança e Conduta</h4>
+            <h4 style="margin-top: 16px; margin-bottom: 8px; font-weight: 700; color: var(--primary);">3. Segurança e Conduta</h4>
             <p>Qualquer tentativa de fraude, difamação, roubo de dados ou violação de conduta no chat ou aplicativo acarretará na suspensão imediata e irrevogável da conta do infrator.</p>
+            `;
+            break;
+        case 'Termos de Uso - Embarcadores':
+            content = `
+            <h4 style="margin-top: 16px; margin-bottom: 8px; font-weight: 700; color: var(--primary);">Regras para Embarcadores</h4>
+            <ul style="margin-bottom: 12px; padding-left: 20px;">
+                <li style="margin-bottom: 6px;">Descrever fielmente a natureza, peso, cubagem e riscos da carga.</li>
+                <li style="margin-bottom: 6px;">É proibido anunciar cargas ilícitas, inflamáveis ou proibidas por lei sem as devidas licenças e informações explícitas.</li>
+                <li style="margin-bottom: 6px;">O Embarcador é o único responsável pela contratação e pagamento do frete diretamente ao Transportador.</li>
+                <li style="margin-bottom: 6px;">O Embarcador compromete-se a fornecer informações precisas para a coleta e entrega, evitando atrasos desnecessários ao Transportador.</li>
+            </ul>
+            `;
+            break;
+        case 'Termos de Uso - Transportadores':
+            content = `
+            <h4 style="margin-top: 16px; margin-bottom: 8px; font-weight: 700; color: var(--primary);">Regras para Transportadores</h4>
+            <ul style="margin-bottom: 12px; padding-left: 20px;">
+                <li style="margin-bottom: 6px;">Possuir habilitação (CNH) válida e compatível com o veículo registrado na plataforma.</li>
+                <li style="margin-bottom: 6px;">Manter o veículo em perfeitas condições mecânicas e de segurança, com o CRLV em dia.</li>
+                <li style="margin-bottom: 6px;">Possuir registro ativo e regular na ANTT.</li>
+                <li style="margin-bottom: 6px;">Cumprir rigorosamente os prazos de coleta e entrega pactuados diretamente com o Embarcador.</li>
+                <li style="margin-bottom: 6px;">Zelar pela integridade da carga durante todo o trajeto, agindo de boa-fé.</li>
+            </ul>
             `;
             break;
         case 'Política de Privacidade':
@@ -3884,7 +3892,7 @@ window.abrirTermosCategoria = function (titulo) {
 
     titleEl.innerText = titulo;
     contentEl.innerHTML = content;
-    
+
     modal.style.display = 'flex';
     modal.offsetHeight; // force reflow
     modal.style.opacity = '1';

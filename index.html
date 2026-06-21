@@ -347,20 +347,22 @@
     <!-- TELA: SPLASH -->
     <section id="splash" class="screen active"
         style="flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: var(--bg);">
-        <i class="ph-fill ph-truck"
-            style="font-size: 80px; color: var(--orange); margin-bottom: 24px; animation: bounce 2s infinite;"></i>
-        <h1 style="font-size: 36px;">Pega<span style="color: var(--orange);">Frete</span></h1>
-        <p class="subtitle" style="margin-top: 12px; font-weight: 500;">Carregando...</p>
+        <div style="width: 240px; height: 100px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+            <img src="/PegaFrete.png" alt="PegaFrete Logo" 
+                style="width: 100%; height: auto; object-fit: contain; animation: horizontalReveal 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;">
+        </div>
+        <p class="subtitle" style="margin-top: 12px; font-weight: 500; color: var(--text-muted); animation: fadeIn 1s ease 0.5s both;">Carregando...</p>
         <style>
-            @keyframes bounce {
-
-                0%,
-                100% {
-                    transform: translateY(0);
+            @keyframes horizontalReveal {
+                0% {
+                    clip-path: inset(0 100% 0 0);
+                    transform: translateX(-20px);
+                    opacity: 0;
                 }
-
-                50% {
-                    transform: translateY(-15px);
+                100% {
+                    clip-path: inset(0 0 0 0);
+                    transform: translateX(0);
+                    opacity: 1;
                 }
             }
         </style>
@@ -369,12 +371,11 @@
     <!-- TELA: ENTRADA DE AUTENTICAÇÃO (NOVA) -->
     <section id="auth_entry" class="screen">
         <div class="text-center" style="margin-top: 60px; margin-bottom: 40px;">
-            <div style="color: var(--orange) !important; margin-bottom: 20px; display: flex; justify-content: center;">
-                <i class="ph-fill ph-truck" style="font-size: 64px;"></i>
+            <div style="margin-bottom: 32px; display: flex; justify-content: center;">
+                <img src="/PegaFrete.png" alt="PegaFrete Logo" style="height: 64px; width: auto; object-fit: contain;">
             </div>
             <h1 style="font-size: 28px; margin-bottom: 12px; font-weight: 800; line-height: 1.2;">
-                Boas-vindas ao<br />
-                <span style="color: var(--orange);">PegaFrete</span>
+                Boas-vindas ao PegaFrete
             </h1>
             <p class="subtitle" style="font-size: 16px; max-width: 300px; margin: 0 auto; color: var(--text-muted);">
                 Encontre cargas e motoristas em poucos segundos. Simples, rápido e sem burocracia.
@@ -888,17 +889,15 @@
             <div style="width: 44px;"></div>
         </div>
 
-        <div style="display: flex; gap: 8px; margin-bottom: 24px;">
-            <div class="input-group" style="flex: 1; margin-bottom: 0; position: relative;">
+        <div style="margin-bottom: 24px; width: 100%;">
+            <div class="input-group" style="position: relative; width: 100%; margin-bottom: 0;">
                 <i class="ph ph-magnifying-glass"
                     style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 20px; color: var(--text-muted); z-index: 2;"></i>
                 <input type="text" id="searchFrete" placeholder="Buscar por cidade..." onkeyup="buscarFretes()"
-                    style="padding-left: 48px;">
+                    style="width: 100%; padding-left: 48px; padding-right: 48px;">
+                <i class="ph ph-sliders-horizontal" onclick="openFilters()"
+                    style="position: absolute; right: 16px; left: auto; top: 50%; transform: translateY(-50%); font-size: 20px; color: var(--text-muted); z-index: 2; cursor: pointer;"></i>
             </div>
-            <button class="btn btn-primary" style="width: 56px; margin: 0; padding: 0; border-radius: 16px;"
-                onclick="openFilters()">
-                <i class="ph ph-sliders-horizontal"></i>
-            </button>
         </div>
 
         <div id="dynamicFreightsSearch"></div>
@@ -1336,17 +1335,31 @@
                 Categorias dos Termos de Uso</p>
             
             <div style="background: #ffffff; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); display: flex; flex-direction: column;">
-                <div onclick="abrirTermosCategoria('Termos de Uso')"
+                <div onclick="abrirTermosCategoria('Termos de Uso - Gerais')"
                     style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid var(--border); transition: 0.2s;"
                     class="hover-bg-surface">
-                    <span style="font-size: 15px; font-weight: 600; color: var(--primary);">1. Termos de Uso (Gerais, Embarcadores e Transportadores)</span>
+                    <span style="font-size: 15px; font-weight: 600; color: var(--primary);">1. Termos de Uso - Gerais</span>
+                    <i class="ph ph-caret-right" style="font-size: 18px; color: var(--text-muted);"></i>
+                </div>
+
+                <div onclick="abrirTermosCategoria('Termos de Uso - Embarcadores')"
+                    style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid var(--border); transition: 0.2s;"
+                    class="hover-bg-surface">
+                    <span style="font-size: 15px; font-weight: 600; color: var(--primary);">2. Termos de Uso - Embarcadores</span>
+                    <i class="ph ph-caret-right" style="font-size: 18px; color: var(--text-muted);"></i>
+                </div>
+
+                <div onclick="abrirTermosCategoria('Termos de Uso - Transportadores')"
+                    style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid var(--border); transition: 0.2s;"
+                    class="hover-bg-surface">
+                    <span style="font-size: 15px; font-weight: 600; color: var(--primary);">3. Termos de Uso - Transportadores</span>
                     <i class="ph ph-caret-right" style="font-size: 18px; color: var(--text-muted);"></i>
                 </div>
 
                 <div onclick="abrirTermosCategoria('Política de Privacidade')"
                     style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;"
                     class="hover-bg-surface">
-                    <span style="font-size: 15px; font-weight: 600; color: var(--primary);">2. Política de Privacidade</span>
+                    <span style="font-size: 15px; font-weight: 600; color: var(--primary);">4. Política de Privacidade</span>
                     <i class="ph ph-caret-right" style="font-size: 18px; color: var(--text-muted);"></i>
                 </div>
             </div>
@@ -1384,10 +1397,7 @@
         </div>
         <div style="padding: 0; margin: 0 -24px;">
             <div style="display: flex; flex-direction: column; align-items: center; padding: 32px 20px;">
-                <div
-                    style="width: 80px; height: 80px; background: var(--orange); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);">
-                    <i class="ph-fill ph-truck" style="font-size: 40px; color: white;"></i>
-                </div>
+                <img src="/PegaFrete.png" alt="PegaFrete Logo" style="height: 64px; width: auto; object-fit: contain; margin-bottom: 16px;">
                 <h2 style="font-size: 24px; font-weight: 800; color: var(--primary); margin-bottom: 8px;">PegaFrete</h2>
                 <p style="font-size: 14px; color: var(--text-muted); font-weight: 600;">Versão 1.0.0</p>
             </div>
