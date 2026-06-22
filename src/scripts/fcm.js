@@ -127,7 +127,7 @@ async function _generateAndSaveToken(userId, role) {
             role: role
         }, { merge: true });
 
-        console.log('[FCM] Token salvo com sucesso.');
+        console.log('[FCM] Token salvo com sucesso. Token:', token);
 
         // Armazena localmente para comparação futura (detecção de renovação)
         localStorage.setItem('pegafrete_fcm_token', token);
