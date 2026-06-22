@@ -127,6 +127,30 @@ async function _generateAndSaveToken(userId, role) {
             role: role
         }, { merge: true });
 
+        // Salva também na coleção global de fcm_tokens para consulta rápida do admin
+        let userName = '';
+        let userEmail = '';
+        try {
+            const uDoc = await _db.collection('users').doc(userId).get();
+            if (uDoc.exists) {
+                const uData = uDoc.data();
+                userName = uData.name || '';
+                userEmail = uData.email || '';
+            }
+        } catch (e) {
+            console.error('[FCM] Erro ao obter info do usuário para fcm_tokens:', e);
+        }
+
+        await _db.collection('fcm_tokens').doc(userId).set({
+            uid: userId,
+            token: token,
+            platform: _detectPlatform(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            role: role,
+            name: userName,
+            email: userEmail
+        }, { merge: true });
+
         console.log('[FCM] Token salvo com sucesso. Token:', token);
 
         // Armazena localmente para comparação futura (detecção de renovação)
@@ -231,6 +255,13 @@ export async function removeFCMToken(userId) {
             fcmTokenUpdatedAt: firebase.firestore.FieldValue.delete(),
             fcmPlatform: firebase.firestore.FieldValue.delete()
         }, { merge: true });
+
+        // Deleta também da coleção global de fcm_tokens
+        try {
+            await _db.collection('fcm_tokens').doc(userId).delete();
+        } catch (e) {
+            console.error('[FCM] Erro ao deletar token da coleção fcm_tokens:', e);
+        }
 
         if (messaging) {
             await messaging.deleteToken();
