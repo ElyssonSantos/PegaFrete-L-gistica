@@ -20,7 +20,7 @@ import 'firebase/compat/messaging';
 //           → Web Push certificates → Generate Key Pair
 // Substitua a string abaixo pela sua VAPID Key real.
 // ──────────────────────────────────────────────────────────
-const VAPID_KEY = 'BEl62iUYgUivxIkv69yViEuiBIa40HI80NM9DGbM_YW_M'; // ← SUBSTITUA
+const VAPID_KEY = 'BOCYZrq8zvdJPRvC95BcavLpVGJpNx4tb3BXLMleQ1O7teHqg_gmTz2GONFrVasf2z1mOekRDrulf7sIZ76Eyr8'; // ← substitua
 
 let messaging = null;
 let _db = null;
