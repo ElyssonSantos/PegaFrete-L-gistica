@@ -21,7 +21,6 @@
         body {
             background: radial-gradient(circle at top right, #fff7ed 0%, var(--bg) 100%);
             color: var(--text-main);
-            overscroll-behavior-y: none;
             min-height: 100vh;
         }
 

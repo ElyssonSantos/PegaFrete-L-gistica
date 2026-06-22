@@ -4064,3 +4064,118 @@ window.fecharTermosCategoryModal = function () {
         }, 300);
     }
 };
+
+// ====== PULL-TO-REFRESH ======
+(function initPullToRefresh() {
+    // Cria o indicador visual
+    const ptr = document.createElement('div');
+    ptr.id = 'pullToRefreshIndicator';
+    ptr.innerHTML = `
+        <div style="
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 64px;
+            background: linear-gradient(to bottom, rgba(249,115,22,0.12), transparent);
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(-64px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        " id="ptrInner">
+            <div style="
+                width: 36px; height: 36px;
+                border-radius: 50%;
+                background: white;
+                box-shadow: 0 4px 16px rgba(249,115,22,0.25);
+                display: flex; align-items: center; justify-content: center;
+                font-size: 18px;
+            " id="ptrIcon">↓</div>
+        </div>
+    `;
+    document.body.appendChild(ptr);
+
+    const ptrInner = document.getElementById('ptrInner');
+    const ptrIcon = document.getElementById('ptrIcon');
+
+    let touchStartY = 0;
+    let isPulling = false;
+    const THRESHOLD = 80; // px para acionar o refresh
+
+    function getActiveScreen() {
+        return document.querySelector('.screen.active');
+    }
+
+    document.addEventListener('touchstart', (e) => {
+        const screen = getActiveScreen();
+        if (!screen) return;
+        // Só inicia pull se já estiver no topo
+        if (screen.scrollTop === 0) {
+            touchStartY = e.touches[0].clientY;
+            isPulling = true;
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!isPulling) return;
+        const screen = getActiveScreen();
+        if (!screen || screen.scrollTop > 0) {
+            isPulling = false;
+            hidePTR();
+            return;
+        }
+
+        const dy = e.touches[0].clientY - touchStartY;
+        if (dy <= 0) {
+            hidePTR();
+            return;
+        }
+
+        // Resistência: quanto mais puxa, menos move proporcionalmente
+        const progress = Math.min(dy / THRESHOLD, 1);
+        const translateY = Math.min(dy * 0.4, THRESHOLD * 0.6);
+
+        ptrInner.style.opacity = progress.toString();
+        ptrInner.style.transform = `translateY(${translateY - 64}px)`;
+
+        if (progress >= 1) {
+            ptrIcon.textContent = '↺';
+            ptrIcon.style.color = '#ea580c';
+            ptrIcon.style.animation = 'spin 0.6s linear infinite';
+        } else {
+            ptrIcon.textContent = '↓';
+            ptrIcon.style.color = '';
+            ptrIcon.style.animation = '';
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+        if (!isPulling) return;
+        const dy = e.changedTouches[0].clientY - touchStartY;
+
+        if (dy >= THRESHOLD) {
+            // Aciona refresh
+            ptrIcon.textContent = '↺';
+            ptrIcon.style.animation = 'spin 0.6s linear infinite';
+            ptrInner.style.opacity = '1';
+            ptrInner.style.transform = 'translateY(0px)';
+            setTimeout(() => {
+                window.location.reload();
+            }, 600);
+        } else {
+            hidePTR();
+        }
+        isPulling = false;
+    }, { passive: true });
+
+    function hidePTR() {
+        ptrInner.style.opacity = '0';
+        ptrInner.style.transform = 'translateY(-64px)';
+        ptrIcon.textContent = '↓';
+        ptrIcon.style.color = '';
+        ptrIcon.style.animation = '';
+    }
+})();
+
