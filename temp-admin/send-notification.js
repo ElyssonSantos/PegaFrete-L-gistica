@@ -14,20 +14,22 @@
  * ============================================================
  */
 
-const admin = require('firebase-admin');
+const { initializeApp, getApps, cert } = require('firebase-admin/app');
+const { getFirestore, FieldValue } = require('firebase-admin/firestore');
+const { getMessaging } = require('firebase-admin/messaging');
 
 // Inicializa o Admin SDK com a service account do projeto
 // Baixe em: Firebase Console → Project Settings → Service Accounts → Generate new private key
 const serviceAccount = require('./serviceAccountKey.json'); // ← coloque o arquivo aqui
 
-if (!admin.apps.length) {
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
+if (getApps().length === 0) {
+    initializeApp({
+        credential: cert(serviceAccount)
     });
 }
 
-const db = admin.firestore();
-const messaging = admin.messaging();
+const db = getFirestore();
+const messaging = getMessaging();
 
 // ──────────────────────────────────────────────────────────
 //  1. ENVIAR PARA UM USUÁRIO ESPECÍFICO (por token)
@@ -186,8 +188,8 @@ async function _clearInvalidToken(token) {
 
         snapshot.forEach(doc => {
             doc.ref.update({
-                fcmToken: admin.firestore.FieldValue.delete(),
-                fcmTokenUpdatedAt: admin.firestore.FieldValue.delete()
+                fcmToken: FieldValue.delete(),
+                fcmTokenUpdatedAt: FieldValue.delete()
             });
         });
     } catch (err) {
@@ -214,3 +216,18 @@ async function _clearInvalidToken(token) {
 // sendToAll({ title: 'Manutenção programada', body: 'O app estará indisponível das 02h às 04h.' });
 
 module.exports = { sendToUser, sendToAll, sendToGroup };
+
+// Execução direta via terminal para teste de inicialização
+if (require.main === module) {
+    console.log('[FCM Backend] Validando inicialização do Firebase Admin SDK...');
+    db.collection('users').limit(1).get()
+        .then(() => {
+            console.log('✅ SUCESSO: Firebase Admin SDK inicializado com sucesso e conectado ao Firestore!');
+            process.exit(0);
+        })
+        .catch(err => {
+            console.error('❌ ERRO na inicialização:', err.message);
+            process.exit(1);
+        });
+}
+
