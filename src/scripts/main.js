@@ -2,6 +2,8 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import 'firebase/compat/storage';
+import { initFCM, requestNotificationPermission, removeFCMToken } from './fcm.js';
+
 
 // ====== ZERO TRUST HARDENING ======
 // Prevenção de vazamento de dados em Produção
@@ -84,10 +86,22 @@ const db = firebase.firestore();
 const storage = firebase.storage();
 storage.setMaxUploadRetryTime(3000);
 
+// ====== INICIALIZAÇÃO DO FCM ======
+// initFCM prepara o SDK de messaging mas NÃO pede permissão ainda.
+// A permissão só é solicitada após o login do usuário (UX correta).
+initFCM(db);
+
+// Exibe notificações em foreground usando o toast nativo do app
+window.showFCMNotification = function ({ title, body, icon, data }) {
+    if (typeof showToast === 'function') {
+        showToast(`🔔 ${title || 'PegaFrete'}: ${body || ''}`, 'info');
+    }
+};
 
 
 let navHistory = ['splash'];
 window.history.replaceState({ screen: 'splash' }, "", "#splash");
+
 
 // ====== GATE DE SINCRONIZAÇÃO DA SPLASH SCREEN ======
 let splashDone = false;
@@ -400,6 +414,15 @@ window.onload = () => {
                             startFreightListener();
                             startSystemMessagesListener();
                             window.freightListenerStarted = true;
+
+                            // ── FCM: solicita permissão e registra token (1x por sessão) ──
+                            // Aguarda 3s para não competir com a splash/animação de entrada
+                            setTimeout(() => {
+                                requestNotificationPermission(
+                                    user.uid,
+                                    userData.role || 'driver'
+                                );
+                            }, 3000);
                         }
                     } else {
                         // Se logou com Google mas não tem perfil, vai escolher o papel
@@ -2013,6 +2036,11 @@ async function confirmarLogoutExec() {
             freightListenerUnsubscribe();
             freightListenerUnsubscribe = null;
         }
+
+        // ── FCM: remove o token antes de sair para não receber notificações ──
+        const uid = auth.currentUser?.uid;
+        if (uid) await removeFCMToken(uid);
+
         await auth.signOut();
         navHistory = [];
         currentUserRole = null;
