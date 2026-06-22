@@ -2576,12 +2576,12 @@ function renderFretes() {
                     const selectedState = filterDestinoEl.value.toUpperCase();
                     filteredSearch = filteredSearch.filter(f => {
                         const dest = (f.destino || '').toUpperCase();
-                        return dest.endsWith(` - ${selectedState}`) || 
-                               dest.endsWith(`, ${selectedState}`) || 
-                               dest.endsWith(`-${selectedState}`) ||
-                               dest.includes(`/${selectedState}`) ||
-                               dest.includes(`(${selectedState})`) ||
-                               dest.includes(selectedState);
+                        return dest.endsWith(` - ${selectedState}`) ||
+                            dest.endsWith(`, ${selectedState}`) ||
+                            dest.endsWith(`-${selectedState}`) ||
+                            dest.includes(`/${selectedState}`) ||
+                            dest.includes(`(${selectedState})`) ||
+                            dest.includes(selectedState);
                     });
                 }
 
@@ -2602,7 +2602,7 @@ function renderFretes() {
                 const activeVehiclePills = Array.from(document.querySelectorAll('#filterModal .pill.active'))
                     .map(p => p.innerText.replace(/[★☆\s]/g, '').toLowerCase().trim())
                     .filter(p => !nonVehiclePills.includes(p));
-                
+
                 if (activeVehiclePills.length > 0 && !activeVehiclePills.includes('todos')) {
                     filteredSearch = filteredSearch.filter(f => {
                         if (!f.veiculo) return false;
@@ -2634,7 +2634,7 @@ function renderFretes() {
                     .find(p => p.innerText.toLowerCase().includes('lotação') || p.innerText.toLowerCase().includes('lotacao'));
                 const fracionadaPill = Array.from(document.querySelectorAll('#filterModal .pill.active'))
                     .find(p => p.innerText.toLowerCase().includes('fracionada'));
-                
+
                 const activeTipos = [
                     dedicadaPill ? 'carga dedicada' : null,
                     complementoPill ? 'complemento' : null,
@@ -2669,7 +2669,17 @@ function renderFretes() {
     let htmlSearch = '';
 
     // Render Home Feed
-    if (listFretesHome.length === 0) {
+    if (userData && userData.role === 'driver' && !window.isDriverOnline) {
+        htmlHome = `
+            <div class="empty-feed-card">
+                <div class="empty-icon-circle" style="background: rgba(249, 115, 22, 0.1); color: var(--orange);">
+                    <i class="ph ph-wifi-high-slash"></i>
+                </div>
+                <h3>Você está Offline</h3>
+                <p>As cargas não vão aparecer enquanto você não ficar online, pois só assim poderá ver se tem cargas publicadas.</p>
+            </div>
+        `;
+    } else if (listFretesHome.length === 0) {
         htmlHome = `
             <div class="empty-feed-card">
                 <div class="empty-icon-circle">
@@ -2741,7 +2751,16 @@ function renderFretes() {
     }
 
     // Render Search Feed
-    if (listFretesSearch.length === 0) {
+    if (userData && userData.role === 'driver' && !window.isDriverOnline) {
+        const driverImg = getDriverImageByTime();
+        htmlSearch = `
+            <div class="empty-feed-card search-empty-card">
+                <img src="${driverImg}" alt="Motorista PegaFrete" class="empty-state-img" style="filter: grayscale(1); opacity: 0.6;" />
+                <h3>Você está Offline</h3>
+                <p>As cargas não vão aparecer enquanto você não ficar online, pois só assim poderá ver se tem cargas publicadas.</p>
+            </div>
+        `;
+    } else if (listFretesSearch.length === 0) {
         const driverImg = getDriverImageByTime();
         htmlSearch = `
             <div class="empty-feed-card search-empty-card">
