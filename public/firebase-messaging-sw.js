@@ -26,6 +26,16 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
+// Força a ativação imediata do novo Service Worker assim que instalado
+self.addEventListener('install', (event) => {
+    self.skipWaiting();
+});
+
+// Assume o controle dos clientes imediatamente
+self.addEventListener('activate', (event) => {
+    event.waitUntil(self.clients.claim());
+});
+
 // ──────────────────────────────────────────────
 //  NOTIFICAÇÕES EM BACKGROUND / APP FECHADO
 // ──────────────────────────────────────────────

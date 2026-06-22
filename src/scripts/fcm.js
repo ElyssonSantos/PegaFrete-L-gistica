@@ -108,6 +108,14 @@ async function _generateAndSaveToken(userId, role) {
             scope: '/'
         });
 
+        // Força a verificação de atualizações no Service Worker
+        try {
+            await swReg.update();
+            console.log('[FCM] Atualização do Service Worker verificada.');
+        } catch (updateErr) {
+            console.warn('[FCM] Falha ao solicitar atualização do Service Worker:', updateErr);
+        }
+
         // Obtém o token FCM
         const token = await messaging.getToken({
             vapidKey: VAPID_KEY,
