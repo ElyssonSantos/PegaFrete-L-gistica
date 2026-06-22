@@ -30,22 +30,32 @@ const messaging = firebase.messaging();
 //  NOTIFICAÇÕES EM BACKGROUND / APP FECHADO
 // ──────────────────────────────────────────────
 messaging.onBackgroundMessage((payload) => {
-    const { title, body, icon, data } = payload.notification || {};
-    const click_action = data?.click_action || '/';
+    console.log('[FCM SW] Mensagem em background recebida:', payload);
+
+    // Se o payload contiver 'notification', o navegador/SO já exibe a notificação automaticamente.
+    // Retornamos cedo para evitar que o service worker chame showNotification e duplique no Android/Chrome.
+    if (payload.notification) {
+        console.log('[FCM SW] Notificação tratada nativamente pelo navegador.');
+        return;
+    }
+
+    // Se for uma notificação de dados pura (data-only), exibimos manualmente:
+    const data = payload.data || {};
+    const title = data.title || 'PegaFrete';
+    const body = data.body || 'Você tem uma nova notificação.';
+    const icon = data.icon || '/orange_truck_avatar.png';
+    const click_action = data.click_action || '/';
 
     const notificationOptions = {
-        body: body || 'Você tem uma nova notificação do PegaFrete.',
-        icon: icon || '/orange_truck_avatar.png',
+        body: body,
+        icon: icon,
         badge: '/favicon.svg',
-        tag: data?.tag || 'pegafrete-notification',
+        tag: data.tag || 'pegafrete-notification',
         requireInteraction: false,
         data: { click_action, ...data }
     };
 
-    self.registration.showNotification(
-        title || 'PegaFrete',
-        notificationOptions
-    );
+    self.registration.showNotification(title, notificationOptions);
 });
 
 // Ao clicar na notificação → abre/foca o app
