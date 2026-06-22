@@ -3165,7 +3165,7 @@ function openChatDetail(name, status, avatar, phone = '') {
     const avatarImg = document.getElementById('activeChatAvatar');
     if (avatarImg) {
         if (name === 'Pega Frete') {
-            avatarImg.src = '/orange_truck_avatar.png';
+            avatarImg.src = '/pegafrete_logo_new.jpg';
         } else {
             avatarImg.src = avatar;
         }

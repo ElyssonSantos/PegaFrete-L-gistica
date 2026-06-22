@@ -231,7 +231,7 @@ function _listenForegroundMessages() {
             if (Notification.permission === 'granted') {
                 new Notification(title || 'PegaFrete', {
                     body: body || 'Nova notificação.',
-                    icon: icon || '/orange_truck_avatar.png'
+                    icon: icon || '/pegafrete_logo_new.jpg'
                 });
             }
         }

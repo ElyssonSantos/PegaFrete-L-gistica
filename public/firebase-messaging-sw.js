@@ -53,7 +53,7 @@ messaging.onBackgroundMessage((payload) => {
     const data = payload.data || {};
     const title = data.title || 'PegaFrete';
     const body = data.body || 'Você tem uma nova notificação.';
-    const icon = data.icon || '/orange_truck_avatar.png';
+    const icon = data.icon || '/pegafrete_logo_new.jpg';
     const click_action = data.click_action || '/';
 
     const notificationOptions = {
