@@ -207,16 +207,13 @@
                 </div>
 
                 <div class="filter-section">
-                    <p class="subtitle" style="font-size: 12px; margin-bottom: 12px;">Selecione quantas opções desejar
-                    </p>
                     <h4
                         style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">
                         Leves</h4>
                     <div class="pill-group">
-                        <div class="pill" onclick="togglePill(this)">3/4</div>
-                        <div class="pill" onclick="togglePill(this)">Toco</div>
-                        <div class="pill active" onclick="togglePill(this)"><i class="ph-fill ph-star"></i> VLC</div>
-                        <div class="pill" onclick="togglePill(this)">Fiorino</div>
+                        <div class="pill" onclick="togglePill(this)">Utilitário</div>
+                        <div class="pill" onclick="togglePill(this)">Van</div>
+                        <div class="pill" onclick="togglePill(this)">HR</div>
                     </div>
                 </div>
 
@@ -225,6 +222,8 @@
                         style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">
                         Médios</h4>
                     <div class="pill-group">
+                        <div class="pill" onclick="togglePill(this)">3/4</div>
+                        <div class="pill" onclick="togglePill(this)">Toco</div>
                         <div class="pill" onclick="togglePill(this)">Truck</div>
                         <div class="pill" onclick="togglePill(this)">Bitruck</div>
                         <div class="pill" onclick="togglePill(this)">Todos</div>
@@ -264,8 +263,8 @@
                         Fechadas</h4>
                     <div class="pill-group">
                         <div class="pill" onclick="togglePill(this)">Sider</div>
-                        <div class="pill active" onclick="togglePill(this)"><i class="ph-fill ph-star"></i> Baú</div>
                         <div class="pill" onclick="togglePill(this)">Baú Refrigerado</div>
+                        <div class="pill" onclick="togglePill(this)">Baú Seco</div>
                     </div>
                 </div>
 
@@ -279,8 +278,10 @@
                         style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">
                         Tipo de Carga</h4>
                     <div class="pill-group" style="margin-bottom: 16px;">
-                        <div class="pill" onclick="togglePill(this)">Carga completa</div>
+                        <div class="pill" onclick="togglePill(this)">Carga Dedicada</div>
                         <div class="pill" onclick="togglePill(this)">Complemento</div>
+                        <div class="pill" onclick="togglePill(this)">Lotação</div>
+                        <div class="pill" onclick="togglePill(this)">Fracionada</div>
                     </div>
 
                     <h4
@@ -331,19 +332,46 @@
                             style="font-size: 10px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">TIPO
                             DE CARGA</span>
                         <select id="editTipo">
-                            <option>Carga Leve</option>
-                            <option>Fracionada</option>
-                            <option>Carga Fechada</option>
+                            <option value="Carga Dedicada">Carga Dedicada</option>
+                            <option value="Complemento">Complemento</option>
+                            <option value="Lotação">Lotação</option>
+                            <option value="Fracionada">Fracionada</option>
                         </select>
                     </div>
                     <div class="input-group no-icon" style="margin: 0;">
                         <span
                             style="font-size: 10px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">VEÍCULO</span>
                         <select id="editVeiculo">
-                            <option>VLC</option>
-                            <option>VUC</option>
-                            <option>Toco</option>
-                            <option>Truck</option>
+                            <optgroup label="Leves">
+                                <option value="Utilitário">Utilitário</option>
+                                <option value="Van">Van</option>
+                                <option value="HR">HR</option>
+                            </optgroup>
+                            <optgroup label="Médios">
+                                <option value="3/4">3/4</option>
+                                <option value="Toco">Toco</option>
+                                <option value="Truck">Truck</option>
+                                <option value="Bitruck">Bitruck</option>
+                            </optgroup>
+                            <optgroup label="Carreta">
+                                <option value="Carreta LS">Carreta LS</option>
+                                <option value="Bitrem">Bitrem</option>
+                                <option value="Rodotrem">Rodotrem</option>
+                                <option value="Vanderléia">Vanderléia</option>
+                            </optgroup>
+                            <optgroup label="Especiais">
+                                <option value="Caçamba">Caçamba</option>
+                                <option value="Silo">Silo</option>
+                                <option value="Graneleiro">Graneleiro</option>
+                                <option value="Plataforma">Plataforma</option>
+                                <option value="Prancha">Prancha</option>
+                                <option value="Tanque">Tanque</option>
+                            </optgroup>
+                            <optgroup label="Veículo Fechado">
+                                <option value="Sider">Sider</option>
+                                <option value="Baú Refrigerado">Baú Refrigerado</option>
+                                <option value="Baú Seco">Baú Seco</option>
+                            </optgroup>
                         </select>
                     </div>
                 </div>
@@ -706,11 +734,13 @@
                         style="width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); font-size: 15px; outline: none;">
                         <option value="" disabled selected>Selecione um veículo...</option>
                         <optgroup label="Leves">
-                            <option value="3/4">3/4</option>
-                            <option value="Toco">Toco</option>
-                            <option value="Fiorino">Fiorino</option>
+                            <option value="Utilitário">Utilitário</option>
+                            <option value="Van">Van</option>
+                            <option value="HR">HR</option>
                         </optgroup>
                         <optgroup label="Médios">
+                            <option value="3/4">3/4</option>
+                            <option value="Toco">Toco</option>
                             <option value="Truck">Truck</option>
                             <option value="Bitruck">Bitruck</option>
                         </optgroup>
@@ -731,7 +761,7 @@
                         <optgroup label="Veículo Fechado">
                             <option value="Sider">Sider</option>
                             <option value="Baú Refrigerado">Baú Refrigerado</option>
-                            <option value="Baú">Baú</option>
+                            <option value="Baú Seco">Baú Seco</option>
                         </optgroup>
                     </select>
                 </div>
@@ -1108,10 +1138,10 @@
                             <select id="tipoCarga"
                                 style="border: none; background: transparent; padding: 14px 16px; margin: 0; box-shadow: none; padding-left: 16px; height: 50px;">
                                 <option value="" disabled selected>Selecione...</option>
-                                <option value="Carga Leve">Carga Leve</option>
-                                <option value="Fracionada">Fracionada</option>
-                                <option value="Carga Fechada">Carga Fechada</option>
+                                <option value="Carga Dedicada">Carga Dedicada</option>
                                 <option value="Complemento">Complemento</option>
+                                <option value="Lotação">Lotação</option>
+                                <option value="Fracionada">Fracionada</option>
                             </select>
                         </div>
                     </div>
@@ -1124,11 +1154,13 @@
                                 style="border: none; background: transparent; padding: 14px 16px; margin: 0; box-shadow: none; padding-left: 16px; height: 50px;">
                                 <option value="" disabled selected>Selecione um veículo...</option>
                                 <optgroup label="Leves">
-                                    <option value="3/4">3/4</option>
-                                    <option value="Toco">Toco</option>
-                                    <option value="Fiorino">Fiorino</option>
+                                    <option value="Utilitário">Utilitário</option>
+                                    <option value="Van">Van</option>
+                                    <option value="HR">HR</option>
                                 </optgroup>
                                 <optgroup label="Médios">
+                                    <option value="3/4">3/4</option>
+                                    <option value="Toco">Toco</option>
                                     <option value="Truck">Truck</option>
                                     <option value="Bitruck">Bitruck</option>
                                 </optgroup>
@@ -1149,7 +1181,7 @@
                                 <optgroup label="Veículo Fechado">
                                     <option value="Sider">Sider</option>
                                     <option value="Baú Refrigerado">Baú Refrigerado</option>
-                                    <option value="Baú">Baú</option>
+                                    <option value="Baú Seco">Baú Seco</option>
                                 </optgroup>
                             </select>
                         </div>
@@ -1182,7 +1214,7 @@
                     <div class="input-group-premium">
                         <label
                             style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Data
-                            de Coleta</label>
+                            de Coleta <span style="color: var(--text-muted); font-weight: 400;">(opcional)</span></label>
                         <div class="input-wrapper">
                             <input id="coletaCarga" type="date"
                                 style="border: none; background: transparent; padding: 14px 16px; margin: 0; box-shadow: none;" />
@@ -1192,7 +1224,7 @@
                     <div class="input-group-premium">
                         <label
                             style="display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Previsão
-                            de Entrega</label>
+                            de Entrega <span style="color: var(--text-muted); font-weight: 400;">(opcional)</span></label>
                         <div class="input-wrapper">
                             <input id="previsaoCarga" type="date"
                                 style="border: none; background: transparent; padding: 14px 16px; margin: 0; box-shadow: none;" />

@@ -246,8 +246,8 @@ function readMagicBytes(file) {
 }
 
 // Valores permitidos (validação por whitelist)
-const VALID_TIPOS = ['Carga Leve', 'Fracionada', 'Carga Fechada', 'Complemento'];
-const VALID_VEICULOS = ['3/4', 'Toco', 'Fiorino', 'Truck', 'Bitruck', 'Carreta LS', 'Bitrem', 'Rodotrem', 'Vanderléia', 'Caçamba', 'Silo', 'Graneleiro', 'Plataforma', 'Prancha', 'Tanque', 'Sider', 'Baú Refrigerado', 'Baú'];
+const VALID_TIPOS = ['Carga Dedicada', 'Complemento', 'Lotação', 'Fracionada'];
+const VALID_VEICULOS = ['Utilitário', 'Van', 'HR', '3/4', 'Toco', 'Truck', 'Bitruck', 'Carreta LS', 'Bitrem', 'Rodotrem', 'Vanderléia', 'Caçamba', 'Silo', 'Graneleiro', 'Plataforma', 'Prancha', 'Tanque', 'Sider', 'Baú Refrigerado', 'Baú Seco'];
 
 // ====== SESSION TIMEOUT (24 hours) ======
 let sessionTimer = null;
@@ -2569,9 +2569,11 @@ function renderFretes() {
                 }
 
                 // 4. Filtro por Pills de Veículos Selecionados
+                // Excluí pills que são de outros filtros (preço, tipo de carga, rastreamento)
+                const nonVehiclePills = ['fretes com preço', 'carga dedicada', 'complemento', 'lotação', 'fracionada', 'com rastreamento', 'sem rastreamento'];
                 const activeVehiclePills = Array.from(document.querySelectorAll('#filterModal .pill.active'))
                     .map(p => p.innerText.replace(/[★☆\s]/g, '').toLowerCase().trim())
-                    .filter(p => p !== 'fretes com preço' && p !== 'carga completa' && p !== 'complemento' && p !== 'com rastreamento' && p !== 'sem rastreamento');
+                    .filter(p => !nonVehiclePills.includes(p));
                 
                 if (activeVehiclePills.length > 0 && !activeVehiclePills.includes('todos')) {
                     filteredSearch = filteredSearch.filter(f => {
@@ -2596,14 +2598,27 @@ function renderFretes() {
                 }
 
                 // 6. Filtro Tipo de Carga
-                const completePill = Array.from(document.querySelectorAll('#filterModal .pill.active'))
-                    .find(p => p.innerText.toLowerCase().includes('completa'));
-                const complementPill = Array.from(document.querySelectorAll('#filterModal .pill.active'))
-                    .find(p => p.innerText.toLowerCase().includes('complemento'));
-                if (completePill && !complementPill) {
-                    filteredSearch = filteredSearch.filter(f => (f.tipo || '').toLowerCase().includes('completa') || (f.tipo || '').toLowerCase().includes('fechada'));
-                } else if (complementPill && !completePill) {
-                    filteredSearch = filteredSearch.filter(f => (f.tipo || '').toLowerCase().includes('complemento') || (f.tipo || '').toLowerCase().includes('fracionada'));
+                const dedicadaPill = Array.from(document.querySelectorAll('#filterModal .pill.active'))
+                    .find(p => p.innerText.toLowerCase().includes('dedicada'));
+                const complementoPill = Array.from(document.querySelectorAll('#filterModal .pill.active'))
+                    .find(p => p.innerText.toLowerCase().trim() === 'complemento');
+                const lotacaoPill = Array.from(document.querySelectorAll('#filterModal .pill.active'))
+                    .find(p => p.innerText.toLowerCase().includes('lotação') || p.innerText.toLowerCase().includes('lotacao'));
+                const fracionadaPill = Array.from(document.querySelectorAll('#filterModal .pill.active'))
+                    .find(p => p.innerText.toLowerCase().includes('fracionada'));
+                
+                const activeTipos = [
+                    dedicadaPill ? 'carga dedicada' : null,
+                    complementoPill ? 'complemento' : null,
+                    lotacaoPill ? 'lotação' : null,
+                    fracionadaPill ? 'fracionada' : null
+                ].filter(Boolean);
+
+                if (activeTipos.length > 0) {
+                    filteredSearch = filteredSearch.filter(f => {
+                        const tipo = (f.tipo || '').toLowerCase();
+                        return activeTipos.some(t => tipo.includes(t));
+                    });
                 }
 
                 // 7. Filtro Rastreamento
@@ -2817,8 +2832,6 @@ function renderFretes() {
         areaShipper.innerHTML = shipperHtml || htmlHome;
     }
 
-    buscarFretes();
-
     // Atualiza também o histórico do Embarcador
     renderShipperHistory();
 }
@@ -2947,7 +2960,8 @@ function openFreight(idOrIndex) {
 }
 
 function buscarFretes() {
-    renderFretes();
+    // Alias para manter compatibilidade - dispara re-render
+    if (typeof fretes !== 'undefined') renderFretes();
 }
 
 async function publicarFrete(btn) {
