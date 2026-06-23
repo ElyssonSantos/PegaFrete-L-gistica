@@ -1,4 +1,5 @@
-import { auth } from '../core/firebaseConfig.js';
+import { auth, db, firebase } from '../core/firebaseConfig.js';
+import { onAuthStateChanged, getRedirectResult, fetchSignInMethodsForEmail, updatePassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { loginWithEmail, loginWithGooglePopup, sendPasswordReset, signOutUser, deleteUserAccount, sendSMSVerification } from '../core/authService.js';
 import { subscribeToFreights, addFreight, updateFreight, updateFreightStatus, acceptFreight } from '../services/freightService.js';
 import { subscribeToUserProfile, setUserProfile, updateUserProfile, checkPhoneExists, getPublicEmailData, registerPublicEmail, deletePublicEmail } from '../services/userService.js';
@@ -292,7 +293,7 @@ window.onload = () => {
     if (typeof window.setupIBGEAutocomplete === 'function') window.setupIBGEAutocomplete();
 
     // Catch possible redirect errors
-    auth.getRedirectResult().then((result) => {
+    getRedirectResult(auth).then((result) => {
         if (result && result.user) {
             console.log("Redirect login successful");
             showToast('Login com Google realizado!', 'success');
@@ -303,7 +304,7 @@ window.onload = () => {
     });
 
     // Monitora o estado de autenticação via Firebase
-    auth.onAuthStateChanged(async (user) => {
+    onAuthStateChanged(auth, async (user) => {
         if (isRegisteringProcess) {
             console.log("Ignorando redirecionamento automático do onAuthStateChanged durante o cadastro.");
             return;
@@ -406,7 +407,7 @@ async function verificarEmailDisponivel(email) {
 
     // Fallback secundário para fetchSignInMethodsForEmail
     try {
-        const methods = await auth.fetchSignInMethodsForEmail(emailKey);
+        const methods = await fetchSignInMethodsForEmail(auth, emailKey);
         if (methods && methods.length > 0) {
             const provider = (methods.includes('google.com') || methods.includes('google')) ? 'google' : 'password';
             return { disponivel: false, provider: provider };
@@ -1144,11 +1145,11 @@ async function finalizarCadastro(btn) {
         if (auth.currentUser) {
             // Se logou com Google, a conta já existe no Firebase Auth.
             // Apenas adicionamos a senha para garantir o acesso também via E-mail/Senha.
-            await auth.currentUser.updatePassword(pass1);
+            await updatePassword(auth.currentUser, pass1);
             uid = auth.currentUser.uid;
         } else {
             // Fluxo normal: Cria o usuário na Auth do Firebase
-            const userCredential = await auth.createUserWithEmailAndPassword(userData.email, pass1);
+            const userCredential = await createUserWithEmailAndPassword(auth, userData.email, pass1);
             uid = userCredential.user.uid;
         }
 
@@ -1318,7 +1319,7 @@ async function salvarNovoEmail() {
         if (error.code === 'auth/requires-recent-login') {
             showToast('Por segurança, faça login novamente para trocar o e-mail.', 'error');
             setTimeout(() => {
-                auth.signOut().then(() => window.location.reload());
+                signOut(auth).then(() => window.location.reload());
             }, 2500);
         } else {
             showToast('Erro ao atualizar e-mail.', 'error');
