@@ -1,7 +1,7 @@
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import 'firebase/compat/firestore';
-import 'firebase/compat/storage';
+import { firebase, auth, db, storage } from '../core/firebaseConfig.js';
+import { maskMoney, maskPhone, maskCPF, maskCNPJ } from '../utils/mask.js';
+import { validateEmail, validateCPF, validateCNPJ, checkPasswordRequirements } from '../utils/validators.js';
+import { sanitizeInput, sanitizeHTML } from '../utils/sanitizers.js';
 import { initFCM, requestNotificationPermission, removeFCMToken } from './fcm.js';
 
 
@@ -28,21 +28,7 @@ let loginAttempts = 0;
 let lastLoginAttemptTime = 0;
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOGIN_COOLDOWN_MS = 60000; // 1 minuto
-// Configuração do Firebase
-const firebaseConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyD7lL5jSj57oLL_wWJWbImUD2Y7TKk3gRI",
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "pegafrete-logistica.firebaseapp.com",
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "pegafrete-logistica",
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "pegafrete-logistica.firebasestorage.app",
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "783503103566",
-    appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:783503103566:web:840c03b02cda1ba82c151f",
-    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-1HL73CW82D"
-};
 
-// Inicializa o Firebase
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
 
 // ==========================================
 // PROTEÇÃO DE FRONTEND E ANTI-DEVTOOLS
@@ -81,10 +67,7 @@ document.addEventListener('keydown', event => {
 });
 
 
-const auth = firebase.auth();
-const db = firebase.firestore();
-const storage = firebase.storage();
-storage.setMaxUploadRetryTime(3000);
+
 
 // ====== INICIALIZAÇÃO DO FCM ======
 // initFCM prepara o SDK de messaging mas NÃO pede permissão ainda.
@@ -143,19 +126,7 @@ let smsSendCooldown = false; // Rate limit para envio de SMS
 
 // ====== SEGURANÇA: SANITIZAÇÃO E VALIDAÇÃO ======
 
-/**
- * Client-side input sanitization (Defense in Depth)
- * Firestore Security Rules fornecem a proteção primária.
- * Esta camada adicional impede injeção de HTML/JS antes de gravar.
- */
-function sanitizeInput(str, maxLen = 500) {
-    if (!str || typeof str !== 'string') return '';
-    return str
-        .replace(/[<>]/g, '')
-        .replace(/javascript:/gi, '')
-        .trim()
-        .slice(0, maxLen);
-}
+
 
 // ====== SEGURANÇA: LOGS E MONITORAMENTO ======
 async function logSecurityEvent(event, details) {
@@ -298,54 +269,7 @@ function togglePassVisibility(inputId, iconId) {
     }
 }
 
-// Previne XSS: escapa caracteres HTML perigosos
-function sanitizeHTML(str) {
-    if (!str) return '';
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-}
 
-// Validação de e-mail
-function validateEmail(email) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(String(email).toLowerCase());
-}
-
-// Validação algorítmica de CPF
-function validateCPF(cpf) {
-    cpf = cpf.replace(/\D/g, '');
-    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
-    let soma = 0, resto;
-    for (let i = 1; i <= 9; i++) soma += parseInt(cpf[i - 1]) * (11 - i);
-    resto = (soma * 10) % 11;
-    if (resto === 10 || resto === 11) resto = 0;
-    if (resto !== parseInt(cpf[9])) return false;
-    soma = 0;
-    for (let i = 1; i <= 10; i++) soma += parseInt(cpf[i - 1]) * (12 - i);
-    resto = (soma * 10) % 11;
-    if (resto === 10 || resto === 11) resto = 0;
-    return resto === parseInt(cpf[10]);
-}
-
-// Validação algorítmica de CNPJ
-function validateCNPJ(cnpj) {
-    cnpj = cnpj.replace(/\D/g, '');
-    if (cnpj.length !== 14 || /^(\d)\1{13}$/.test(cnpj)) return false;
-    const pesos1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
-    const pesos2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
-    let soma = 0;
-    for (let i = 0; i < 12; i++) soma += parseInt(cnpj[i]) * pesos1[i];
-    let resto = soma % 11;
-    if (parseInt(cnpj[12]) !== (resto < 2 ? 0 : 11 - resto)) return false;
-    soma = 0;
-    for (let i = 0; i < 13; i++) soma += parseInt(cnpj[i]) * pesos2[i];
-    resto = soma % 11;
-    return parseInt(cnpj[13]) === (resto < 2 ? 0 : 11 - resto);
-}
 
 let fretes = [
     { id: 1, origem: 'Salvador', destino: 'Alagoinhas', valor: '620,00', tipo: 'Carga Leve', veiculo: 'VUC', status: 'transito', obs: 'Mercadoria alocada em paletes.' },
@@ -697,78 +621,7 @@ function startFreightListener() {
     });
 }
 
-function maskMoney(i) {
-    let v = i.value.replace(/\D/g, "");
-    v = (v / 100).toFixed(2) + "";
-    v = v.replace(".", ",");
-    v = v.replace(/(\d)(\d{3})(\d{3}),/g, "$1.$2.$3,");
-    v = v.replace(/(\d)(\d{3}),/g, "$1.$2,");
-    i.value = "R$ " + v;
-}
 
-function maskPhone(i) {
-    let v = i.value.replace(/\D/g, "");
-    if (v.length > 11) v = v.slice(0, 11);
-
-    if (v.length === 0) {
-        i.value = "";
-        return;
-    }
-
-    if (v.length <= 2) {
-        i.value = `(${v}`;
-    } else if (v.length <= 6) {
-        i.value = `(${v.slice(0, 2)}) ${v.slice(2)}`;
-    } else if (v.length <= 10) {
-        i.value = `(${v.slice(0, 2)}) ${v.slice(2, 6)}-${v.slice(6)}`;
-    } else {
-        i.value = `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`;
-    }
-}
-
-function maskCPF(i) {
-    let v = i.value.replace(/\D/g, "");
-    if (v.length > 11) v = v.slice(0, 11);
-    if (v.length === 11) {
-        i.value = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
-    } else {
-        i.value = v;
-    }
-}
-
-function maskCNPJ(i) {
-    let v = i.value.replace(/\D/g, "");
-    if (v.length > 14) v = v.slice(0, 14);
-    if (v.length === 14) {
-        i.value = v.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
-    } else {
-        i.value = v;
-    }
-}
-
-function checkPasswordRequirements(val) {
-    const len = val.length >= 8;
-    const upper = /[A-Z]/.test(val);
-    const num = /[0-9]/.test(val);
-    const special = /[!@#$%^&*(),.?":{}|<>]/.test(val);
-
-    const updateReq = (id, met) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        if (met) {
-            el.style.color = '#10b981';
-            el.querySelector('i').className = 'ph-fill ph-check-circle';
-        } else {
-            el.style.color = 'var(--text-muted)';
-            el.querySelector('i').className = 'ph ph-circle';
-        }
-    };
-
-    updateReq('req-len', len);
-    updateReq('req-upper', upper);
-    updateReq('req-number', num);
-    updateReq('req-special', special);
-}
 
 function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
