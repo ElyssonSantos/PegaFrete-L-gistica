@@ -418,10 +418,14 @@ window.onload = () => {
                             // ── FCM: solicita permissão e registra token (1x por sessão) ──
                             // Aguarda 3s para não competir com a splash/animação de entrada
                             setTimeout(() => {
-                                requestNotificationPermission(
-                                    user.uid,
-                                    userData.role || 'driver'
-                                );
+                                if ('Notification' in window && Notification.permission === 'default') {
+                                    abrirModalPermissoes();
+                                } else if ('Notification' in window && Notification.permission === 'granted') {
+                                    requestNotificationPermission(
+                                        user.uid,
+                                        userData.role || 'driver'
+                                    );
+                                }
                             }, 3000);
                         }
                     } else {
@@ -4110,6 +4114,107 @@ window.fecharTermosCategoryModal = function () {
             modal.style.display = 'none';
         }, 300);
     }
+};
+
+window.abrirModalPermissoes = function() {
+    if (window.atualizarStatusPermissoes) {
+        window.atualizarStatusPermissoes();
+    }
+    const modal = document.getElementById('permissionsModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        setTimeout(() => { modal.style.opacity = '1'; }, 10);
+    }
+};
+
+window.fecharModalPermissoes = function() {
+    const modal = document.getElementById('permissionsModal');
+    if (modal) {
+        modal.style.opacity = '0';
+        setTimeout(() => { modal.style.display = 'none'; }, 300);
+    }
+};
+
+window.atualizarStatusPermissoes = function() {
+    const statusNotif = document.getElementById('statusPermNotif');
+    const statusLoc = document.getElementById('statusPermLoc');
+    const btnNotif = document.getElementById('btnPermNotif');
+    const btnLoc = document.getElementById('btnPermLoc');
+    
+    if (statusNotif && btnNotif && 'Notification' in window) {
+        if (Notification.permission === 'granted') {
+            statusNotif.className = 'ph-fill ph-check-circle';
+            statusNotif.style.color = '#10b981';
+            btnNotif.style.borderColor = '#10b981';
+            btnNotif.style.color = '#10b981';
+        } else if (Notification.permission === 'denied') {
+            statusNotif.className = 'ph-fill ph-x-circle';
+            statusNotif.style.color = '#ef4444';
+            btnNotif.style.borderColor = '';
+            btnNotif.style.color = '';
+        } else {
+            statusNotif.className = 'ph-fill ph-warning-circle';
+            statusNotif.style.color = '#f59e0b';
+            btnNotif.style.borderColor = '';
+            btnNotif.style.color = '';
+        }
+    }
+
+    if (statusLoc && btnLoc && navigator.permissions) {
+        navigator.permissions.query({ name: 'geolocation' }).then(result => {
+            if (result.state === 'granted') {
+                statusLoc.className = 'ph-fill ph-check-circle';
+                statusLoc.style.color = '#10b981';
+                btnLoc.style.borderColor = '#10b981';
+                btnLoc.style.color = '#10b981';
+            } else if (result.state === 'denied') {
+                statusLoc.className = 'ph-fill ph-x-circle';
+                statusLoc.style.color = '#ef4444';
+                btnLoc.style.borderColor = '';
+                btnLoc.style.color = '';
+            } else {
+                statusLoc.className = 'ph-fill ph-warning-circle';
+                statusLoc.style.color = '#f59e0b';
+                btnLoc.style.borderColor = '';
+                btnLoc.style.color = '';
+            }
+        });
+    }
+};
+
+window.solicitarPermissaoNotificacao = async function() {
+    if (!auth.currentUser) {
+        showToast('Você precisa estar logado.', 'error');
+        return;
+    }
+    const token = await requestNotificationPermission(auth.currentUser.uid, userData.role || 'driver');
+    if (token) {
+        showToast('Notificações habilitadas com sucesso!');
+    } else {
+        if (Notification.permission === 'denied') {
+            showToast('As notificações foram bloqueadas no navegador.', 'error');
+        } else {
+            showToast('Não foi possível habilitar notificações.', 'error');
+        }
+    }
+    if (window.atualizarStatusPermissoes) window.atualizarStatusPermissoes();
+};
+
+window.solicitarPermissaoLocalizacao = function() {
+    if (!navigator.geolocation) {
+        showToast('Seu dispositivo não suporta localização.', 'error');
+        return;
+    }
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            showToast('Localização habilitada com sucesso!');
+            if (window.atualizarStatusPermissoes) window.atualizarStatusPermissoes();
+        },
+        (err) => {
+            showToast('Permissão de localização negada.', 'error');
+            if (window.atualizarStatusPermissoes) window.atualizarStatusPermissoes();
+        }
+    );
 };
 
 // ====== PULL-TO-REFRESH ======
