@@ -341,9 +341,7 @@ window.onload = () => {
                             // ── FCM: solicita permissão e registra token (1x por sessão) ──
                             // Aguarda 3s para não competir com a splash/animação de entrada
                             setTimeout(() => {
-                                if ('Notification' in window && Notification.permission === 'default') {
-                                    abrirModalPermissoes();
-                                } else if ('Notification' in window && Notification.permission === 'granted') {
+                                if ('Notification' in window && Notification.permission === 'granted') {
                                     requestNotificationPermission(
                                         user.uid,
                                         userData.role || 'driver'
@@ -1363,7 +1361,7 @@ function preencherPerfil() {
         let docStat = userData.docStatus || 'Documentação Incompleta';
 
         if (docStat === 'Aprovado') {
-            tagTitle = "Homologado";
+            tagTitle = "Verificado";
             colorMain = "#10b981";
         } else if (docStat === 'Recusado') {
             tagTitle = "Recusado";
@@ -1459,7 +1457,7 @@ function preencherPerfil() {
         if (pdTagText && pdTagWrap) {
             let docStat = userData.docStatus || 'Documentação Incompleta';
             if (docStat === 'Aprovado') {
-                pdTagText.innerText = "Documentação: Homologada";
+                pdTagText.innerText = "Documentação: Verificada";
                 pdTagText.style.color = "#10b981";
                 pdTagWrap.style.borderColor = "#d1fae5";
                 pdTagWrap.style.background = "#e6fbf1";
@@ -1687,6 +1685,10 @@ function preencherPerfil() {
         if (document.getElementById('profileDocsAlertDot')) {
             document.getElementById('profileDocsAlertDot').style.display = showDot ? 'block' : 'none';
         }
+    }
+
+    if (window.atualizarStatusPermissoes) {
+        window.atualizarStatusPermissoes();
     }
 }
 
@@ -3949,42 +3951,77 @@ window.atualizarStatusPermissoes = function() {
     const btnNotif = document.getElementById('btnPermNotif');
     const btnLoc = document.getElementById('btnPermLoc');
     
-    if (statusNotif && btnNotif && 'Notification' in window) {
+    const profileNotif = document.getElementById('statusProfileNotif');
+    const profileLoc = document.getElementById('statusProfileLoc');
+    
+    if ('Notification' in window) {
+        let notifClass = 'ph-fill ph-warning-circle';
+        let notifColor = '#f59e0b';
+        
         if (Notification.permission === 'granted') {
-            statusNotif.className = 'ph-fill ph-check-circle';
-            statusNotif.style.color = '#10b981';
-            btnNotif.style.borderColor = '#10b981';
-            btnNotif.style.color = '#10b981';
+            notifClass = 'ph-fill ph-check-circle';
+            notifColor = '#10b981';
+            if (btnNotif) {
+                btnNotif.style.borderColor = '#10b981';
+                btnNotif.style.color = '#10b981';
+            }
         } else if (Notification.permission === 'denied') {
-            statusNotif.className = 'ph-fill ph-x-circle';
-            statusNotif.style.color = '#ef4444';
-            btnNotif.style.borderColor = '';
-            btnNotif.style.color = '';
+            notifClass = 'ph-fill ph-x-circle';
+            notifColor = '#ef4444';
+            if (btnNotif) {
+                btnNotif.style.borderColor = '';
+                btnNotif.style.color = '';
+            }
         } else {
-            statusNotif.className = 'ph-fill ph-warning-circle';
-            statusNotif.style.color = '#f59e0b';
-            btnNotif.style.borderColor = '';
-            btnNotif.style.color = '';
+            if (btnNotif) {
+                btnNotif.style.borderColor = '';
+                btnNotif.style.color = '';
+            }
+        }
+        
+        if (statusNotif) {
+            statusNotif.className = notifClass;
+            statusNotif.style.color = notifColor;
+        }
+        if (profileNotif) {
+            profileNotif.className = notifClass;
+            profileNotif.style.color = notifColor;
         }
     }
 
-    if (statusLoc && btnLoc && navigator.permissions) {
+    if (navigator.permissions) {
         navigator.permissions.query({ name: 'geolocation' }).then(result => {
+            let locClass = 'ph-fill ph-warning-circle';
+            let locColor = '#f59e0b';
+            
             if (result.state === 'granted') {
-                statusLoc.className = 'ph-fill ph-check-circle';
-                statusLoc.style.color = '#10b981';
-                btnLoc.style.borderColor = '#10b981';
-                btnLoc.style.color = '#10b981';
+                locClass = 'ph-fill ph-check-circle';
+                locColor = '#10b981';
+                if (btnLoc) {
+                    btnLoc.style.borderColor = '#10b981';
+                    btnLoc.style.color = '#10b981';
+                }
             } else if (result.state === 'denied') {
-                statusLoc.className = 'ph-fill ph-x-circle';
-                statusLoc.style.color = '#ef4444';
-                btnLoc.style.borderColor = '';
-                btnLoc.style.color = '';
+                locClass = 'ph-fill ph-x-circle';
+                locColor = '#ef4444';
+                if (btnLoc) {
+                    btnLoc.style.borderColor = '';
+                    btnLoc.style.color = '';
+                }
             } else {
-                statusLoc.className = 'ph-fill ph-warning-circle';
-                statusLoc.style.color = '#f59e0b';
-                btnLoc.style.borderColor = '';
-                btnLoc.style.color = '';
+                if (btnLoc) {
+                    btnLoc.style.borderColor = '';
+                    btnLoc.style.color = '';
+                }
+            }
+            
+            if (statusLoc) {
+                statusLoc.className = locClass;
+                statusLoc.style.color = locColor;
+            }
+            if (profileLoc) {
+                profileLoc.className = locClass;
+                profileLoc.style.color = locColor;
             }
         });
     }
