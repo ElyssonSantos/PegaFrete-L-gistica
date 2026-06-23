@@ -16,9 +16,24 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read: if isAuthenticated();
+      // IDOR FIX: Apenas o dono ou Admin pode ler o próprio perfil
+      allow read: if isOwner(userId) || isAdmin();
       allow create, update: if isOwner(userId) || isAdmin();
       allow delete: if isAdmin();
+      
+      // Isolamento de Dados: Subcoleção pública opcional para dados não-sensíveis
+      match /public/{docId} {
+        allow read: if isAuthenticated();
+        allow write: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    match /fcm_tokens/{tokenId} {
+      // Tokens de notificação são restritos
+      // tokenId == userId, garantindo que o próprio usuário insere seu token
+      allow read: if isAdmin();
+      allow create, update: if isOwner(tokenId) || isAdmin();
+      allow delete: if isOwner(tokenId) || isAdmin();
     }
 
     match /freights/{freightId} {

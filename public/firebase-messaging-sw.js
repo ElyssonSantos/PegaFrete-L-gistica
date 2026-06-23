@@ -6,25 +6,25 @@
 //  O Vite copia tudo de /public para /dist automaticamente.
 // ============================================================
 
-// Versão do Firebase usada no SDK compat (deve bater com o package.json)
-const FIREBASE_VERSION = '10.13.2';
+import { precacheAndRoute } from 'workbox-precaching';
+import { initializeApp } from 'firebase/app';
+import { getMessaging, onBackgroundMessage } from 'firebase/messaging/sw';
 
-importScripts(
-    `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/firebase-app-compat.js`,
-    `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/firebase-messaging-compat.js`
-);
+// Precache resources for offline mode (VitePWA injectManifest)
+precacheAndRoute(self.__WB_MANIFEST || []);
 
-// ⚠️  Mesma config do main.js — mantida sincronizada
-firebase.initializeApp({
+// ⚠️ Mesma config do main.js — mantida sincronizada
+const firebaseConfig = {
     apiKey: "AIzaSyD7lL5jSj57oLL_wWJWbImUD2Y7TKk3gRI",
     authDomain: "pegafrete-logistica.firebaseapp.com",
     projectId: "pegafrete-logistica",
     storageBucket: "pegafrete-logistica.firebasestorage.app",
     messagingSenderId: "783503103566",
     appId: "1:783503103566:web:840c03b02cda1ba82c151f"
-});
+};
 
-const messaging = firebase.messaging();
+const app = initializeApp(firebaseConfig);
+const messaging = getMessaging(app);
 
 // Força a ativação imediata do novo Service Worker assim que instalado
 self.addEventListener('install', (event) => {
@@ -39,7 +39,7 @@ self.addEventListener('activate', (event) => {
 // ──────────────────────────────────────────────
 //  NOTIFICAÇÕES EM BACKGROUND / APP FECHADO
 // ──────────────────────────────────────────────
-messaging.onBackgroundMessage((payload) => {
+onBackgroundMessage(messaging, (payload) => {
     console.log('[FCM SW] Mensagem em background recebida:', payload);
 
     // Se o payload contiver 'notification', o navegador/SO já exibe a notificação automaticamente.

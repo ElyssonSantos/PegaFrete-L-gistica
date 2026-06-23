@@ -1,12 +1,8 @@
-import { auth } from '../core/firebaseConfig.js';
-import { loginWithEmail, loginWithGooglePopup, sendPasswordReset, signOutUser, deleteUserAccount, sendSMSVerification } from '../core/authService.js';
-import { subscribeToFreights, addFreight, updateFreight, updateFreightStatus, acceptFreight } from '../services/freightService.js';
-import { subscribeToUserProfile, setUserProfile, updateUserProfile, checkPhoneExists, getPublicEmailData, registerPublicEmail, deletePublicEmail } from '../services/userService.js';
-import { logSecurityEvent as logSecurityEventToDB, getSystemConfig, addSystemMessage, subscribeToSystemMessages, markSystemMessagesAsRead } from '../services/systemService.js';
+import { firebase, auth, db, storage } from '../core/firebaseConfig.js';
 import { maskMoney, maskPhone, maskCPF, maskCNPJ } from '../utils/mask.js';
 import { validateEmail, validateCPF, validateCNPJ, checkPasswordRequirements } from '../utils/validators.js';
 import { sanitizeInput, sanitizeHTML } from '../utils/sanitizers.js';
-import { initFCM, requestNotificationPermission, removeFCMToken } from '../core/fcm.js';
+import { initFCM, requestNotificationPermission, removeFCMToken } from './fcm.js';
 
 
 // ====== ZERO TRUST HARDENING ======
@@ -76,7 +72,7 @@ document.addEventListener('keydown', event => {
 // ====== INICIALIZAÇÃO DO FCM ======
 // initFCM prepara o SDK de messaging mas NÃO pede permissão ainda.
 // A permissão só é solicitada após o login do usuário (UX correta).
-initFCM();
+initFCM(db);
 
 // Exibe notificações em foreground usando o toast nativo do app
 window.showFCMNotification = function ({ title, body, icon, data }) {
@@ -141,10 +137,11 @@ async function logSecurityEvent(event, details) {
         // Em produção, isso gravaria no Firestore (coleção security_logs)
         // Apenas o backend ou o próprio usuário pode ler seus logs.
         if (user) {
-            await logSecurityEventToDB({
+            await db.collection('security_logs').add({
                 uid: uid,
                 event: event,
                 details: details,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                 page: window.location.pathname
             });
         }
@@ -314,16 +311,21 @@ window.onload = () => {
                 if (user.email) {
                     const emailKey = user.email.toLowerCase().trim();
                     const providerId = user.providerData[0]?.providerId === 'google.com' ? 'google' : 'password';
-                    registerPublicEmail(emailKey, providerId).catch(err => console.warn("Erro ao salvar public_emails:", err));
+                    db.collection("public_emails").doc(emailKey).set({
+                        provider: providerId
+                    }, { merge: true }).catch(err => console.warn("Erro ao salvar public_emails:", err));
                 }
 
+                const userRef = db.collection("users").doc(user.uid);
+
+                // Add a global variable to store the unubscribe function so we can clean it up
                 if (window.userDocListener) {
                     window.userDocListener();
                 }
 
-                window.userDocListener = subscribeToUserProfile(user.uid, (data) => {
-                    if (data) {
-                        userData = data;
+                window.userDocListener = userRef.onSnapshot((doc) => {
+                    if (doc.exists) {
+                        userData = doc.data();
                         // SE O USUÁRIO FOR ADMIN, ELE É TRATADO COMO EMBARCADOR (SHIPPER) NO APP PRINCIPAL
                         if (userData.role === 'admin') {
                             userData.role = 'shipper';
@@ -396,8 +398,9 @@ async function verificarEmailDisponivel(email) {
     }
 
     try {
-        const data = await getPublicEmailData(emailKey);
-        if (data) {
+        const doc = await db.collection('public_emails').doc(emailKey).get();
+        if (doc.exists) {
+            const data = doc.data();
             return { disponivel: false, provider: data.provider };
         }
     } catch (e) {
@@ -512,12 +515,14 @@ async function finalizarCadastroGoogle() {
     }
 
     // 1. Salva o perfil do usuário no Firestore
-    await setUserProfile(uid, cleanUserData);
+    await db.collection("users").doc(uid).set(cleanUserData);
     userData = cleanUserData;
 
     // 2. Salva em public_emails para controle de login manual
     const emailKey = cleanUserData.email.toLowerCase().trim();
-    await registerPublicEmail(emailKey, 'google').catch(err => console.warn("Erro ao salvar public_emails:", err));
+    await db.collection("public_emails").doc(emailKey).set({
+        provider: 'google'
+    }, { merge: true }).catch(err => console.warn("Erro ao salvar public_emails:", err));
 
     isRegisteringProcess = false;
     preencherPerfil();
@@ -567,12 +572,14 @@ async function handleContinuar(btn) {
 }
 
 async function loginComGoogle(btn) {
+    const provider = new firebase.auth.GoogleAuthProvider();
     const original = btn.innerHTML;
     btn.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Conectando...`;
     btn.disabled = true;
 
     try {
-        const result = await loginWithGooglePopup();
+        // Usa popup para garantir que cookies de terceiros não bloqueiem a sessão
+        const result = await auth.signInWithPopup(provider);
         console.log("Login com popup bem sucedido:", result.user.email);
         // O onAuthStateChanged cuidará do redirecionamento
     } catch (error) {
@@ -596,7 +603,10 @@ function startFreightListener() {
     }
     let isInitialLoad = true;
 
-    freightListenerUnsubscribe = subscribeToFreights((novosDados) => {
+    freightListenerUnsubscribe = db.collection("freights").orderBy("createdAt", "desc").limit(20).onSnapshot((snapshot) => {
+        const novosDados = [];
+        snapshot.forEach(doc => novosDados.push({ id: doc.id, ...doc.data() }));
+
         // Verifica se há novas cargas para notificar (se não for a carga que eu acabei de postar)
         if (!isInitialLoad && fretes.length > 0 && novosDados.length > fretes.length) {
             const ultimaCarga = novosDados[0];
@@ -795,7 +805,8 @@ async function salvarEdicaoFrete(btn) {
 
         if (typeof currentEditId === 'string') {
             // Firestore protegido por Security Rules (ownership check server-side)
-            await updateFreight(currentEditId, updatedData);
+            updatedData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+            await db.collection('freights').doc(currentEditId).update(updatedData);
         }
 
         // Atualiza local (real-time listener will also update)
@@ -837,7 +848,13 @@ async function verificarTelefone(btn) {
     btn.disabled = true;
 
     try {
-        confirmationResult = await sendSMSVerification(phoneInput, 'recaptcha-container');
+        if (!window.recaptchaVerifier) {
+            window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+                'size': 'invisible'
+            });
+        }
+
+        confirmationResult = await auth.signInWithPhoneNumber(phoneInput, window.recaptchaVerifier);
 
         // Ativa cooldown de 60 segundos
         smsSendCooldown = true;
@@ -872,9 +889,9 @@ async function confirmarCodigo(btn) {
         btn.innerHTML = original;
 
         // Agora que o telefone está validado, verificamos se ele já tem um perfil no banco
-        const hasPhone = await checkPhoneExists(tempPhone);
+        const querySnapshot = await db.collection("users").where("telefone", "==", tempPhone).get();
 
-        if (hasPhone) {
+        if (!querySnapshot.empty) {
             // Já tem cadastro, vai pro Login (onde ele põe o email e a senha que ele criou antes)
             // Ou podemos fazer o login direto se ele já tiver email salvo, mas o usuário pediu senha.
             navTo('login');
@@ -916,22 +933,27 @@ async function fazerLogin(btn) {
     loginAttempts++;
 
     try {
-        const authData = await loginWithEmail(email, pass);
+        const userCredential = await auth.signInWithEmailAndPassword(email, pass);
+        const docRef = await db.collection("users").doc(userCredential.user.uid).get();
         btn.innerHTML = original;
 
-        userData = authData.data;
-        // SE O USUÁRIO FOR ADMIN, ELE É TRATADO COMO EMBARCADOR (SHIPPER) NO APP PRINCIPAL
-        if (userData.role === 'admin') {
-            userData.role = 'shipper';
+        if (docRef.exists) {
+            userData = docRef.data();
+            // SE O USUÁRIO FOR ADMIN, ELE É TRATADO COMO EMBARCADOR (SHIPPER) NO APP PRINCIPAL
+            if (userData.role === 'admin') {
+                userData.role = 'shipper';
+            }
+            preencherPerfil();
+            setRole(userData.role || 'driver');
+            showToast('Bem-vindo de volta!');
+        } else {
+            showToast('Perfil de usuário não encontrado.', 'error');
         }
-        preencherPerfil();
-        setRole(userData.role || 'driver');
-        showToast('Bem-vindo de volta!');
     } catch (error) {
         btn.innerHTML = original;
         // SECURITY: Generic error message to prevent credential enumeration
         // Don't distinguish between "user not found" and "wrong password"
-        if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || error.code === 'custom/user-not-found') {
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
             showToast('Credenciais inválidas. Verifique seu e-mail e senha.', 'error');
             // Offer registration option without confirming if email exists
             const registerLink = document.createElement('div');
@@ -1230,8 +1252,8 @@ async function finalizarCadastro(btn) {
         // Verifica Configuração Global de Aprovação Automática (Modo Testes/Homologação)
         if (cleanUserData.role === 'driver') {
             try {
-                const sysConfig = await getSystemConfig();
-                if (sysConfig && sysConfig.autoApproveDrivers === true) {
+                const configDoc = await db.collection("settings").doc("system_config").get();
+                if (configDoc.exists && configDoc.data().autoApproveDrivers === true) {
                     cleanUserData.docStatus = 'Aprovado';
                 }
             } catch (err) {
@@ -1240,12 +1262,14 @@ async function finalizarCadastro(btn) {
         }
 
         // Salva no Firestore
-        await setUserProfile(uid, cleanUserData);
+        await db.collection("users").doc(uid).set(cleanUserData);
         userData = cleanUserData; // Atualiza a variável global
 
         // Salva em public_emails para controle de login manual
         const emailKey = cleanUserData.email.toLowerCase().trim();
-        await registerPublicEmail(emailKey, 'password').catch(err => console.warn("Erro ao salvar public_emails:", err));
+        await db.collection("public_emails").doc(emailKey).set({
+            provider: 'password'
+        }, { merge: true }).catch(err => console.warn("Erro ao salvar public_emails:", err));
 
         isRegisteringProcess = false; // Finaliza o cadastro com sucesso
         btn.innerHTML = original;
@@ -1297,15 +1321,15 @@ async function salvarNovoEmail() {
         await user.updateEmail(novoEmail);
 
         // Atualizar no Firestore users
-        await updateUserProfile(user.uid, {
+        await db.collection('users').doc(user.uid).update({
             email: novoEmail
         });
 
         // Atualizar no public_emails (Remover antigo e adicionar novo)
         const oldEmailKey = userData.email.toLowerCase().trim();
         const newEmailKey = novoEmail.toLowerCase().trim();
-        await deletePublicEmail(oldEmailKey).catch(() => console.warn("old email public_emails delete err"));
-        await registerPublicEmail(newEmailKey, 'password').catch(() => console.warn("new email public_emails err"));
+        await db.collection("public_emails").doc(oldEmailKey).delete().catch(() => console.warn("old email public_emails delete err"));
+        await db.collection("public_emails").doc(newEmailKey).set({ provider: 'password' }, { merge: true }).catch(() => console.warn("new email public_emails err"));
 
         userData.email = novoEmail;
         preencherPerfil();
@@ -1764,8 +1788,9 @@ async function handleProfilePhoto(event) {
         // Otimização: Para evitar erros de CORS e requisições falhas de Storage no console do navegador,
         // salvamos a imagem comprimida em Base64 diretamente no Firestore do usuário.
         const base64Url = await compressImageToBase64(file);
-        await updateUserProfile(auth.currentUser.uid, {
-            foto: base64Url
+        await db.collection("users").doc(auth.currentUser.uid).update({
+            foto: base64Url,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         userData.foto = base64Url;
         preencherPerfil();
@@ -1825,7 +1850,14 @@ async function confirmDeleteAccount() {
         btn.disabled = true;
     }
     try {
-        await deleteUserAccount();
+        const user = auth.currentUser;
+        if (!user) throw new Error("Usuário não autenticado");
+
+        // Attempt to delete user doc in Firestore
+        await db.collection('users').doc(user.uid).delete();
+
+        // Delete auth user
+        await user.delete();
 
         showToast('Sua conta foi excluída permanentemente.', 'success');
 
@@ -1842,7 +1874,7 @@ async function confirmDeleteAccount() {
         if (error.code === 'auth/requires-recent-login') {
             showToast('Para segurança, você precisa fazer login novamente antes de excluir a conta.', 'error');
             setTimeout(() => {
-                signOutUser().then(() => window.location.reload());
+                auth.signOut().then(() => window.location.reload());
             }, 2500);
         } else {
             showToast('Erro ao excluir conta. Tente novamente mais tarde.', 'error');
@@ -1866,7 +1898,7 @@ async function confirmarLogoutExec() {
         const uid = auth.currentUser?.uid;
         if (uid) await removeFCMToken(uid);
 
-        await signOutUser();
+        await auth.signOut();
         navHistory = [];
         currentUserRole = null;
         userData = {};
@@ -1983,7 +2015,8 @@ async function salvarPerfil(btn) {
         }
 
         // Firestore protegido por Security Rules (só permite atualizar campos permitidos)
-        await updateUserProfile(user.uid, updatedData);
+        updatedData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+        await db.collection('users').doc(user.uid).update(updatedData);
         Object.assign(userData, updatedData);
 
         btn.innerHTML = original;
@@ -2126,7 +2159,7 @@ async function confirmDocUpload() {
 
     try {
         const uid = auth.currentUser.uid;
-        let updates = { docStatus: 'Pendente' };
+        let updates = { docStatus: 'Pendente', updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
         let docUrls = userData.documentUrls || {};
 
         // Usa a função global compressImageToBase64 — evita redefinição desnecessária
@@ -2190,7 +2223,7 @@ async function confirmDocUpload() {
         }
         updates.documentStatuses = documentStatuses;
 
-        await updateUserProfile(uid, updates);
+        await db.collection("users").doc(uid).update(updates);
 
         userData.docStatus = 'Pendente';
         userData.documentUrls = docUrls;
@@ -2296,7 +2329,11 @@ async function aceitarFrete(btn) {
     btn.disabled = true;
 
     try {
-        await acceptFreight(freight.id, auth.currentUser.uid);
+        await db.collection('freights').doc(freight.id).update({
+            status: 'transito',
+            driverUid: auth.currentUser.uid,
+            acceptedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
         btn.innerHTML = `<i class="ph-fill ph-check-circle"></i> Viagem Iniciada!`;
         btn.style.background = '#22c55e';
         showToast('Carga confirmada! Motorista registrado no frete.');
@@ -2910,11 +2947,12 @@ async function publicarFrete(btn) {
             urgencia: sanitizeInput(urgencia, 50),
             distancia: distanciaKm ? distanciaKm : 0,
             shipperUid: auth.currentUser.uid,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             distanciaKm,
             duracaoDias
         };
 
-        await addFreight(novoFrete);
+        await db.collection('freights').add(novoFrete);
 
         showToast('Carga publicada com sucesso! Divulgada em tempo real para os motoristas.');
 
@@ -2952,12 +2990,13 @@ function enviarMensagem() {
         input.value = '';
         input.style.height = 'auto';
 
-        addSystemMessage({
+        db.collection("system_messages").add({
             userUid: uid,
             text: text,
             sender: 'Você',
             isMe: true,
-            read: true
+            read: true,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
         }).catch(err => {
             console.error("Erro ao enviar mensagem:", err);
             showToast("Erro ao enviar mensagem.", "error");
@@ -3032,8 +3071,18 @@ function startSystemMessagesListener() {
     const uid = auth.currentUser?.uid;
     if (!uid) return;
 
-    systemMessagesListener = subscribeToSystemMessages(uid, (messages) => {
-        systemMessages = messages;
+    const ref = db.collection("system_messages")
+        .where("userUid", "==", uid);
+
+    systemMessagesListener = ref.onSnapshot(snapshot => {
+        systemMessages = [];
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            systemMessages.push({
+                id: doc.id,
+                ...data
+            });
+        });
 
         // Client-side sort to avoid composite index requirement
         systemMessages.sort((a, b) => {
@@ -3043,12 +3092,13 @@ function startSystemMessagesListener() {
         });
 
         if (systemMessages.length === 0) {
-            addSystemMessage({
+            db.collection("system_messages").add({
                 userUid: uid,
                 text: "Bem-vindo ao canal oficial do Pega Frete! Aqui você receberá avisos importantes, atualizações do aplicativo e notificações sobre suas cargas.",
                 sender: "Pega Frete",
                 isMe: false,
-                read: false
+                read: false,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
             return;
         }
@@ -3118,7 +3168,18 @@ function marcarMensagensComoLidas() {
     const uid = auth.currentUser?.uid;
     if (!uid) return;
 
-    markSystemMessagesAsRead(uid)
+    db.collection("system_messages")
+        .where("userUid", "==", uid)
+        .where("read", "==", false)
+        .get()
+        .then(snapshot => {
+            if (snapshot.empty) return;
+            const batch = db.batch();
+            snapshot.forEach(doc => {
+                batch.update(doc.ref, { read: true });
+            });
+            return batch.commit();
+        })
         .catch(err => console.error("Erro ao marcar mensagens como lidas:", err));
 }
 
@@ -3236,7 +3297,7 @@ window.concluirFrete = function (id) {
     const btn = document.getElementById('confirmActionBtn');
     if (!modal || !btn) {
         // Fallback: executa direto se modal não existir
-        updateFreightStatus(id, 'entregue')
+        db.collection("freights").doc(id).update({ status: 'entregue' })
             .then(() => showToast('Carga concluída com sucesso!'))
             .catch(() => showToast('Erro ao concluir carga.', 'error'));
         return;
@@ -3247,7 +3308,7 @@ window.concluirFrete = function (id) {
     btn.innerText = 'Sim, concluir';
     btn.onclick = async () => {
         try {
-            await updateFreightStatus(id, 'entregue');
+            await db.collection("freights").doc(id).update({ status: 'entregue' });
             showToast('Carga concluída com sucesso!');
         } catch (err) {
             showToast('Erro ao concluir carga.', 'error');
@@ -3267,7 +3328,7 @@ window.cancelarFrete = function (id) {
     const desc = document.getElementById('confirmActionDesc');
     const btn = document.getElementById('confirmActionBtn');
     if (!modal || !btn) {
-        updateFreightStatus(id, 'cancelado')
+        db.collection("freights").doc(id).update({ status: 'cancelado' })
             .then(() => showToast('Carga cancelada!'))
             .catch(() => showToast('Erro ao cancelar carga.', 'error'));
         return;
@@ -3278,7 +3339,7 @@ window.cancelarFrete = function (id) {
     btn.innerText = 'Sim, cancelar';
     btn.onclick = async () => {
         try {
-            await updateFreightStatus(id, 'cancelado');
+            await db.collection("freights").doc(id).update({ status: 'cancelado' });
             showToast('Carga cancelada!');
         } catch (err) {
             showToast('Erro ao cancelar carga.', 'error');
@@ -3324,7 +3385,7 @@ window.recuperarSenha = async function () {
     }
 
     try {
-        await sendPasswordReset(emailVal);
+        await auth.sendPasswordResetEmail(emailVal);
         showToast('E-mail de recuperação enviado! Verifique sua caixa de entrada.', 'success');
     } catch (err) {
         if (err.code === 'auth/user-not-found') {
@@ -3816,8 +3877,9 @@ window.editarSobrenome = async function () {
             return;
         }
 
-        await updateUserProfile(user.uid, {
-            nome: novoNomeCompleto
+        await db.collection('users').doc(user.uid).update({
+            nome: novoNomeCompleto,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
         userData.nome = novoNomeCompleto;

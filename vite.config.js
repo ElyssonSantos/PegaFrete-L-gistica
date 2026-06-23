@@ -31,7 +31,13 @@ export default defineConfig({
   },
   plugins: [
     VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'public',
+      filename: 'firebase-messaging-sw.js',
       registerType: 'autoUpdate',
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}']
+      },
       devOptions: { enabled: false },
       manifest: {
         name: 'PegaFrete Logística',

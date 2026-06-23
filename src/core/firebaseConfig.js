@@ -1,7 +1,7 @@
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import 'firebase/compat/firestore';
-import 'firebase/compat/storage';
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
+import { getFirestore, enableMultiTabIndexedDbPersistence } from "firebase/firestore";
 
 // Configuração do Firebase
 const firebaseConfig = {
@@ -14,14 +14,27 @@ const firebaseConfig = {
     measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-1HL73CW82D"
 };
 
-// Inicializa o Firebase
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+// Modular (Novo padrão V9+)
+export const appModular = initializeApp(firebaseConfig);
+export const authModular = getAuth(appModular);
+export const dbModular = getFirestore(appModular);
+export const storageModular = getStorage(appModular);
+
+// Ativar persistência offline (Múltiplas abas) para evitar que o app pare sem sinal 3G/4G
+try {
+    enableMultiTabIndexedDbPersistence(dbModular).catch((err) => {
+        if (err.code === 'failed-precondition') {
+            console.warn('[Firestore] Persistência falhou: Múltiplas abas abertas.');
+        } else if (err.code === 'unimplemented') {
+            console.warn('[Firestore] Persistência não suportada pelo navegador.');
+        }
+    });
+} catch (e) {
+    console.warn('[Firestore] Erro ao ativar persistência offline:', e);
 }
 
-const auth = firebase.auth();
-const db = firebase.firestore();
-const storage = firebase.storage();
-storage.setMaxUploadRetryTime(3000);
-
-export { firebase, auth, db, storage };
+// Para não quebrar imports existentes em outros arquivos enquanto ajustamos:
+export const firebase = undefined; // Remover dependência final
+export const auth = authModular;
+export const db = dbModular;
+export const storage = storageModular;
