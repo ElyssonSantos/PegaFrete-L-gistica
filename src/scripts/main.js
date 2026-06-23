@@ -4135,6 +4135,22 @@ window.fecharModalPermissoes = function() {
     }
 };
 
+window.abrirBrowserSettingsModal = function() {
+    const modal = document.getElementById('browserSettingsModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        setTimeout(() => { modal.style.opacity = '1'; }, 10);
+    }
+};
+
+window.fecharBrowserSettingsModal = function() {
+    const modal = document.getElementById('browserSettingsModal');
+    if (modal) {
+        modal.style.opacity = '0';
+        setTimeout(() => { modal.style.display = 'none'; }, 300);
+    }
+};
+
 window.atualizarStatusPermissoes = function() {
     const statusNotif = document.getElementById('statusPermNotif');
     const statusLoc = document.getElementById('statusPermLoc');
@@ -4183,6 +4199,15 @@ window.atualizarStatusPermissoes = function() {
 };
 
 window.solicitarPermissaoNotificacao = async function() {
+    if (!('Notification' in window)) {
+        showToast('Seu dispositivo não suporta notificações.', 'error');
+        return;
+    }
+    if (Notification.permission === 'granted' || Notification.permission === 'denied') {
+        abrirBrowserSettingsModal();
+        return;
+    }
+
     if (!auth.currentUser) {
         showToast('Você precisa estar logado.', 'error');
         return;
@@ -4193,6 +4218,7 @@ window.solicitarPermissaoNotificacao = async function() {
     } else {
         if (Notification.permission === 'denied') {
             showToast('As notificações foram bloqueadas no navegador.', 'error');
+            abrirBrowserSettingsModal();
         } else {
             showToast('Não foi possível habilitar notificações.', 'error');
         }
@@ -4205,6 +4231,21 @@ window.solicitarPermissaoLocalizacao = function() {
         showToast('Seu dispositivo não suporta localização.', 'error');
         return;
     }
+
+    if (navigator.permissions) {
+        navigator.permissions.query({ name: 'geolocation' }).then(result => {
+            if (result.state === 'granted' || result.state === 'denied') {
+                abrirBrowserSettingsModal();
+            } else {
+                pedirLocalizacaoBrowser();
+            }
+        });
+    } else {
+        pedirLocalizacaoBrowser();
+    }
+};
+
+function pedirLocalizacaoBrowser() {
     navigator.geolocation.getCurrentPosition(
         (pos) => {
             showToast('Localização habilitada com sucesso!');
@@ -4215,7 +4256,7 @@ window.solicitarPermissaoLocalizacao = function() {
             if (window.atualizarStatusPermissoes) window.atualizarStatusPermissoes();
         }
     );
-};
+}
 
 // ====== PULL-TO-REFRESH ======
 (function initPullToRefresh() {
