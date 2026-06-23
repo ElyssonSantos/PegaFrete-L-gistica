@@ -2673,7 +2673,7 @@ function renderFretes() {
         htmlHome = `
             <div class="empty-feed-card">
                 <div class="empty-icon-circle" style="background: rgba(249, 115, 22, 0.1); color: var(--orange);">
-                    <i class="ph ph-wifi-high-slash"></i>
+                    <i class="ph ph-wifi-slash"></i>
                 </div>
                 <h3>Você está Offline</h3>
                 <p>As cargas não vão aparecer enquanto você não ficar online, pois só assim poderá ver se tem cargas publicadas.</p>
@@ -2755,7 +2755,7 @@ function renderFretes() {
         const driverImg = getDriverImageByTime();
         htmlSearch = `
             <div class="empty-feed-card search-empty-card">
-                <img src="${driverImg}" alt="Motorista PegaFrete" class="empty-state-img" style="filter: grayscale(1); opacity: 0.6;" />
+                <img src="${driverImg}" alt="Motorista PegaFrete" class="empty-state-img" />
                 <h3>Você está Offline</h3>
                 <p>As cargas não vão aparecer enquanto você não ficar online, pois só assim poderá ver se tem cargas publicadas.</p>
             </div>
