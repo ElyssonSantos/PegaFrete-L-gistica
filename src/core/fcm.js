@@ -4,20 +4,26 @@
 // ============================================================
 
 import { appModular as app, dbModular as db } from './firebaseConfig.js';
-import { getMessaging, getToken, onMessage, deleteToken } from "firebase/messaging";
+import { getMessaging, getToken, onMessage, deleteToken, isSupported } from "firebase/messaging";
 import { doc, setDoc, getDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
 
 const VAPID_KEY = 'BOCYZrq8zvdJPRvC95BcavLpVGJpNx4tb3BXLMleQ1O7teHqg_gmTz2GONFrVasf2z1mOekRDrulf7sIZ76Eyr8';
 
 let messaging = null;
 
-export function initFCM() {
+export async function initFCM() {
     if (!('serviceWorker' in navigator)) {
         console.warn('[FCM] Service Worker não suportado neste ambiente.');
         return;
     }
 
     try {
+        const supported = await isSupported();
+        if (!supported) {
+            console.warn('[FCM] Firebase Messaging não é suportado neste navegador/WebView.');
+            return;
+        }
+
         messaging = getMessaging(app);
         _listenForegroundMessages();
     } catch (err) {
