@@ -19,28 +19,36 @@ service firebase.storage {
       // Apenas o dono ou admin pode acessar seus documentos
       allow read: if isOwner(userId) || isAdmin();
       
-      // Validação restrita de tipo de arquivo e limite de tamanho
-      allow write: if isOwner(userId)
+      // Validação estrita de tipo de arquivo e limite de tamanho
+      allow create, update: if isOwner(userId)
                    && request.resource.size < 10 * 1024 * 1024 // Limite 10MB
-                   && request.resource.contentType.matches('image/.*|application/pdf');
+                   && request.resource.contentType in ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+                   
+      allow delete: if isAdmin();
     }
 
     // Proteção de Baixa de Canhotos
     match /canhotos/{freightId}/{fileName} {
-      // Somente admin/cloud functions alteram status, motoristas podem enviar canhoto
-      // Implementar segurança adicional no backend (Function dispara no onFinalize)
+      // Leitura permitida para autenticados (Ideal seria restrito às partes, mas sem cross-rules mantemos a base atual)
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated() 
+      
+      // Apenas inserção. Bloqueamos update para evitar que motoristas falsifiquem/substituam canhotos de terceiros
+      allow create: if isAuthenticated() 
                    && request.resource.size < 10 * 1024 * 1024
-                   && request.resource.contentType.matches('image/.*|application/pdf');
+                   && request.resource.contentType in ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+                   
+      allow update, delete: if isAdmin();
     }
 
     // Fotos de perfil
     match /profiles/{userId}/{fileName} {
       allow read: if isAuthenticated();
-      allow write: if isOwner(userId)
+      
+      allow create, update: if isOwner(userId)
                    && request.resource.size < 5 * 1024 * 1024
-                   && request.resource.contentType.matches('image/.*');
+                   && request.resource.contentType in ['image/jpeg', 'image/png', 'image/webp'];
+                   
+      allow delete: if isOwner(userId) || isAdmin();
     }
   }
 }

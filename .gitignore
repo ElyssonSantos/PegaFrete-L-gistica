@@ -39,4 +39,4 @@ yarn-error.log*
 # === Private Keys ===
 serviceAccountKey.json
 **/serviceAccountKey.json
-
+temp-admin/

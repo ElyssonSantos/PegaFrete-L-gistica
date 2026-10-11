@@ -18,7 +18,33 @@ service cloud.firestore {
     match /users/{userId} {
       // IDOR FIX: Apenas o dono ou Admin pode ler o próprio perfil
       allow read: if isOwner(userId) || isAdmin();
-      allow create, update: if isOwner(userId) || isAdmin();
+
+      // Criação de perfil: Dono ou Admin.
+      // Usuários comuns podem se cadastrar apenas como 'driver' ou 'shipper' e com status inicial 'Pendente' ou 'Documentação Incompleta'.
+      // É estritamente proibido criar perfis com privilégio 'admin', docStatus 'Aprovado', documentStatus 'verified' ou documentStatuses.
+      allow create: if isAdmin()
+                    || (isOwner(userId)
+                        && ('role' in request.resource.data && request.resource.data.role in ['driver', 'shipper'])
+                        && !('admin' in request.resource.data && request.resource.data.admin == true)
+                        && (!('docStatus' in request.resource.data) || request.resource.data.docStatus in ['Pendente', 'Documentação Incompleta'])
+                        && !('documentStatus' in request.resource.data)
+                        && !('documentStatuses' in request.resource.data));
+
+      // Atualização de perfil: Dono ou Admin.
+      // Usuários comuns não podem alterar 'role', adicionar flag 'admin', alterar 'docStatus'/'documentStatus' para estados aprovados/verificados,
+      // nem inserir estados de aprovação no mapa 'documentStatuses'.
+      allow update: if isAdmin()
+                    || (isOwner(userId)
+                        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['admin'])
+                        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']) || request.resource.data.role == resource.data.role)
+                        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['docStatus']) 
+                            || request.resource.data.docStatus in ['Pendente', 'Documentação Incompleta', 'Em Análise'])
+                        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['documentStatus']) 
+                            || request.resource.data.documentStatus == 'pending')
+                        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['documentStatuses']) 
+                            || (request.resource.data.docStatus in ['Pendente', 'Documentação Incompleta', 'Em Análise']
+                                && !request.resource.data.documentStatuses.values().hasAny(['Aprovado', 'verified', 'Reprovado', 'Bloqueado']))));
+
       allow delete: if isAdmin();
       
       // Isolamento de Dados: Subcoleção pública opcional para dados não-sensíveis
@@ -56,10 +82,14 @@ service cloud.firestore {
     }
 
     match /public_emails/{email} {
-      // Leitura aberta para verificar disponibilidade de email no fluxo de cadastro
+      // Leitura aberta para verificar disponibilidade no cadastro
       allow read: if true;
-      // Escrita restrita a usuários autenticados (previne envenenamento anônimo do registro)
-      allow write: if isAuthenticated();
+      // Criação e atualização restritas ao próprio e-mail autenticado
+      allow create, update: if isAuthenticated()
+                            && request.auth.token.email != null
+                            && request.auth.token.email.lower() == email.lower();
+      // Exclusão SOMENTE pelo backend (Admin SDK)
+      allow delete: if false;
     }
 
     match /settings/{settingId} {

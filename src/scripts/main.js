@@ -1280,31 +1280,29 @@ async function salvarNovoEmail() {
     btn.disabled = true;
 
     try {
-        // Verificar se está disponível
-        const check = await verificarEmailDisponivel(novoEmail);
-        if (!check.disponivel) {
-            showToast('Este e-mail já está em uso.', 'error');
-            btn.innerHTML = original;
-            btn.disabled = false;
-            return;
-        }
-
         const user = auth.currentUser;
         if (!user) throw new Error("Usuário não autenticado");
 
-        // Atualizar no Firebase Auth
-        await user.updateEmail(novoEmail);
+        const token = await user.getIdToken();
 
-        // Atualizar no Firestore users
-        await updateUserProfile(user.uid, {
-            email: novoEmail
+        const response = await fetch('https://pegafreteadmin.vercel.app/api/user/change-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ newEmail: novoEmail })
         });
 
-        // Atualizar no public_emails (Remover antigo e adicionar novo)
-        const oldEmailKey = userData.email.toLowerCase().trim();
-        const newEmailKey = novoEmail.toLowerCase().trim();
-        await deletePublicEmail(oldEmailKey).catch(() => console.warn("old email public_emails delete err"));
-        await registerPublicEmail(newEmailKey, 'password').catch(() => console.warn("new email public_emails err"));
+        const data = await response.json();
+
+        if (!response.ok) {
+            if (response.status === 409) {
+                showToast('Este e-mail já está em uso.', 'error');
+                return;
+            }
+            throw new Error(data.error || 'Falha ao atualizar o e-mail');
+        }
 
         userData.email = novoEmail;
         preencherPerfil();
@@ -1320,7 +1318,7 @@ async function salvarNovoEmail() {
                 signOut(auth).then(() => window.location.reload());
             }, 2500);
         } else {
-            showToast('Erro ao atualizar e-mail.', 'error');
+            showToast(error.message || 'Erro ao atualizar e-mail.', 'error');
         }
     } finally {
         if (btn) {
