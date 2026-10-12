@@ -572,8 +572,10 @@ async function loginComGoogle(btn) {
 
     try {
         const result = await loginWithGooglePopup();
-        console.log("Login com popup bem sucedido:", result.user.email);
-        // O onAuthStateChanged cuidará do redirecionamento
+        if (result && result.user) {
+            console.log("Login com popup bem sucedido:", result.user.email);
+        }
+        // Se result for undefined, significa que o signInWithRedirect foi acionado automaticamente
     } catch (error) {
         console.error("Erro no Google Sign-in:", error);
         btn.innerHTML = original;

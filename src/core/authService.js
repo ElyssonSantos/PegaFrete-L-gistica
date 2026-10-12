@@ -1,5 +1,5 @@
 import { authModular as auth, dbModular as db } from './firebaseConfig.js';
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendPasswordResetEmail, signOut, deleteUser, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, GoogleAuthProvider, sendPasswordResetEmail, signOut, deleteUser, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { doc, getDoc, deleteDoc } from "firebase/firestore";
 
 export async function loginWithEmail(email, password) {
@@ -15,7 +15,17 @@ export async function loginWithEmail(email, password) {
 
 export async function loginWithGooglePopup() {
     const provider = new GoogleAuthProvider();
-    return await signInWithPopup(auth, provider);
+    provider.setCustomParameters({ prompt: 'select_account' });
+    try {
+        return await signInWithPopup(auth, provider);
+    } catch (error) {
+        if (error.code === 'auth/popup-blocked' || error.code === 'auth/cancelled-popup-request') {
+            console.warn('[Auth] Popup bloqueado pelo navegador. Redirecionando com signInWithRedirect...');
+            await signInWithRedirect(auth, provider);
+            return;
+        }
+        throw error;
+    }
 }
 
 export async function sendPasswordReset(email) {
