@@ -5,7 +5,7 @@ import { getFirestore, enableMultiTabIndexedDbPersistence } from "firebase/fires
 
 // Configuração do Firebase
 const firebaseConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyD7LL5jSj57oLL_wWJWbImUD2Y7Tkk3gRI",
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyD7lL5jSj57oLL_wWJWbImUD2Y7TKk3gRI",
     authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "pegafrete-logistica.firebaseapp.com",
     projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "pegafrete-logistica",
     storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "pegafrete-logistica.firebasestorage.app",
