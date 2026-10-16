@@ -8,6 +8,7 @@ import { maskMoney, maskPhone, maskCPF, maskCNPJ } from '../utils/mask.js';
 import { validateEmail, validateCPF, validateCNPJ, checkPasswordRequirements } from '../utils/validators.js';
 import { sanitizeInput, sanitizeHTML } from '../utils/sanitizers.js';
 import { initFCM, requestNotificationPermission, removeFCMToken } from '../core/fcm.js';
+import { initAnalytics, trackScreenView, trackButtonClick, trackSectionView, trackEvent } from '../utils/analytics.js';
 
 
 // ====== ZERO TRUST HARDENING ======
@@ -658,6 +659,12 @@ function navTo(id, pushState = true) {
     if (pushState) {
         window.history.pushState({ screen: id }, "", `#${id}`);
     }
+
+    try {
+        trackScreenView(id);
+    } catch (e) {
+        // Silently catch to prevent navigation interference
+    }
 }
 
 function goBack() {
@@ -674,6 +681,7 @@ window.addEventListener('popstate', (event) => {
         document.getElementById(target).classList.add('active');
         window.scrollTo(0, 0);
         updateNavbar(target);
+        try { trackScreenView(target); } catch (e) { }
     } else {
         if (navHistory.length > 1) navHistory.pop();
         const fallback = navHistory[navHistory.length - 1] || 'auth_entry';
@@ -681,6 +689,7 @@ window.addEventListener('popstate', (event) => {
         document.getElementById(fallback).classList.add('active');
         window.scrollTo(0, 0);
         updateNavbar(fallback);
+        try { trackScreenView(fallback); } catch (e) { }
     }
 });
 
@@ -3231,6 +3240,10 @@ window.handleContinuar = handleContinuar;
 window.fazerLogin = fazerLogin;
 window.publicarFrete = publicarFrete;
 window.salvarEdicaoFrete = salvarEdicaoFrete;
+window.trackButtonClick = trackButtonClick;
+window.trackSectionView = trackSectionView;
+window.trackScreenView = trackScreenView;
+window.trackEvent = trackEvent;
 window.concluirFrete = function (id) {
     // Modal de confirmação não-bloqueante em vez do confirm() nativo
     const modal = document.getElementById('confirmActionModal');
@@ -4200,4 +4213,13 @@ function pedirLocalizacaoBrowser() {
         ptrIcon.style.animation = '';
     }
 })();
+
+// ====== INICIALIZAÇÃO DE MÉTRICAS (GOOGLE ANALYTICS) ======
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        try { initAnalytics(); } catch (e) { }
+    });
+} else {
+    try { initAnalytics(); } catch (e) { }
+}
 

@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RN6Q4468WZ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-RN6Q4468WZ');
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Termos e Condições de Uso | PegaFrete</title>
@@ -89,16 +99,16 @@
 <body>
     <a href="index.html" class="back-link">← Voltar para o App</a>
     
-    <div class="container">
+    <div class="container" data-section="Termos e Condições de Uso">
         <h1>Termos e Condições de Uso</h1>
         <div class="subtitle">Última atualização: 26 de Maio de 2026</div>
         
         <p>Bem-vindo ao <strong>PegaFrete</strong>. Ao utilizar nosso aplicativo ou qualquer de nossos serviços, você concorda de forma livre, expressa e informada com todos os termos, obrigações e diretrizes descritos abaixo. Por favor, leia-os com atenção.</p>
         
-        <h2>1. Aceitação e Objeto</h2>
+        <h2 data-section="1. Aceitação e Objeto">1. Aceitação e Objeto</h2>
         <p>Estes termos regem o uso do aplicativo PegaFrete. A plataforma atua exclusivamente como facilitadora de conexões logísticas entre prestadores de serviço de transporte (Transportadores) e solicitantes de envio de cargas (Embarcadores).</p>
         
-        <h2>2. Requisitos de Acesso e Cadastro</h2>
+        <h2 data-section="2. Requisitos de Acesso e Cadastro">2. Requisitos de Acesso e Cadastro</h2>
         <ul>
             <li>O usuário é responsável por fornecer informações precisas, completas e atualizadas durante o cadastro.</li>
             <li>A segurança da senha é de inteira responsabilidade do usuário, devendo esta ser pessoal e intransmissível.</li>
@@ -106,24 +116,71 @@
             <li>Os transportadores cadastrados declaram estar com todos os registros exigidos pela ANTT (Agência Nacional de Transportes Terrestres) ativos e regulares.</li>
         </ul>
         
-        <h2>3. Deveres e Obrigações do Transportador</h2>
+        <h2 data-section="3. Deveres e Obrigações do Transportador">3. Deveres e Obrigações do Transportador</h2>
         <p>O Transportador deve garantir a conformidade e integridade física de seu veículo, possuir habilitação regular compatível e realizar o transporte de forma segura, cumprindo os prazos combinados diretamente com o Embarcador.</p>
         
-        <h2>4. Deveres e Obrigações do Embarcador</h2>
+        <h2 data-section="4. Deveres e Obrigações do Embarcador">4. Deveres e Obrigações do Embarcador</h2>
         <p>O Embarcador deve descrever fielmente a natureza da carga, peso, cubagem e riscos envolvidos. É expressamente proibida a publicação de cargas de cunho ilícito, inflamável, perigoso ou proibido por leis vigentes.</p>
         
-        <h2>5. Isenção de Responsabilidade do PegaFrete</h2>
+        <h2 data-section="5. Isenção de Responsabilidade do PegaFrete">5. Isenção de Responsabilidade do PegaFrete</h2>
         <p>O PegaFrete não assume nenhuma responsabilidade pela qualidade do transporte, extravios, sinistros, avarias ou pelo pagamento acordado entre as partes. A plataforma não participa das negociações financeiras e operacionais.</p>
 
-        <h2>6. Segurança, Conduta e Moderação</h2>
+        <h2 data-section="6. Segurança, Conduta e Moderação">6. Segurança, Conduta e Moderação</h2>
         <p>Os usuários devem zelar pela ética e respeito no chat da plataforma. Qualquer tentativa de fraude, difamação, roubo de dados ou violação de segurança do aplicativo acarretará na suspensão imediata e irrevogável da conta do infrator, sem prejuízo das sanções legais cabíveis.</p>
 
-        <h2>7. Alterações nos Termos</h2>
+        <h2 data-section="7. Alterações nos Termos">7. Alterações nos Termos</h2>
         <p>O PegaFrete reserva-se o direito de alterar estes termos a qualquer momento. A continuação da utilização do aplicativo após a publicação de novos termos constitui aceitação tácita das alterações.</p>
     </div>
 
     <footer>
         &copy; 2026 PegaFrete - Logística Inteligente. Todos os direitos reservados.
     </footer>
+
+    <!-- Google Analytics - Rastreamento de Botões e Seções -->
+    <script>
+        (function() {
+            // Rastreamento de cliques em botões e links
+            document.addEventListener('click', function(e) {
+                var target = e.target.closest('a, button');
+                if (target) {
+                    var label = target.innerText.trim() || target.getAttribute('aria-label') || 'Botão';
+                    if (typeof gtag === 'function') {
+                        gtag('event', 'button_click', {
+                            event_category: 'Button',
+                            button_name: label,
+                            page_path: window.location.pathname,
+                            destination_url: target.getAttribute('href') || undefined
+                        });
+                    }
+                }
+            }, { passive: true });
+
+            // Rastreamento de visualização de seções
+            if ('IntersectionObserver' in window) {
+                var viewed = new Set();
+                var observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting && entry.intersectionRatio >= 0.2) {
+                            var secName = entry.target.getAttribute('data-section') || entry.target.innerText.trim();
+                            if (secName && !viewed.has(secName)) {
+                                viewed.add(secName);
+                                if (typeof gtag === 'function') {
+                                    gtag('event', 'section_view', {
+                                        event_category: 'Section',
+                                        section_name: secName,
+                                        page_path: window.location.pathname
+                                    });
+                                }
+                            }
+                        }
+                    });
+                }, { threshold: [0.2] });
+
+                document.querySelectorAll('[data-section]').forEach(function(el) {
+                    observer.observe(el);
+                });
+            }
+        })();
+    </script>
 </body>
 </html>

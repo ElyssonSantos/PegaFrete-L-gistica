@@ -2,6 +2,16 @@
 <html lang="pt-BR">
 
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RN6Q4468WZ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-RN6Q4468WZ');
+    </script>
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#ea580c" />
@@ -12,7 +22,7 @@
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://unpkg.com https://apis.google.com https://www.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://unpkg.com https://cdn.jsdelivr.net; img-src 'self' data: https: blob:; connect-src 'self' https://unpkg.com https://www.gstatic.com https://apis.google.com https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://servicodados.ibge.gov.br https://nominatim.openstreetmap.org; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com;" />
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.gstatic.com https://unpkg.com https://apis.google.com https://www.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://unpkg.com https://cdn.jsdelivr.net; img-src 'self' data: https: blob:; connect-src 'self' https://*.google-analytics.com https://analytics.google.com https://*.googletagmanager.com https://unpkg.com https://www.gstatic.com https://apis.google.com https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://servicodados.ibge.gov.br https://nominatim.openstreetmap.org; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com;" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -112,7 +122,7 @@
     </div>
 
     <!-- Barra de Navegação Inferior (Global e Fixa) -->
-    <nav id="bottomNav" class="navbar" style="display: none;">
+    <nav id="bottomNav" class="navbar" data-section="Barra de Navegação Inferior" style="display: none;">
         <div class="nav-item" data-target="home" onclick="goHome()">
             <i class="ph ph-house"></i>
             <span>Início</span>
@@ -425,7 +435,7 @@
     </section>
 
     <!-- TELA: ENTRADA DE AUTENTICAÇÃO (NOVA) -->
-    <section id="auth_entry" class="screen">
+    <section id="auth_entry" class="screen" data-section="Boas-Vindas e Acesso">
         <div class="text-center" style="margin-top: 60px; margin-bottom: 40px;">
             <div style="margin-bottom: 32px; display: flex; justify-content: center;">
                 <img src="/PegaFrete.png" alt="PegaFrete Logo" style="height: 120px; width: auto; object-fit: contain;">
@@ -488,7 +498,7 @@
     <section id="otp_verify" class="screen" style="display:none !important;"></section>
 
     <!-- TELA: LOGIN -->
-    <section id="login" class="screen">
+    <section id="login" class="screen" data-section="Entrar na Conta">
         <div class="topbar">
             <button class="back-btn" onclick="navTo('auth_entry')"><i class="ph ph-arrow-left"></i></button>
             <h1 style="font-size: 22px;">Fazer Login</h1>
@@ -528,7 +538,7 @@
     </section>
 
     <!-- TELA: ESCOLHA DE PERFIL -->
-    <section id="choice" class="screen">
+    <section id="choice" class="screen" data-section="Escolha de Perfil">
         <style>
             @keyframes modalScaleIn {
                 from {
@@ -627,7 +637,7 @@
     </section>
 
     <!-- TELA: CADASTRO EMBARCADOR -->
-    <section id="register_shipper" class="screen">
+    <section id="register_shipper" class="screen" data-section="Cadastro de Embarcador">
         <div class="topbar">
             <button class="back-btn" onclick="navTo('choice')"><i class="ph ph-arrow-left"></i></button>
             <h1 style="font-size: 22px;">Cadastro Embarcador</h1>
@@ -674,7 +684,7 @@
     </section>
 
     <!-- TELA: CADASTRO TRANSPORTADOR -->
-    <section id="register_driver" class="screen">
+    <section id="register_driver" class="screen" data-section="Cadastro de Motorista">
         <div class="topbar">
             <button class="back-btn" onclick="navTo('choice')"><i class="ph ph-arrow-left"></i></button>
             <h1 style="font-size: 22px;">Cadastro Transportador</h1>
@@ -717,7 +727,7 @@
     </section>
 
     <!-- TELA: CADASTRO VEÍCULO (TRANSPORTADOR) -->
-    <section id="register_vehicle" class="screen">
+    <section id="register_vehicle" class="screen" data-section="Cadastro de Veículo">
         <div class="topbar">
             <button class="back-btn" onclick="navTo('register_driver')"><i class="ph ph-arrow-left"></i></button>
             <h1 style="font-size: 22px;">Seu Veículo</h1>
@@ -776,7 +786,7 @@
     </section>
 
     <!-- TELA: CADASTRO DOCUMENTOS (TRANSPORTADOR) -->
-    <section id="register_driver_docs" class="screen">
+    <section id="register_driver_docs" class="screen" data-section="Documentos do Motorista">
         <div class="topbar">
             <button class="back-btn" onclick="navTo('register_vehicle')"><i class="ph ph-arrow-left"></i></button>
             <h1 style="font-size: 22px;">Documentação</h1>
@@ -836,7 +846,7 @@
     </section>
 
     <!-- TELA: CRIAÇÃO DE SENHA -->
-    <section id="register_password" class="screen">
+    <section id="register_password" class="screen" data-section="Criação de Senha">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
             <h1 style="font-size: 22px;">Criar Senha</h1>
@@ -903,8 +913,8 @@
     </section>
 
     <!-- TELA: DASHBOARD MOTORISTA (HOME) -->
-    <section id="driver" class="screen driver-home-screen">
-        <header class="driver-home-header">
+    <section id="driver" class="screen driver-home-screen" data-section="Painel do Motorista">
+        <header class="driver-home-header" data-section="Cabeçalho do Motorista">
             <div class="driver-greeting-info">
                 <h1 id="driverHomeGreeting">Olá</h1>
                 <p>Pronto para pegar a estrada?</p>
@@ -915,7 +925,7 @@
         </header>
 
         <!-- Status Banner -->
-        <section class="driver-status-section">
+        <section class="driver-status-section" data-section="Status de Disponibilidade">
             <div id="driverStatusBox" class="driver-status-card offline">
                 <div class="driver-status-indicator" id="driverStatusIndicator">
                     <span class="status-indicator-dot"></span>
@@ -928,7 +938,7 @@
         </section>
 
         <!-- Featured Feed Title -->
-        <div class="driver-feed-header">
+        <div class="driver-feed-header" data-section="Cargas em Destaque">
             <h2>Cargas em Destaque</h2>
             <button class="btn-view-all" onclick="navTo('freights_search')">Ver todas</button>
         </div>
@@ -940,7 +950,7 @@
     </section>
 
     <!-- TELA: BUSCA DE CARGAS (SEARCH LIST) -->
-    <section id="freights_search" class="screen">
+    <section id="freights_search" class="screen" data-section="Buscar Fretes">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
             <h1>Buscar Cargas</h1>
@@ -962,7 +972,7 @@
     </section>
 
     <!-- TELA: DASHBOARD EMBARCADOR -->
-    <section id="shipper" class="screen">
+    <section id="shipper" class="screen" data-section="Painel do Embarcador">
         <div class="topbar">
             <div>
                 <h1 id="shipperCompanyName" style="font-size: 24px; color: var(--primary);">Distribuidora XPTO</h1>
@@ -993,7 +1003,7 @@
     </section>
 
     <!-- TELA: ANUNCIAR CARGA -->
-    <section id="shipper_publish" class="screen" style="padding: 0; background: #fff; min-height: 100vh;">
+    <section id="shipper_publish" class="screen" data-section="Publicar Frete" style="padding: 0; background: #fff; min-height: 100vh;">
         <!-- Header minimal for Focused View -->
         <header
             style="display: flex; align-items: center; padding: 16px; border-bottom: 1.5px solid var(--border); background: #fff; position: sticky; top: 0; z-index: 10;">
@@ -1283,7 +1293,7 @@
     </section>
 
     <!-- TELA: HISTÓRICO DE ENVIOS (Menu Inferior Embarcador) -->
-    <section id="shipper_history" class="screen">
+    <section id="shipper_history" class="screen" data-section="Histórico de Cargas">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
             <h1>Histórico de Cargas</h1>
@@ -1303,7 +1313,7 @@
     </section>
 
     <!-- TELA: DETALHES DA CARGA -->
-    <section id="freightDetails" class="screen">
+    <section id="freightDetails" class="screen" data-section="Detalhes do Frete">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
             <h1>Detalhes da Carga</h1>
@@ -1384,7 +1394,7 @@
     </section>
 
 
-    <section id="terms_screen" class="screen" style="padding-bottom: 120px; background: #fdfaf6;">
+    <section id="terms_screen" class="screen" data-section="Termos de Uso" style="padding-bottom: 120px; background: #fdfaf6;">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
             <h1 style="font-size: 20px; font-weight: 800;">Termos de Uso</h1>
@@ -1426,7 +1436,7 @@
         </div>
     </section>
 
-    <section id="privacy_screen" class="screen" style="padding-bottom: 120px; background: #fdfaf6;">
+    <section id="privacy_screen" class="screen" data-section="Política de Privacidade" style="padding-bottom: 120px; background: #fdfaf6;">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
             <h1 style="font-size: 20px; font-weight: 800;">Privacidade</h1>
@@ -1449,7 +1459,7 @@
         </div>
     </section>
 
-    <section id="about_screen" class="screen" style="padding-bottom: 120px; background: #fdfaf6;">
+    <section id="about_screen" class="screen" data-section="Sobre a Plataforma" style="padding-bottom: 120px; background: #fdfaf6;">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
             <h1 style="font-size: 24px; font-weight: 800;">Sobre</h1>
@@ -1474,7 +1484,7 @@
     </section>
 
     <!-- TELA: PERFIL / CONFIGURAÇÕES -->
-    <section id="profile" class="screen" style="padding-bottom: 120px;">
+    <section id="profile" class="screen" data-section="Perfil e Configurações" style="padding-bottom: 120px;">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
             <h1 style="font-size: 20px; font-weight: 800;">Configurações</h1>
@@ -2217,7 +2227,7 @@
     </section>
 
     <!-- TELA: FINANCEIRO -->
-    <section id="financial" class="screen">
+    <section id="financial" class="screen" data-section="Painel Financeiro">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
             <h1>Carteira Digital</h1>
@@ -2251,7 +2261,7 @@
     </section>
 
     <!-- TELA: CHAT LIST (Lista de Conversas) -->
-    <section id="chat" class="screen chat-list-screen">
+    <section id="chat" class="screen chat-list-screen" data-section="Lista de Conversas">
         <div class="topbar"
             style="justify-content: flex-start; gap: 12px; padding: 24px 16px 16px 16px; border: none; background: transparent; height: auto;">
             <h1 style="font-size: 28px; font-weight: 800; color: var(--text-main);">Mensagens</h1>
@@ -2314,7 +2324,7 @@
     </section>
 
     <!-- TELA: CHAT DETAIL (Conversa Interna) -->
-    <section id="chat_detail" class="screen chat-screen">
+    <section id="chat_detail" class="screen chat-screen" data-section="Conversa Detalhada">
         <header class="chat-header"
             style="padding: 10px 16px; border-bottom: 1px solid rgba(0,0,0,0.06); box-shadow: 0 4px 20px rgba(0,0,0,0.02);">
             <div class="chat-header-info">
@@ -2378,7 +2388,7 @@
     </style>
 
     <!-- TELA: ATENDIMENTO -->
-    <section id="support" class="screen">
+    <section id="support" class="screen" data-section="Central de Atendimento">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
             <h1 style="font-size: 20px; font-weight: 800;">Fale com a gente</h1>
@@ -2410,7 +2420,7 @@
     </section>
 
     <!-- TELA: SOBRE O APP -->
-    <section id="about_app" class="screen">
+    <section id="about_app" class="screen" data-section="Sobre o Aplicativo">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
             <h1 style="font-size: 20px; font-weight: 800;">Sobre o aplicativo</h1>
@@ -2460,7 +2470,7 @@
     </section>
 
     <!-- TELA: PERGUNTAS FREQUENTES (FAQ) -->
-    <section id="faq" class="screen">
+    <section id="faq" class="screen" data-section="Perguntas Frequentes">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
             <h1 style="font-size: 20px; font-weight: 800;">Perguntas Frequentes</h1>
@@ -2658,7 +2668,7 @@
     </section>
 
     <!-- TELA: POLíTICA DE COOKIES -->
-    <section id="cookies_screen" class="screen">
+    <section id="cookies_screen" class="screen" data-section="Política de Cookies">
         <div class="topbar">
             <button class="back-btn" onclick="goBack()"><i class="ph ph-arrow-left"></i></button>
             <h1 style="font-size: 20px; font-weight: 800;">Política de Cookies</h1>

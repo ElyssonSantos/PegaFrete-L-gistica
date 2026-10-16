@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-RN6Q4468WZ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-RN6Q4468WZ');
+  </script>
+
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>PegaFrete - Dashboard Administrativo</title>
@@ -801,7 +811,40 @@
            l.classList.remove('text-brand-blue', 'bg-blue-50', 'font-semibold');
         }
       });
+
+      // Google Analytics - Rastreamento de Mudança de Seção no Dashboard Admin
+      if (typeof gtag === 'function') {
+        const titles = { stats:'Visão Geral', users:'Usuários', freights:'Fretes', documents:'Documentos', notifications:'Notificações', logs:'Logs de Segurança', setup:'Configurar Admin' };
+        const sectionTitle = titles[id] || id;
+        gtag('event', 'page_view', {
+          page_title: `Admin - ${sectionTitle} | PegaFrete`,
+          page_path: `/dashboard#${id}`
+        });
+        gtag('event', 'section_view', {
+          event_category: 'Admin Section',
+          section_name: sectionTitle,
+          page_path: `/dashboard#${id}`
+        });
+      }
     };
+
+    // Google Analytics - Rastreamento Global de Cliques em Botões
+    document.addEventListener('click', function(e) {
+      var target = e.target.closest('button, a, input[type="button"], input[type="submit"]');
+      if (target) {
+        var label = target.innerText.trim() || target.getAttribute('aria-label') || target.getAttribute('title') || target.id || 'Botão';
+        var currentSection = activeSection || 'Geral';
+        if (typeof gtag === 'function') {
+          gtag('event', 'button_click', {
+            event_category: 'Button',
+            button_name: label,
+            button_id: target.id || undefined,
+            section: currentSection,
+            page_path: window.location.pathname
+          });
+        }
+      }
+    }, { passive: true });
   </script>
 </body>
 </html>
